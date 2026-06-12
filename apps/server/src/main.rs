@@ -3,6 +3,8 @@ use tracing_subscriber::EnvFilter;
 mod api;
 mod config;
 mod db;
+mod models;
+mod services;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -12,10 +14,10 @@ async fn main() -> anyhow::Result<()> {
 
     let config = config::Config::from_env();
 
-    let _pool = db::create_pool(&config.database_url).await?;
+    let pool = db::create_pool(&config.database_url).await?;
     tracing::info!("Database connected");
 
-    let app = api::router();
+    let app = api::router(pool, &config);
 
     let addr = format!("{}:{}", config.server_host, config.server_port);
     tracing::info!("Server listening on {}", addr);
