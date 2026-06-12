@@ -1011,6 +1011,7 @@ dependencies = [
  "axum",
  "bcrypt",
  "chrono",
+ "futures",
  "jsonwebtoken",
  "redis",
  "serde",

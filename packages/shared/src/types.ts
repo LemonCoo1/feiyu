@@ -69,3 +69,60 @@ export interface WsMessage<T = unknown> {
   request_id?: string;
   timestamp: number;
 }
+
+// === Phase 2: 会话与消息 ===
+
+export interface ConversationMember {
+  conversation_id: string;
+  user_id: string;
+  joined_at: string;
+}
+
+export interface CreateConversationRequest {
+  type: "direct" | "group";
+  name?: string;
+  member_ids: string[];
+}
+
+export interface ConversationWithLastMessage extends Conversation {
+  last_message: Message | null;
+  unread_count: number;
+  other_user?: User;
+}
+
+export interface SendMessageRequest {
+  conversation_id: string;
+  content_type: "text" | "image" | "file";
+  content: Record<string, unknown>;
+}
+
+export interface WsAuthPayload {
+  token: string;
+}
+
+export interface WsAuthOkPayload {
+  user_id: string;
+}
+
+export interface WsMessageSendPayload {
+  conversation_id: string;
+  content_type: "text" | "image" | "file";
+  content: Record<string, unknown>;
+  client_msg_id: string;
+}
+
+export interface WsMessageDeliverPayload {
+  message: Message;
+  conversation_id: string;
+}
+
+export interface WsMessageAckPayload {
+  client_msg_id: string;
+  server_msg_id: string;
+  conversation_id: string;
+}
+
+export interface WsPresencePayload {
+  user_id: string;
+  status: "online" | "offline" | "away";
+}

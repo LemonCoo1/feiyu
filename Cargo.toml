@@ -32,6 +32,9 @@ sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres",
 jsonwebtoken = "9"
 bcrypt = "0.16"
 
+# Async
+futures = "0.3"
+
 # Redis
 redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
 

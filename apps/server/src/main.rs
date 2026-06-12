@@ -5,6 +5,7 @@ mod config;
 mod db;
 mod models;
 mod services;
+mod ws;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
