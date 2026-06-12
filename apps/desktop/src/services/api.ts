@@ -57,4 +57,31 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ user1_id: user1Id, user2_id: user2Id }),
     }),
+
+  getContacts: () =>
+    request<any[]>("/api/contacts"),
+
+  addContact: (contactId: string) =>
+    request<void>("/api/contacts", {
+      method: "POST",
+      body: JSON.stringify({ contact_id: contactId }),
+    }),
+
+  removeContact: (contactId: string) =>
+    request<void>("/api/contacts", {
+      method: "DELETE",
+      body: JSON.stringify({ contact_id: contactId }),
+    }),
+
+  searchUsers: (query: string) =>
+    request<any[]>(`/api/users/search?q=${encodeURIComponent(query)}`),
+
+  getUser: (userId: string) =>
+    request<any>(`/api/users/${userId}`),
+
+  updateProfile: (data: { display_name?: string; avatar_url?: string }) =>
+    request<any>("/api/users/profile", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 };

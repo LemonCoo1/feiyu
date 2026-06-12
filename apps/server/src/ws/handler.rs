@@ -38,6 +38,19 @@ async fn handle_socket(mut socket: WebSocket, pool: PgPool, hub: Hub, jwt_secret
                             })
                             .unwrap();
                             let _ = socket.send(Message::Text(ok.into())).await;
+
+                            // Update user status to online and broadcast to contacts
+                            let _ = crate::services::user::update_status(&pool, uid, "online").await;
+                            let contact_ids = crate::services::contact::get_contact_ids(&pool, uid).await.unwrap_or_default();
+                            let presence = serde_json::to_string(&WsServerMessage::PresenceUpdate {
+                                user_id: uid,
+                                status: "online".to_string(),
+                            })
+                            .unwrap();
+                            for cid in &contact_ids {
+                                hub.send_to_user(cid, &presence).await;
+                            }
+
                             break;
                         }
                         Err(e) => {
@@ -104,6 +117,18 @@ async fn handle_socket(mut socket: WebSocket, pool: PgPool, hub: Hub, jwt_secret
 
     // Cleanup
     hub.disconnect(&user_id).await;
+
+    // Update user status to offline and broadcast to contacts
+    let _ = crate::services::user::update_status(&pool, user_id, "offline").await;
+    let contact_ids = crate::services::contact::get_contact_ids(&pool, user_id).await.unwrap_or_default();
+    let presence = serde_json::to_string(&WsServerMessage::PresenceUpdate {
+        user_id,
+        status: "offline".to_string(),
+    })
+    .unwrap();
+    for cid in &contact_ids {
+        hub.send_to_user(cid, &presence).await;
+    }
 }
 
 async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &Hub) {

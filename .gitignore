@@ -30,3 +30,6 @@ miniodata/
 
 # Superpowers brainstorm
 .superpowers/
+
+# Codegraph
+.codegraph/

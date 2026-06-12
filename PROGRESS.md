@@ -25,22 +25,14 @@
 - [x] Task 5: 聊天 UI 组件 — 三栏布局、会话列表、消息气泡、输入框
 - [x] Task 6: 端到端集成测试 — 注册/创建会话/WS 发送消息/消息持久化验证通过
 
+### Phase 3: 用户体系（2026-06-12）
+- [x] Task 1: 后端 — 用户 API 扩展 — 搜索、资料编辑、状态更新
+- [x] Task 2: 后端 — 联系人 API — 添加、列表、删除、在线状态广播
+- [x] Task 3: 前端 — 通讯录页面 — contactStore、ContactList、AddContact
+- [x] Task 4: 前端 — 在线状态集成 — WS presence 广播
+- [x] Task 5: 端到端验证 — 搜索/添加联系人/更新资料/重复添加验证通过
+
 ## 待办
-
-### Phase 3: 用户体系
-- [ ] Task 1: 协议与模型定义
-- [ ] Task 2: WebSocket Hub
-- [ ] Task 3: 会话与消息服务 + REST API
-- [ ] Task 4: 前端状态管理与 API 服务
-- [ ] Task 5: 聊天 UI 组件
-- [ ] Task 6: 端到端集成测试
-
-### Phase 3: 用户体系
-- [ ] Task 1: 后端 — 用户 API 扩展
-- [ ] Task 2: 后端 — 联系人 API
-- [ ] Task 3: 前端 — 通讯录页面
-- [ ] Task 4: 前端 — 在线状态集成
-- [ ] Task 5: 端到端验证
 
 ### Phase 4: 频道功能
 - [ ] Task 1: 后端 — 频道模型与服务

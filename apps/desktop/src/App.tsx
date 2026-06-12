@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { NavSidebar } from "./components/sidebar/NavSidebar";
 import { ConversationList } from "./components/conversation/ConversationList";
 import { ChatWindow } from "./components/chat/ChatWindow";
+import { ContactList } from "./components/contact/ContactList";
 import { useAuthStore } from "./stores/authStore";
 import { useChatStore } from "./stores/chatStore";
+import { useContactStore } from "./stores/contactStore";
 import { useWebSocket } from "./hooks/useWebSocket";
 
 type NavView = "messages" | "contacts" | "channels" | "settings";
@@ -16,6 +18,7 @@ function App() {
   const login = useAuthStore((s) => s.login);
   const register = useAuthStore((s) => s.register);
   const loadConversations = useChatStore((s) => s.loadConversations);
+  const loadContacts = useContactStore((s) => s.loadContacts);
 
   useWebSocket();
 
@@ -26,6 +29,7 @@ function App() {
   useEffect(() => {
     if (user) {
       loadConversations();
+      loadContacts();
     }
   }, [user]);
 
@@ -42,10 +46,10 @@ function App() {
           <ChatWindow />
         </>
       )}
-      {activeView !== "messages" && (
+      {activeView === "contacts" && <ContactList />}
+      {activeView !== "messages" && activeView !== "contacts" && (
         <div className="flex-1 bg-feiyu-bg flex items-center justify-center">
           <span className="text-feiyu-text-muted">
-            {activeView === "contacts" && "通讯录 - 开发中"}
             {activeView === "channels" && "频道 - 开发中"}
             {activeView === "settings" && "设置 - 开发中"}
           </span>
