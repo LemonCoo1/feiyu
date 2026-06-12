@@ -33,6 +33,7 @@ interface ChatState {
   loadMessages: (conversationId: string) => Promise<void>;
   setActiveConversation: (id: string | null) => void;
   sendMessage: (conversationId: string, content: string) => void;
+  sendFile: (conversationId: string, file: File) => Promise<void>;
   addIncomingMessage: (message: Message) => void;
   createGroup: (name: string, memberIds: string[]) => Promise<void>;
 }
@@ -74,6 +75,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   sendMessage: (conversationId, content) => {
     wsClient.sendMessage(conversationId, "text", { text: content });
+  },
+
+  sendFile: async (conversationId, file) => {
+    try {
+      const result = await api.uploadFile(file);
+      const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+      const content = isImage
+        ? { url: `${window.location.protocol}//${window.location.hostname}:3000${result.url}`, filename: file.name, type: "image" }
+        : { url: `${window.location.protocol}//${window.location.hostname}:3000${result.url}`, filename: file.name, type: "file" };
+      wsClient.sendMessage(conversationId, isImage ? "image" : "file", content);
+    } catch (e) {
+      console.error("Failed to upload file:", e);
+    }
   },
 
   addIncomingMessage: (message) => {

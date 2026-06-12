@@ -62,6 +62,8 @@ export function ChannelView() {
             <MessageBubble
               key={msg.id}
               content={content}
+              contentType={msg.content_type}
+              rawContent={msg.content}
               time={new Date(msg.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
               isOwn={msg.sender_id === user?.id}
               senderName={msg.sender_id === user?.id ? "我" : "他人"}

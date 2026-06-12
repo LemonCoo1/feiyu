@@ -26,6 +26,30 @@ async function request<T>(
   return res.json();
 }
 
+async function uploadFile(file: File): Promise<{ url: string; filename: string }> {
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}/api/files/upload`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+
+  return res.json();
+}
+
 export const api = {
   register: (data: {
     username: string;
@@ -110,4 +134,6 @@ export const api = {
     if (before) params.set("before", before);
     return request<any[]>(`/api/channels/${channelId}/messages?${params}`);
   },
+
+  uploadFile,
 };

@@ -39,6 +39,8 @@ export function MessageList() {
           <MessageBubble
             key={msg.id}
             content={text}
+            contentType={msg.content_type}
+            rawContent={content}
             time={formatTime(msg.created_at)}
             isOwn={msg.sender_id === user?.id}
             senderName={msg.sender_id === user?.id ? "我" : "对方"}

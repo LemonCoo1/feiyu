@@ -1,10 +1,12 @@
-import { useState, KeyboardEvent } from "react";
+import { useState, useRef, KeyboardEvent } from "react";
 import { useChatStore } from "../../stores/chatStore";
 
 export function MessageInput() {
   const [text, setText] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const activeId = useChatStore((s) => s.activeConversationId);
   const sendMessage = useChatStore((s) => s.sendMessage);
+  const sendFile = useChatStore((s) => s.sendFile);
 
   const handleSend = () => {
     if (!text.trim() || !activeId) return;
@@ -19,14 +21,40 @@ export function MessageInput() {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeId) return;
+    await sendFile(activeId, file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   if (!activeId) return null;
 
   return (
     <div className="border-t border-feiyu-border px-5 py-3">
       <div className="flex items-center gap-2 mb-2 text-feiyu-text-muted">
         <button className="hover:text-feiyu-text transition-colors text-lg" title="表情">😊</button>
-        <button className="hover:text-feiyu-text transition-colors text-lg" title="附件">📎</button>
-        <button className="hover:text-feiyu-text transition-colors text-lg" title="图片">📷</button>
+        <button
+          className="hover:text-feiyu-text transition-colors text-lg"
+          title="附件"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          📎
+        </button>
+        <button
+          className="hover:text-feiyu-text transition-colors text-lg"
+          title="图片"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          📷
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={handleFileChange}
+          className="hidden"
+          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.txt"
+        />
       </div>
       <div className="flex gap-2">
         <textarea

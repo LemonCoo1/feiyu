@@ -2,6 +2,7 @@ pub mod auth;
 pub mod channels;
 pub mod contacts;
 pub mod conversations;
+pub mod files;
 pub mod messages;
 pub mod users;
 
@@ -12,6 +13,7 @@ use axum::{
 use sqlx::PgPool;
 
 use crate::config::Config;
+use crate::services::file::FileService;
 use crate::ws::hub::Hub;
 
 #[derive(Clone)]
@@ -19,15 +21,18 @@ pub struct AppState {
     pub pool: PgPool,
     pub config: Config,
     pub hub: Hub,
+    pub file_service: FileService,
 }
 
 pub fn router(pool: PgPool, config: &Config) -> Router {
     let hub = Hub::new();
+    let file_service = FileService::new("./uploads");
 
     let state = AppState {
         pool,
         config: config.clone(),
         hub,
+        file_service,
     };
 
     Router::new()
@@ -51,6 +56,8 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
         .route("/api/channels", get(channels::list))
         .route("/api/channels/{channel_id}/join", post(channels::join))
         .route("/api/channels/{channel_id}/messages", get(channels::get_messages))
+        .route("/api/files/upload", post(files::upload))
+        .route("/api/files/{filename}", get(files::download))
         .route("/api/ws", get(crate::ws::handler::ws_handler))
         .with_state(state)
 }
