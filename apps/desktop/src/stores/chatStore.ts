@@ -30,6 +30,8 @@ interface ChatState {
   typingUsers: Map<string, Set<string>>;
   searchResults: Message[];
   isSearching: boolean;
+  isLoadingConvs: boolean;
+  isLoadingMsgs: boolean;
 
   loadConversations: () => Promise<void>;
   loadMessages: (conversationId: string) => Promise<void>;
@@ -49,26 +51,32 @@ export const useChatStore = create<ChatState>((set, get) => ({
   typingUsers: new Map(),
   searchResults: [],
   isSearching: false,
+  isLoadingConvs: false,
+  isLoadingMsgs: false,
 
   loadConversations: async () => {
+    set({ isLoadingConvs: true });
     try {
       const convs = await api.getConversations();
-      set({ conversations: convs });
+      set({ conversations: convs, isLoadingConvs: false });
     } catch (e) {
       console.error("Failed to load conversations:", e);
+      set({ isLoadingConvs: false });
     }
   },
 
   loadMessages: async (conversationId) => {
+    set({ isLoadingMsgs: true });
     try {
       const msgs = await api.getMessages(conversationId);
       set((state) => {
         const newMessages = new Map(state.messages);
         newMessages.set(conversationId, msgs.reverse());
-        return { messages: newMessages };
+        return { messages: newMessages, isLoadingMsgs: false };
       });
     } catch (e) {
       console.error("Failed to load messages:", e);
+      set({ isLoadingMsgs: false });
     }
   },
 

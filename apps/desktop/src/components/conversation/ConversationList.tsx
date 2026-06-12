@@ -9,6 +9,7 @@ export function ConversationList() {
   const [groupName, setGroupName] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const conversations = useChatStore((s) => s.conversations);
+  const isLoadingConvs = useChatStore((s) => s.isLoadingConvs);
   const activeId = useChatStore((s) => s.activeConversationId);
   const setActive = useChatStore((s) => s.setActiveConversation);
   const createGroup = useChatStore((s) => s.createGroup);
@@ -60,7 +61,19 @@ export function ConversationList() {
         </button>
       </div>
       <div className="flex-1 overflow-y-auto">
-        {conversations.length === 0 ? (
+        {isLoadingConvs ? (
+          <div className="space-y-0">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="px-3 py-2 flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-lg bg-gray-200 skeleton-pulse flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="h-3.5 w-24 bg-gray-200 rounded skeleton-pulse mb-1.5" />
+                  <div className="h-3 w-36 bg-gray-200 rounded skeleton-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : conversations.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-feiyu-text-muted text-sm">
             暂无会话
           </div>
