@@ -145,6 +145,14 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             content,
             client_msg_id,
         } => {
+            // Ensure conversation members are registered in the hub
+            let members = crate::services::conversation::get_members(pool, conversation_id)
+                .await
+                .unwrap_or_default();
+            if !members.is_empty() {
+                hub.register_conversation(conversation_id, members).await;
+            }
+
             let result = sqlx::query_as::<_, DbMessage>(
                 r#"
                 INSERT INTO messages (id, conversation_id, sender_id, content_type, content)

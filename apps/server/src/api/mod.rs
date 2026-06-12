@@ -36,6 +36,7 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
         .route("/api/auth/login", post(auth::login))
         .route("/api/conversations", get(conversations::list))
         .route("/api/conversations/direct", post(conversations::create_direct))
+        .route("/api/conversations/group", post(conversations::create_group))
         .route(
             "/api/conversations/{conversation_id}/messages",
             get(messages::get_history),

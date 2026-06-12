@@ -84,6 +84,41 @@ pub async fn list_for_user(
     Ok(conversations)
 }
 
+pub async fn create_group(
+    pool: &PgPool,
+    creator_id: Uuid,
+    name: &str,
+    member_ids: &[Uuid],
+) -> Result<Conversation, ConversationError> {
+    let conv = sqlx::query_as::<_, Conversation>(
+        r#"
+        INSERT INTO conversations (id, type, name)
+        VALUES (gen_random_uuid(), 'group', $1)
+        RETURNING *
+        "#,
+    )
+    .bind(name)
+    .fetch_one(pool)
+    .await?;
+
+    let mut all_members = vec![creator_id];
+    all_members.extend_from_slice(member_ids);
+    all_members.sort();
+    all_members.dedup();
+
+    for member_id in &all_members {
+        sqlx::query(
+            "INSERT INTO conversation_members (conversation_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+        )
+        .bind(conv.id)
+        .bind(member_id)
+        .execute(pool)
+        .await?;
+    }
+
+    Ok(conv)
+}
+
 pub async fn get_members(
     pool: &PgPool,
     conversation_id: Uuid,

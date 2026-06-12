@@ -34,6 +34,7 @@ interface ChatState {
   setActiveConversation: (id: string | null) => void;
   sendMessage: (conversationId: string, content: string) => void;
   addIncomingMessage: (message: Message) => void;
+  createGroup: (name: string, memberIds: string[]) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -89,5 +90,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       return { messages: newMessages, conversations: convs };
     });
+  },
+
+  createGroup: async (name, memberIds) => {
+    try {
+      const conv = await api.createGroupConversation(name, memberIds);
+      await get().loadConversations();
+      get().setActiveConversation(conv.id);
+    } catch (e) {
+      console.error("Failed to create group:", e);
+    }
   },
 }));

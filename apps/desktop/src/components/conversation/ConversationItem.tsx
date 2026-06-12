@@ -6,6 +6,7 @@ interface ConversationItemProps {
   time: string;
   active?: boolean;
   unread?: number;
+  isGroup?: boolean;
   onClick?: () => void;
 }
 
@@ -15,6 +16,7 @@ export function ConversationItem({
   time,
   active,
   unread,
+  isGroup,
   onClick,
 }: ConversationItemProps) {
   return (
@@ -29,7 +31,12 @@ export function ConversationItem({
       <Avatar name={name} />
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-feiyu-text truncate">{name}</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            {isGroup && (
+              <span className="text-blue-500 text-xs flex-shrink-0">群</span>
+            )}
+            <span className="text-sm font-medium text-feiyu-text truncate">{name}</span>
+          </div>
           <span className="text-[11px] text-feiyu-text-muted flex-shrink-0 ml-2">{time}</span>
         </div>
         <div className="text-xs text-feiyu-text-secondary truncate mt-0.5">

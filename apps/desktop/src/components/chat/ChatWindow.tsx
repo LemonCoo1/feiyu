@@ -7,8 +7,11 @@ export function ChatWindow() {
   const conversations = useChatStore((s) => s.conversations);
 
   const conv = conversations.find((c) => c.id === activeId);
+  const isGroup = conv?.type === "group";
   const title = conv
-    ? conv.other_display_name || conv.other_username || conv.name || "未知"
+    ? isGroup
+      ? (conv.name || "群聊")
+      : (conv.other_display_name || conv.other_username || conv.name || "未知")
     : "";
 
   if (!activeId) {
@@ -24,7 +27,10 @@ export function ChatWindow() {
       {/* Header */}
       <div className="px-5 py-3 border-b border-feiyu-border bg-white flex justify-between items-center">
         <div>
-          <span className="font-medium text-feiyu-text">{title}</span>
+          <div className="flex items-center gap-1.5">
+            {isGroup && <span className="text-blue-500 text-xs">群</span>}
+            <span className="font-medium text-feiyu-text">{title}</span>
+          </div>
         </div>
       </div>
       {/* Messages */}

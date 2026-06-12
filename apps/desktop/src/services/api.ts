@@ -58,6 +58,12 @@ export const api = {
       body: JSON.stringify({ user1_id: user1Id, user2_id: user2Id }),
     }),
 
+  createGroupConversation: (name: string, memberIds: string[]) =>
+    request<any>("/api/conversations/group", {
+      method: "POST",
+      body: JSON.stringify({ name, member_ids: memberIds }),
+    }),
+
   getContacts: () =>
     request<any[]>("/api/contacts"),
 

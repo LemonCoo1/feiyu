@@ -35,6 +35,24 @@ pub async fn create_direct(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
 }
 
+#[derive(serde::Deserialize)]
+pub struct CreateGroupRequest {
+    pub name: String,
+    pub member_ids: Vec<Uuid>,
+}
+
+pub async fn create_group(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Json(req): Json<CreateGroupRequest>,
+) -> Result<Json<crate::models::conversation::Conversation>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    conversation::create_group(&state.pool, user_id, &req.name, &req.member_ids)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
 fn extract_user_id(headers: &HeaderMap, jwt_secret: &str) -> Result<Uuid, (StatusCode, String)> {
     let auth_header = headers
         .get("authorization")
