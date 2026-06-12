@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+target/
+
+# Build outputs
+dist/
+release/
+*.exe
+*.dmg
+*.AppImage
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Tauri
+*.pdb
+*.wixpdb
+
+# Docker volumes
+pgdata/
+miniodata/
+
+# Superpowers brainstorm
+.superpowers/

@@ -1,0 +1,12 @@
+{
+  "name": "feiyu",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @feiyu/desktop dev",
+    "build": "pnpm --filter @feiyu/desktop build",
+    "server": "cargo run -p feiyu-server"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
