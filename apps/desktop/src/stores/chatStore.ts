@@ -28,6 +28,8 @@ interface ChatState {
   messages: Map<string, Message[]>;
   activeConversationId: string | null;
   typingUsers: Map<string, Set<string>>;
+  searchResults: Message[];
+  isSearching: boolean;
 
   loadConversations: () => Promise<void>;
   loadMessages: (conversationId: string) => Promise<void>;
@@ -36,6 +38,8 @@ interface ChatState {
   sendFile: (conversationId: string, file: File) => Promise<void>;
   addIncomingMessage: (message: Message) => void;
   createGroup: (name: string, memberIds: string[]) => Promise<void>;
+  searchMessages: (query: string) => Promise<void>;
+  clearSearch: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -43,6 +47,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   messages: new Map(),
   activeConversationId: null,
   typingUsers: new Map(),
+  searchResults: [],
+  isSearching: false,
 
   loadConversations: async () => {
     try {
@@ -115,4 +121,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
       console.error("Failed to create group:", e);
     }
   },
+
+  searchMessages: async (query) => {
+    if (!query.trim()) {
+      set({ searchResults: [], isSearching: false });
+      return;
+    }
+    set({ isSearching: true });
+    try {
+      const results = await api.searchMessages(query);
+      set({ searchResults: results, isSearching: false });
+    } catch (e) {
+      console.error("Search failed:", e);
+      set({ isSearching: false });
+    }
+  },
+
+  clearSearch: () => set({ searchResults: [], isSearching: false }),
 }));

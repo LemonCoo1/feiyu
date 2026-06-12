@@ -46,3 +46,29 @@ pub async fn get_history(
 
     Ok(messages)
 }
+
+pub async fn search(
+    pool: &PgPool,
+    user_id: Uuid,
+    query: &str,
+    limit: i64,
+) -> Result<Vec<Message>, MessageError> {
+    let pattern = format!("%{}%", query);
+    let messages = sqlx::query_as::<_, Message>(
+        r#"
+        SELECT m.* FROM messages m
+        JOIN conversation_members cm ON m.conversation_id = cm.conversation_id
+        WHERE cm.user_id = $1
+          AND m.content::text ILIKE $2
+        ORDER BY m.created_at DESC
+        LIMIT $3
+        "#,
+    )
+    .bind(user_id)
+    .bind(&pattern)
+    .bind(limit)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(messages)
+}

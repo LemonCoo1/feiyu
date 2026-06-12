@@ -29,6 +29,25 @@ pub async fn get_history(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
 }
 
+#[derive(Deserialize)]
+pub struct SearchQuery {
+    pub q: String,
+    pub limit: Option<i64>,
+}
+
+pub async fn search_messages(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Query(query): Query<SearchQuery>,
+) -> Result<Json<Vec<Message>>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    let limit = query.limit.unwrap_or(20).min(50);
+    message::search(&state.pool, user_id, &query.q, limit)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
 fn extract_user_id(headers: &HeaderMap, jwt_secret: &str) -> Result<Uuid, (StatusCode, String)> {
     let auth_header = headers
         .get("authorization")

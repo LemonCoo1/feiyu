@@ -136,4 +136,7 @@ export const api = {
   },
 
   uploadFile,
+
+  searchMessages: (query: string, limit = 20) =>
+    request<any[]>(`/api/messages/search?q=${encodeURIComponent(query)}&limit=${limit}`),
 };
