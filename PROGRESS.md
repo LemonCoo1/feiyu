@@ -39,12 +39,10 @@
 - [x] Task 4: 前端 — 频道 UI 组件 — ChannelList、ChannelView
 - [x] Task 5: 端到端验证 — 创建频道/加入/WS 发送/消息持久化验证通过
 
-## 待办
-
-### Phase 5: 完善与优化
-- [ ] Task 1: 群聊功能
-- [ ] Task 2: 文件/图片消息
-- [ ] Task 3: 消息搜索
-- [ ] Task 4: 通知提醒
-- [ ] Task 5: UI 打磨
-- [ ] Task 6: 最终集成与验收
+### Phase 5: 完善与优化（2026-06-12）
+- [x] Task 1: 群聊功能 — create_group 服务 + API + 前端创建群聊 UI
+- [x] Task 2: 文件/图片消息 — 文件上传服务 + API + 前端上传与渲染
+- [x] Task 3: 消息搜索 — PostgreSQL ILIKE 搜索 + API + 前端搜索栏
+- [x] Task 4: 通知提醒 — Tauri notification 插件 + 浏览器通知
+- [x] Task 5: UI 打磨 — 飞书风格主题、时间分隔线、自动高度输入框、滚动按钮、骨架屏
+- [x] Task 6: 最终集成与验收 — 全量编译通过
