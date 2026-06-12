@@ -34,3 +34,4 @@ bcrypt = "0.16"
 
 # Redis
 redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+
