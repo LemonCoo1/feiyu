@@ -9,6 +9,7 @@ use uuid::Uuid;
 use super::hub::Hub;
 use super::protocol::{WsClientMessage, WsServerMessage};
 use crate::api::AppState;
+use crate::models::channel::ChannelMessage as DbChannelMessage;
 use crate::models::message::Message as DbMessage;
 
 pub async fn ws_handler(
@@ -215,6 +216,58 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             })
             .unwrap();
             hub.send_to_conversation(&conversation_id, &user_id, &typing).await;
+        }
+        WsClientMessage::ChannelMessageSend {
+            channel_id,
+            content_type,
+            content,
+            parent_message_id,
+            client_msg_id,
+        } => {
+            let result = sqlx::query_as::<_, DbChannelMessage>(
+                r#"
+                INSERT INTO channel_messages (id, channel_id, sender_id, content_type, content, parent_message_id)
+                VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
+                RETURNING *
+                "#,
+            )
+            .bind(channel_id)
+            .bind(user_id)
+            .bind(&content_type)
+            .bind(&content)
+            .bind(parent_message_id)
+            .fetch_one(pool)
+            .await;
+
+            match result {
+                Ok(db_msg) => {
+                    let ack = serde_json::to_string(&WsServerMessage::ChannelMessageAck {
+                        client_msg_id: client_msg_id.clone(),
+                        server_msg_id: db_msg.id,
+                        channel_id,
+                    })
+                    .unwrap();
+                    hub.send_to_user(&user_id, &ack).await;
+
+                    let deliver = serde_json::to_string(&WsServerMessage::ChannelMessageDeliver {
+                        message: db_msg,
+                        channel_id,
+                    })
+                    .unwrap();
+                    // Broadcast to all channel members except sender
+                    let member_ids = crate::services::channel::get_member_ids(pool, channel_id)
+                        .await
+                        .unwrap_or_default();
+                    for mid in &member_ids {
+                        if *mid != user_id {
+                            hub.send_to_user(mid, &deliver).await;
+                        }
+                    }
+                }
+                Err(e) => {
+                    tracing::error!("Failed to save channel message: {}", e);
+                }
+            }
         }
         _ => {}
     }

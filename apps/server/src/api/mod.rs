@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod channels;
 pub mod contacts;
 pub mod conversations;
 pub mod messages;
@@ -45,6 +46,10 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
         .route("/api/contacts", get(contacts::list))
         .route("/api/contacts", post(contacts::add))
         .route("/api/contacts", delete(contacts::remove))
+        .route("/api/channels", post(channels::create))
+        .route("/api/channels", get(channels::list))
+        .route("/api/channels/{channel_id}/join", post(channels::join))
+        .route("/api/channels/{channel_id}/messages", get(channels::get_messages))
         .route("/api/ws", get(crate::ws::handler::ws_handler))
         .with_state(state)
 }

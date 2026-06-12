@@ -3,9 +3,12 @@ import { NavSidebar } from "./components/sidebar/NavSidebar";
 import { ConversationList } from "./components/conversation/ConversationList";
 import { ChatWindow } from "./components/chat/ChatWindow";
 import { ContactList } from "./components/contact/ContactList";
+import { ChannelList } from "./components/channel/ChannelList";
+import { ChannelView } from "./components/channel/ChannelView";
 import { useAuthStore } from "./stores/authStore";
 import { useChatStore } from "./stores/chatStore";
 import { useContactStore } from "./stores/contactStore";
+import { useChannelStore } from "./stores/channelStore";
 import { useWebSocket } from "./hooks/useWebSocket";
 
 type NavView = "messages" | "contacts" | "channels" | "settings";
@@ -19,6 +22,7 @@ function App() {
   const register = useAuthStore((s) => s.register);
   const loadConversations = useChatStore((s) => s.loadConversations);
   const loadContacts = useContactStore((s) => s.loadContacts);
+  const loadChannels = useChannelStore((s) => s.loadChannels);
 
   useWebSocket();
 
@@ -30,6 +34,7 @@ function App() {
     if (user) {
       loadConversations();
       loadContacts();
+      loadChannels();
     }
   }, [user]);
 
@@ -47,10 +52,15 @@ function App() {
         </>
       )}
       {activeView === "contacts" && <ContactList />}
-      {activeView !== "messages" && activeView !== "contacts" && (
+      {activeView === "channels" && (
+        <>
+          <ChannelList />
+          <ChannelView />
+        </>
+      )}
+      {activeView !== "messages" && activeView !== "contacts" && activeView !== "channels" && (
         <div className="flex-1 bg-feiyu-bg flex items-center justify-center">
           <span className="text-feiyu-text-muted">
-            {activeView === "channels" && "频道 - 开发中"}
             {activeView === "settings" && "设置 - 开发中"}
           </span>
         </div>

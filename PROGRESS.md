@@ -32,14 +32,14 @@
 - [x] Task 4: 前端 — 在线状态集成 — WS presence 广播
 - [x] Task 5: 端到端验证 — 搜索/添加联系人/更新资料/重复添加验证通过
 
-## 待办
+### Phase 4: 频道功能（2026-06-12）
+- [x] Task 1: 后端 — 频道模型与服务 — Channel/ChannelMessage 模型、CRUD
+- [x] Task 2: 后端 — 频道 REST API 与 WebSocket — 创建/加入/消息/WS 频道消息广播
+- [x] Task 3: 前端 — 频道 Store 与 API — channelStore、频道 API
+- [x] Task 4: 前端 — 频道 UI 组件 — ChannelList、ChannelView
+- [x] Task 5: 端到端验证 — 创建频道/加入/WS 发送/消息持久化验证通过
 
-### Phase 4: 频道功能
-- [ ] Task 1: 后端 — 频道模型与服务
-- [ ] Task 2: 后端 — 频道 REST API 与 WebSocket
-- [ ] Task 3: 前端 — 频道 Store 与 API
-- [ ] Task 4: 前端 — 频道 UI 组件
-- [ ] Task 5: 端到端验证
+## 待办
 
 ### Phase 5: 完善与优化
 - [ ] Task 1: 群聊功能

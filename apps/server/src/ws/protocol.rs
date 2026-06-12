@@ -21,6 +21,15 @@ pub enum WsClientMessage {
         message_id: Uuid,
     },
 
+    #[serde(rename = "channel.message.send")]
+    ChannelMessageSend {
+        channel_id: Uuid,
+        content_type: String,
+        content: serde_json::Value,
+        parent_message_id: Option<Uuid>,
+        client_msg_id: String,
+    },
+
     #[serde(rename = "typing.start")]
     TypingStart { conversation_id: Uuid },
 
@@ -48,6 +57,19 @@ pub enum WsServerMessage {
         client_msg_id: String,
         server_msg_id: Uuid,
         conversation_id: Uuid,
+    },
+
+    #[serde(rename = "channel.message.deliver")]
+    ChannelMessageDeliver {
+        message: crate::models::channel::ChannelMessage,
+        channel_id: Uuid,
+    },
+
+    #[serde(rename = "channel.message.ack")]
+    ChannelMessageAck {
+        client_msg_id: String,
+        server_msg_id: Uuid,
+        channel_id: Uuid,
     },
 
     #[serde(rename = "presence.update")]

@@ -84,4 +84,24 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  getChannels: () =>
+    request<any[]>("/api/channels"),
+
+  createChannel: (name: string, description?: string) =>
+    request<any>("/api/channels", {
+      method: "POST",
+      body: JSON.stringify({ name, description }),
+    }),
+
+  joinChannel: (channelId: string) =>
+    request<void>(`/api/channels/${channelId}/join`, {
+      method: "POST",
+    }),
+
+  getChannelMessages: (channelId: string, limit = 50, before?: string) => {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (before) params.set("before", before);
+    return request<any[]>(`/api/channels/${channelId}/messages?${params}`);
+  },
 };
