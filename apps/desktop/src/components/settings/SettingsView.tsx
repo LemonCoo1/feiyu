@@ -387,36 +387,143 @@ function LanguageSection() {
 // ============================================================
 function StorageSection() {
   const { t } = useTranslation();
-  const { cacheStats, loadCacheStats, clearAllCache } = useSettingsStore();
-  const [cleared, setCleared] = useState(false);
+  const {
+    cacheStats,
+    loadCacheStats,
+    clearMessageCache,
+    clearMediaCache,
+    clearConversationCache,
+    clearContactCache,
+    clearChannelCache,
+    clearAllCache,
+  } = useSettingsStore();
+  const [clearedMsg, setClearedMsg] = useState<string | null>(null);
 
-  // 加载缓存统计
   useEffect(() => {
     loadCacheStats();
   }, [loadCacheStats]);
 
-  const handleClearCache = async () => {
-    await clearAllCache();
-    setCleared(true);
-    setTimeout(() => setCleared(false), 3000);
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
+
+  const handleClear = async (label: string, clearFn: () => Promise<void>) => {
+    if (!window.confirm(t("storageSection.clearConfirm"))) return;
+    await clearFn();
+    setClearedMsg(label);
+    setTimeout(() => setClearedMsg(null), 3000);
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm(t("storageSection.clearAllConfirm"))) return;
+    await clearAllCache();
+    setClearedMsg(t("storageSection.clearAll"));
+    setTimeout(() => setClearedMsg(null), 3000);
+  };
+
+  const cacheItems = [
+    {
+      label: t("storageSection.messages"),
+      desc: t("storageSection.messagesDesc"),
+      count: cacheStats.messages.count,
+      unit: t("storageSection.items"),
+      size: cacheStats.messages.sizeBytes,
+      onClear: () => handleClear(t("storageSection.messages"), clearMessageCache),
+    },
+    {
+      label: t("storageSection.media"),
+      desc: t("storageSection.mediaDesc"),
+      count: cacheStats.media.count,
+      unit: t("storageSection.files"),
+      size: cacheStats.media.sizeBytes,
+      onClear: () => handleClear(t("storageSection.media"), clearMediaCache),
+    },
+    {
+      label: t("storageSection.conversations"),
+      desc: t("storageSection.conversationsDesc"),
+      count: cacheStats.conversations.count,
+      unit: t("storageSection.items"),
+      size: cacheStats.conversations.sizeBytes,
+      onClear: () => handleClear(t("storageSection.conversations"), clearConversationCache),
+    },
+    {
+      label: t("storageSection.contacts"),
+      desc: t("storageSection.contactsDesc"),
+      count: cacheStats.contacts.count,
+      unit: t("storageSection.people"),
+      size: cacheStats.contacts.sizeBytes,
+      onClear: () => handleClear(t("storageSection.contacts"), clearContactCache),
+    },
+    {
+      label: t("storageSection.channels"),
+      desc: t("storageSection.channelsDesc"),
+      count: cacheStats.channels.count,
+      unit: t("storageSection.units"),
+      size: cacheStats.channels.sizeBytes,
+      onClear: () => handleClear(t("storageSection.channels"), clearChannelCache),
+    },
+  ];
 
   return (
     <div>
       <h3 className="text-lg font-bold text-feiyu-text mb-6">{t("settings.storageSection.title")}</h3>
-      <div className="space-y-4">
-        <div className="bg-gray-50 rounded-xl p-4">
-          <div className="text-sm font-medium text-feiyu-text mb-1">{t("settings.storageSection.messageCache")}</div>
-          <div className="text-2xl font-bold text-feiyu-text">{cacheStats.messageCount}</div>
-          <div className="text-xs text-feiyu-text-muted mt-1">{t("settings.storageSection.messageCacheDesc")}</div>
+      <div className="space-y-3">
+        {cacheItems.map((item) => (
+          <div key={item.label} className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-feiyu-text">{item.label}</div>
+              <div className="text-xs text-feiyu-text-muted mt-0.5">{item.desc}</div>
+              <div className="text-xs text-feiyu-text-secondary mt-1">
+                {item.count} {item.unit} · {formatBytes(item.size)}
+              </div>
+            </div>
+            <button
+              onClick={item.onClear}
+              className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              {t("settings.storageSection.clearCache")}
+            </button>
+          </div>
+        ))}
+
+        {/* 总计 */}
+        <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <div className="text-sm font-medium text-feiyu-text">{t("storageSection.total")}</div>
+            <div className="text-lg font-bold text-feiyu-text">{formatBytes(cacheStats.totalSizeBytes)}</div>
+          </div>
+          <button
+            onClick={handleClearAll}
+            className="bg-red-50 text-red-600 hover:bg-red-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
+          >
+            {t("storageSection.clearAll")}
+          </button>
         </div>
-        <button
-          onClick={handleClearCache}
-          className="bg-red-50 text-red-600 hover:bg-red-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors"
-        >
-          {t("settings.storageSection.clearCache")}
-        </button>
-        {cleared && <span className="text-sm text-green-600 ml-3">{t("settings.storageSection.cacheCleared")}</span>}
+
+        {/* 自动清理策略 */}
+        <div className="pt-4 border-t border-feiyu-border">
+          <h4 className="text-sm font-medium text-feiyu-text mb-3">{t("storageSection.autoCleanup")}</h4>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-feiyu-text-secondary">
+              <span className="text-green-500">✓</span>
+              <span>{t("storageSection.autoCleanupMedia")}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-feiyu-text-secondary">
+              <span className="text-green-500">✓</span>
+              <span>{t("storageSection.autoCleanupStartup")}</span>
+            </div>
+          </div>
+        </div>
+
+        {clearedMsg && (
+          <p className="text-sm text-green-600">
+            {clearedMsg} {t("settings.storageSection.cacheCleared")}
+          </p>
+        )}
       </div>
     </div>
   );
