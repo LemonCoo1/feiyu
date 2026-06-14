@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { api } from "../services/api";
 import i18n from "../i18n";
+import * as cacheService from "../services/cacheService";
 
 interface Settings {
   notify_message: boolean;
@@ -58,14 +59,18 @@ const defaultSettings: Settings = {
 interface SettingsState {
   settings: Settings;
   isLoading: boolean;
+  cacheStats: { messageCount: number; totalSize: number };
   loadSettings: () => Promise<void>;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<string | null>;
+  loadCacheStats: () => Promise<void>;
+  clearAllCache: () => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
   settings: defaultSettings,
   isLoading: false,
+  cacheStats: { messageCount: 0, totalSize: 0 },
 
   loadSettings: async () => {
     set({ isLoading: true });
@@ -111,5 +116,15 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     } catch (e: any) {
       return e.message || i18n.t("settings.securitySection.changeFailed");
     }
+  },
+
+  loadCacheStats: async () => {
+    const stats = await cacheService.getCacheStats();
+    set({ cacheStats: stats });
+  },
+
+  clearAllCache: async () => {
+    await cacheService.clearAllCache();
+    set({ cacheStats: { messageCount: 0, totalSize: 0 } });
   },
 }));

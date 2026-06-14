@@ -202,6 +202,8 @@
       "title": "Storage",
       "localCache": "Local Cache",
       "cacheDesc": "Includes conversation list, message cache, etc.",
+      "messageCache": "Cached Messages",
+      "messageCacheDesc": "Number of locally cached messages in SQLite",
       "clearCache": "Clear Cache",
       "cacheCleared": "Cache cleared"
     },

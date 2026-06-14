@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "../common/Avatar";
 import { useAuthStore } from "../../stores/authStore";
@@ -387,28 +387,18 @@ function LanguageSection() {
 // ============================================================
 function StorageSection() {
   const { t } = useTranslation();
+  const { cacheStats, loadCacheStats, clearAllCache } = useSettingsStore();
   const [cleared, setCleared] = useState(false);
 
-  const handleClearCache = () => {
-    // 清除 localStorage 中的缓存数据（保留 token 和 user）
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-    localStorage.clear();
-    if (token) localStorage.setItem("token", token);
-    if (user) localStorage.setItem("user", user);
+  // 加载缓存统计
+  useEffect(() => {
+    loadCacheStats();
+  }, [loadCacheStats]);
+
+  const handleClearCache = async () => {
+    await clearAllCache();
     setCleared(true);
     setTimeout(() => setCleared(false), 3000);
-  };
-
-  const getCacheSize = () => {
-    let total = 0;
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key) {
-        total += (localStorage.getItem(key)?.length || 0) * 2; // UTF-16
-      }
-    }
-    return (total / 1024).toFixed(1);
   };
 
   return (
@@ -416,9 +406,9 @@ function StorageSection() {
       <h3 className="text-lg font-bold text-feiyu-text mb-6">{t("settings.storageSection.title")}</h3>
       <div className="space-y-4">
         <div className="bg-gray-50 rounded-xl p-4">
-          <div className="text-sm font-medium text-feiyu-text mb-1">{t("settings.storageSection.localCache")}</div>
-          <div className="text-2xl font-bold text-feiyu-text">{getCacheSize()} KB</div>
-          <div className="text-xs text-feiyu-text-muted mt-1">{t("settings.storageSection.cacheDesc")}</div>
+          <div className="text-sm font-medium text-feiyu-text mb-1">{t("settings.storageSection.messageCache")}</div>
+          <div className="text-2xl font-bold text-feiyu-text">{cacheStats.messageCount}</div>
+          <div className="text-xs text-feiyu-text-muted mt-1">{t("settings.storageSection.messageCacheDesc")}</div>
         </div>
         <button
           onClick={handleClearCache}

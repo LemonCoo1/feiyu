@@ -202,6 +202,8 @@
       "title": "存储管理",
       "localCache": "本地缓存",
       "cacheDesc": "包括会话列表、消息缓存等",
+      "messageCache": "已缓存消息",
+      "messageCacheDesc": "SQLite 本地消息缓存条数",
       "clearCache": "清除缓存",
       "cacheCleared": "缓存已清除"
     },
