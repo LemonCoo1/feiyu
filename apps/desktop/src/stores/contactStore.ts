@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { api } from "../services/api";
+import * as cacheService from "../services/cacheService";
 
 interface User {
   id: string;
@@ -22,7 +23,7 @@ interface ContactState {
   updatePresence: (userId: string, status: string) => void;
 }
 
-export const useContactStore = create<ContactState>((set) => ({
+export const useContactStore = create<ContactState>((set, get) => ({
   contacts: [],
   searchResults: [],
   isLoading: false,
@@ -30,11 +31,21 @@ export const useContactStore = create<ContactState>((set) => ({
   loadContacts: async () => {
     set({ isLoading: true });
     try {
+      // 1. 先读本地缓存
+      const cached = await cacheService.getCachedContacts();
+      if (cached.length > 0) {
+        set({ contacts: cached, isLoading: false });
+      }
+      // 2. 从服务器拉取最新
       const contacts = await api.getContacts();
       set({ contacts, isLoading: false });
+      // 3. 写入缓存
+      await cacheService.cacheContacts(contacts);
     } catch (e) {
       console.error("Failed to load contacts:", e);
-      set({ isLoading: false });
+      if (get().contacts.length === 0) {
+        set({ isLoading: false });
+      }
     }
   },
 
