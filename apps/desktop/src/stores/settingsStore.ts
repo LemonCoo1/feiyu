@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { api } from "../services/api";
 import i18n from "../i18n";
 import * as cacheService from "../services/cacheService";
+import type { DetailedCacheStats } from "../services/cacheService";
 
 interface Settings {
   notify_message: boolean;
@@ -59,18 +60,30 @@ const defaultSettings: Settings = {
 interface SettingsState {
   settings: Settings;
   isLoading: boolean;
-  cacheStats: { messageCount: number; totalSize: number };
+  cacheStats: DetailedCacheStats;
   loadSettings: () => Promise<void>;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
   changePassword: (oldPassword: string, newPassword: string) => Promise<string | null>;
   loadCacheStats: () => Promise<void>;
   clearAllCache: () => Promise<void>;
+  clearMessageCache: () => Promise<void>;
+  clearMediaCache: () => Promise<void>;
+  clearConversationCache: () => Promise<void>;
+  clearContactCache: () => Promise<void>;
+  clearChannelCache: () => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
   settings: defaultSettings,
   isLoading: false,
-  cacheStats: { messageCount: 0, totalSize: 0 },
+  cacheStats: {
+    messages: { count: 0, sizeBytes: 0 },
+    conversations: { count: 0, sizeBytes: 0 },
+    contacts: { count: 0, sizeBytes: 0 },
+    channels: { count: 0, sizeBytes: 0 },
+    media: { count: 0, sizeBytes: 0 },
+    totalSizeBytes: 0,
+  },
 
   loadSettings: async () => {
     set({ isLoading: true });
@@ -119,12 +132,37 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
 
   loadCacheStats: async () => {
-    const stats = await cacheService.getCacheStats();
+    const stats = await cacheService.getDetailedCacheStats();
     set({ cacheStats: stats });
   },
 
   clearAllCache: async () => {
     await cacheService.clearAllCache();
-    set({ cacheStats: { messageCount: 0, totalSize: 0 } });
+    get().loadCacheStats();
+  },
+
+  clearMessageCache: async () => {
+    await cacheService.clearMessageCache();
+    get().loadCacheStats();
+  },
+
+  clearMediaCache: async () => {
+    await cacheService.clearMediaCache();
+    get().loadCacheStats();
+  },
+
+  clearConversationCache: async () => {
+    await cacheService.clearConversationCache();
+    get().loadCacheStats();
+  },
+
+  clearContactCache: async () => {
+    await cacheService.clearContactCache();
+    get().loadCacheStats();
+  },
+
+  clearChannelCache: async () => {
+    await cacheService.clearChannelCache();
+    get().loadCacheStats();
   },
 }));
