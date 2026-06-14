@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import i18n from "../i18n";
 import { wsClient } from "../services/ws";
+import type { ConnectionStatus } from "../services/ws";
 import { useChatStore } from "../stores/chatStore";
 import { useContactStore } from "../stores/contactStore";
 import { useChannelStore } from "../stores/channelStore";
@@ -69,4 +70,15 @@ export function useWebSocket() {
       wsClient.off("message.read", handleReadNotify);
     };
   }, [addIncomingMessage, updateLastRead, updatePresence, addChannelMessage]);
+}
+
+export function useConnectionStatus(): ConnectionStatus {
+  const [status, setStatus] = useState<ConnectionStatus>('connected');
+
+  useEffect(() => {
+    wsClient.onStatusChange(setStatus);
+    return () => wsClient.offStatusChange(setStatus);
+  }, []);
+
+  return status;
 }

@@ -2,10 +2,13 @@ import { useState, useRef, useCallback, useEffect, ClipboardEvent, KeyboardEvent
 import { useTranslation } from "react-i18next";
 import { useChatStore } from "../../stores/chatStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useConnectionStatus } from "../../hooks/useWebSocket";
 import { EmojiPicker } from "./EmojiPicker";
 
 export function MessageInput() {
   const { t } = useTranslation();
+  const connectionStatus = useConnectionStatus();
+  const isDisconnected = connectionStatus !== 'connected';
   const [text, setText] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -173,14 +176,15 @@ export function MessageInput() {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          placeholder={t("chat.inputPlaceholder")}
+          placeholder={isDisconnected ? t("connection.waiting") : t("chat.inputPlaceholder")}
+          disabled={isDisconnected}
           rows={1}
-          className="flex-1 bg-gray-50 border border-feiyu-border rounded-xl px-3 py-2.5 text-sm text-feiyu-text resize-none focus:outline-none focus:border-feiyu-primary focus:ring-1 focus:ring-feiyu-primary/20 overflow-y-auto placeholder:text-gray-400 scrollbar-none"
+          className="flex-1 bg-gray-50 border border-feiyu-border rounded-xl px-3 py-2.5 text-sm text-feiyu-text resize-none focus:outline-none focus:border-feiyu-primary focus:ring-1 focus:ring-feiyu-primary/20 overflow-y-auto placeholder:text-gray-400 scrollbar-none disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ maxHeight: "200px" }}
         />
         <button
           onClick={handleSend}
-          disabled={!text.trim() && !pendingFile}
+          disabled={isDisconnected || (!text.trim() && !pendingFile)}
           className="bg-feiyu-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
         >
           {t("chat.send")}
