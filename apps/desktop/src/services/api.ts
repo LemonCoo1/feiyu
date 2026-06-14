@@ -98,9 +98,10 @@ export const api = {
   getConversations: () =>
     request<any[]>(`/api/conversations`),
 
-  getMessages: (conversationId: string, limit = 50, before?: string) => {
+  getMessages: (conversationId: string, limit = 50, before?: string, since?: string) => {
     const params = new URLSearchParams({ limit: String(limit) });
     if (before) params.set("before", before);
+    if (since) params.set("since", since);
     return request<any[]>(`/api/conversations/${conversationId}/messages?${params}`);
   },
 
