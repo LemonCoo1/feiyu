@@ -99,11 +99,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
   loadConversations: async () => {
     set({ isLoadingConvs: true });
     try {
+      // 1. 先读本地缓存，立即展示
+      const cached = await cacheService.getCachedConversations();
+      if (cached.length > 0) {
+        set({ conversations: cached, isLoadingConvs: false });
+      }
+      // 2. 从服务器拉取最新数据
       const convs = await api.getConversations();
       set({ conversations: convs, isLoadingConvs: false });
+      // 3. 写入缓存
+      await cacheService.cacheConversations(convs);
     } catch (e) {
       console.error("Failed to load conversations:", e);
-      set({ isLoadingConvs: false });
+      // 网络失败，已有缓存数据则静默降级
+      if (get().conversations.length === 0) {
+        set({ isLoadingConvs: false });
+      }
     }
   },
 
@@ -270,6 +281,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       return { messages: newMessages, conversations: convs };
     });
+
+    // 同步更新会话缓存中的最后消息
+    cacheService.updateConversationLastMessage(
+      message.conversation_id,
+      message.content,
+      message.content_type,
+      message.created_at
+    ).catch(e => console.error("Failed to update conversation cache:", e));
 
     // 如果是当前活跃会话且开启了已读回执，自动发送已读回执
     const state = get();
