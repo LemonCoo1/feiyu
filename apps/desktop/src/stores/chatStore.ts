@@ -100,17 +100,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isLoadingConvs: true });
     try {
       // 1. 先读本地缓存，立即展示
+      console.log("[loadConversations] 读取本地缓存...");
       const cached = await cacheService.getCachedConversations();
+      console.log("[loadConversations] 缓存返回:", cached.length, "条");
       if (cached.length > 0) {
         set({ conversations: cached, isLoadingConvs: false });
       }
       // 2. 从服务器拉取最新数据
+      console.log("[loadConversations] 从服务器拉取...");
       const convs = await api.getConversations();
+      console.log("[loadConversations] 服务器返回:", convs.length, "条");
       set({ conversations: convs, isLoadingConvs: false });
       // 3. 写入缓存
       await cacheService.cacheConversations(convs);
     } catch (e) {
-      console.error("Failed to load conversations:", e);
+      console.error("[loadConversations] 失败:", e);
       // 网络失败，已有缓存数据则静默降级
       if (get().conversations.length === 0) {
         set({ isLoadingConvs: false });
