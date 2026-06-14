@@ -73,6 +73,11 @@ jobs:
         with:
           version: 9
 
+      - name: Install WebView2 development tools
+        run: |
+          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
+          Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -ArgumentList "/silent /install" -Wait
+
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
