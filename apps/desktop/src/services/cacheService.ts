@@ -2,7 +2,7 @@ import { getDb } from "./db";
 import { api } from "./api";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { exists, mkdir, writeFile } from "@tauri-apps/plugin-fs";
+import { exists, mkdir, remove, writeFile } from "@tauri-apps/plugin-fs";
 
 interface CachedMessage {
   id: string;
@@ -162,25 +162,125 @@ export async function fetchAndCacheOlderMessages(
   return msgs;
 }
 
-export async function getCacheStats(): Promise<{ messageCount: number; totalSize: number }> {
+export interface DetailedCacheStats {
+  messages: { count: number; sizeBytes: number };
+  conversations: { count: number; sizeBytes: number };
+  contacts: { count: number; sizeBytes: number };
+  channels: { count: number; sizeBytes: number };
+  media: { count: number; sizeBytes: number };
+  totalSizeBytes: number;
+}
+
+export async function getDetailedCacheStats(): Promise<DetailedCacheStats> {
   const db = await getDb();
-  const rows = await db.select<{ count: number }[]>(
-    `SELECT COUNT(*) as count FROM cached_messages`
+
+  const countAndSize = async (table: string, sizeColumns: string[]): Promise<{ count: number; sizeBytes: number }> => {
+    const countRows = await db.select<{ count: number }[]>(
+      `SELECT COUNT(*) as count FROM ${table}`
+    );
+    const sizeExpr = sizeColumns.map(c => `COALESCE(LENGTH(${c}), 0)`).join(" + ");
+    const sizeRows = await db.select<{ size: number }[]>(
+      `SELECT COALESCE(SUM(${sizeExpr}), 0) as size FROM ${table}`
+    );
+    return { count: countRows[0]?.count || 0, sizeBytes: sizeRows[0]?.size || 0 };
+  };
+
+  const [messages, conversations, contacts, channels, media] = await Promise.all([
+    countAndSize("cached_messages", ["content"]),
+    countAndSize("cached_conversations", ["last_message_content", "name"]),
+    countAndSize("cached_contacts", ["username", "display_name"]),
+    countAndSize("cached_channels", ["name", "description"]),
+    countAndSize("media_cache", []),
+  ]);
+
+  const mediaSizeRows = await db.select<{ size: number }[]>(
+    `SELECT COALESCE(SUM(size), 0) as size FROM media_cache`
   );
-  return { messageCount: rows[0]?.count || 0, totalSize: 0 };
+  media.sizeBytes = mediaSizeRows[0]?.size || 0;
+
+  const totalSizeBytes = messages.sizeBytes + conversations.sizeBytes + contacts.sizeBytes + channels.sizeBytes + media.sizeBytes;
+
+  return { messages, conversations, contacts, channels, media, totalSizeBytes };
 }
 
-export async function clearConversationCache(conversationId: string): Promise<void> {
-  const db = await getDb();
-  await db.execute(`DELETE FROM cached_messages WHERE conversation_id = $1`, [conversationId]);
-  await db.execute(`DELETE FROM sync_state WHERE conversation_id = $1`, [conversationId]);
+// 保留旧接口兼容
+export async function getCacheStats(): Promise<{ messageCount: number; totalSize: number }> {
+  const stats = await getDetailedCacheStats();
+  return { messageCount: stats.messages.count, totalSize: stats.totalSizeBytes };
 }
 
-export async function clearAllCache(): Promise<void> {
+export async function clearMessageCache(): Promise<void> {
   const db = await getDb();
   await db.execute(`DELETE FROM cached_messages`);
   await db.execute(`DELETE FROM sync_state`);
+}
+
+export async function clearMediaCache(): Promise<void> {
+  const db = await getDb();
+  try {
+    const rows = await db.select<{ local_path: string }[]>(
+      `SELECT local_path FROM media_cache`
+    );
+    for (const row of rows) {
+      try {
+        await remove(row.local_path);
+      } catch {
+        // 文件可能已被删除，忽略
+      }
+    }
+  } catch {
+    // 忽略
+  }
   await db.execute(`DELETE FROM media_cache`);
+}
+
+export async function clearConversationCache(): Promise<void> {
+  const db = await getDb();
+  await db.execute(`DELETE FROM cached_conversations`);
+}
+
+export async function clearContactCache(): Promise<void> {
+  const db = await getDb();
+  await db.execute(`DELETE FROM cached_contacts`);
+}
+
+export async function clearChannelCache(): Promise<void> {
+  const db = await getDb();
+  await db.execute(`DELETE FROM cached_channels`);
+}
+
+export async function clearAllCache(): Promise<void> {
+  await clearMessageCache();
+  await clearMediaCache();
+  await clearConversationCache();
+  await clearContactCache();
+  await clearChannelCache();
+}
+
+export async function autoCleanupMessages(maxPerConversation = 500): Promise<void> {
+  const db = await getDb();
+  // 获取所有会话 ID
+  const convs = await db.select<{ conversation_id: string }[]>(
+    `SELECT DISTINCT conversation_id FROM cached_messages`
+  );
+  for (const conv of convs) {
+    await db.execute(
+      `DELETE FROM cached_messages WHERE conversation_id = $1 AND id NOT IN (
+        SELECT id FROM cached_messages WHERE conversation_id = $1
+        ORDER BY created_at DESC LIMIT $2
+      )`,
+      [conv.conversation_id, maxPerConversation]
+    );
+  }
+}
+
+export async function runAutoCleanup(): Promise<void> {
+  try {
+    await autoCleanupMessages(500);
+    await cleanupMediaCache(500 * 1024 * 1024);
+  } catch (e) {
+    console.error("Auto cleanup failed:", e);
+  }
 }
 
 // === 媒体文件缓存 ===
