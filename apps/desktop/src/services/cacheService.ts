@@ -264,6 +264,168 @@ export async function cleanupMediaCache(maxBytes = 500 * 1024 * 1024): Promise<v
   );
 }
 
+// === 会话列表缓存 ===
+
+interface CachedConversation {
+  id: string;
+  type: string;
+  name: string | null;
+  owner_id: string | null;
+  created_at: string;
+  last_message_content: string | null;
+  last_message_content_type: string | null;
+  last_message_at: string | null;
+  other_user_id: string | null;
+  other_username: string | null;
+  other_display_name: string | null;
+  other_avatar_url: string | null;
+  unread_count: number;
+  updated_at: string;
+}
+
+export async function cacheConversations(convs: any[]): Promise<void> {
+  const db = await getDb();
+  const ids = convs.map(c => c.id);
+
+  for (const conv of convs) {
+    await db.execute(
+      `INSERT OR REPLACE INTO cached_conversations
+       (id, type, name, owner_id, created_at, last_message_content, last_message_content_type,
+        last_message_at, other_user_id, other_username, other_display_name, other_avatar_url,
+        unread_count, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, datetime('now'))`,
+      [
+        conv.id,
+        conv.type,
+        conv.name || null,
+        conv.owner_id || null,
+        conv.created_at,
+        conv.last_message_content ? JSON.stringify(conv.last_message_content) : null,
+        conv.last_message_content_type || null,
+        conv.last_message_at || null,
+        conv.other_user_id || null,
+        conv.other_username || null,
+        conv.other_display_name || null,
+        conv.other_avatar_url || null,
+        conv.unread_count || 0,
+      ]
+    );
+  }
+
+  if (ids.length > 0) {
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+    await db.execute(
+      `DELETE FROM cached_conversations WHERE id NOT IN (${placeholders})`,
+      ids
+    );
+  }
+}
+
+export async function getCachedConversations(): Promise<any[]> {
+  const db = await getDb();
+  const rows = await db.select<CachedConversation[]>(
+    `SELECT * FROM cached_conversations ORDER BY last_message_at DESC, created_at DESC`
+  );
+  return rows.map(row => ({
+    ...row,
+    last_message_content: row.last_message_content ? JSON.parse(row.last_message_content) : null,
+  }));
+}
+
+// === 联系人缓存 ===
+
+export async function cacheContacts(contacts: any[]): Promise<void> {
+  const db = await getDb();
+  const ids = contacts.map(c => c.id);
+
+  for (const contact of contacts) {
+    await db.execute(
+      `INSERT OR REPLACE INTO cached_contacts
+       (id, username, display_name, avatar_url, status, updated_at)
+       VALUES ($1, $2, $3, $4, $5, datetime('now'))`,
+      [
+        contact.id,
+        contact.username,
+        contact.display_name || null,
+        contact.avatar_url || null,
+        contact.status || 'offline',
+      ]
+    );
+  }
+
+  if (ids.length > 0) {
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+    await db.execute(
+      `DELETE FROM cached_contacts WHERE id NOT IN (${placeholders})`,
+      ids
+    );
+  }
+}
+
+export async function getCachedContacts(): Promise<any[]> {
+  const db = await getDb();
+  return db.select<any[]>(
+    `SELECT * FROM cached_contacts ORDER BY display_name, username`
+  );
+}
+
+// === 频道缓存 ===
+
+export async function cacheChannels(channels: any[]): Promise<void> {
+  const db = await getDb();
+  const ids = channels.map(c => c.id);
+
+  for (const channel of channels) {
+    await db.execute(
+      `INSERT OR REPLACE INTO cached_channels
+       (id, name, description, owner_id, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, datetime('now'))`,
+      [
+        channel.id,
+        channel.name,
+        channel.description || null,
+        channel.created_by || channel.owner_id || null,
+        channel.created_at,
+      ]
+    );
+  }
+
+  if (ids.length > 0) {
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+    await db.execute(
+      `DELETE FROM cached_channels WHERE id NOT IN (${placeholders})`,
+      ids
+    );
+  }
+}
+
+export async function getCachedChannels(): Promise<any[]> {
+  const db = await getDb();
+  return db.select<any[]>(
+    `SELECT * FROM cached_channels ORDER BY name`
+  );
+}
+
+// === 更新会话最后消息（实时同步用） ===
+
+export async function updateConversationLastMessage(
+  conversationId: string,
+  content: any,
+  contentType: string,
+  timestamp: string
+): Promise<void> {
+  const db = await getDb();
+  await db.execute(
+    `UPDATE cached_conversations
+     SET last_message_content = $1,
+         last_message_content_type = $2,
+         last_message_at = $3,
+         updated_at = datetime('now')
+     WHERE id = $4`,
+    [JSON.stringify(content), contentType, timestamp, conversationId]
+  );
+}
+
 // --- 内部工具函数 ---
 
 function rowToMessage(row: CachedMessage): Message {
