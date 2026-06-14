@@ -12,6 +12,7 @@ use crate::services::message;
 #[derive(Deserialize)]
 pub struct GetMessagesQuery {
     pub before: Option<Uuid>,
+    pub since: Option<String>,
     pub limit: Option<i64>,
 }
 
@@ -23,7 +24,7 @@ pub async fn get_history(
 ) -> Result<Json<Vec<Message>>, (StatusCode, String)> {
     let _user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
     let limit = query.limit.unwrap_or(50).min(100);
-    message::get_history(&state.pool, conversation_id, query.before, limit)
+    message::get_history(&state.pool, conversation_id, query.before, query.since, limit)
         .await
         .map(Json)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
