@@ -1982,7 +1982,7 @@ function AuthScreen({
           <div className="w-14 h-14 rounded-2xl bg-feiyu-primary flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
             F
           </div>
-          <h1 className="text-xl font-bold text-feiyu-text">飞语</h1>
+          <h1 className="text-xl font-bold text-feiyu-text">飞鱼</h1>
           <p className="text-sm text-feiyu-text-muted mt-1">
             {mode === "login" ? "登录你的账号" : "创建新账号"}
           </p>

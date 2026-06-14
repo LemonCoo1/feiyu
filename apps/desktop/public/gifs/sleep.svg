@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#DDA0DD">
+        <animate attributeName="stop-color" values="#DDA0DD;#9370DB;#DDA0DD" dur="2s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#9370DB">
+        <animate attributeName="stop-color" values="#9370DB;#DDA0DD;#9370DB" dur="2s" repeatCount="indefinite"/>
+      </stop>
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#bg)" stroke="#9370DB" stroke-width="2" opacity="0.3"/>
+  <text x="60" y="72" font-size="55" text-anchor="middle" dominant-baseline="middle">
+    😴
+    <animateTransform attributeName="transform" type="scale" values="1;1.1;1" dur="1.5s" repeatCount="indefinite" additive="sum" />
+  </text>
+</svg>

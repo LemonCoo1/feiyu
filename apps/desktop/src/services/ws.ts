@@ -14,7 +14,9 @@ class WsClient {
   private doConnect() {
     if (this.ws?.readyState === WebSocket.OPEN) return;
 
-    this.ws = new WebSocket("ws://localhost:3000/api/ws");
+    const httpBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const wsBase = httpBase.replace(/^http/, "ws");
+    this.ws = new WebSocket(`${wsBase}/api/ws`);
 
     this.ws.onopen = () => {
       this.send({ type: "auth.token", payload: { token: this.token } });
@@ -80,6 +82,16 @@ class WsClient {
         content_type: contentType,
         content,
         client_msg_id: crypto.randomUUID(),
+      },
+    });
+  }
+
+  sendRead(conversationId: string, messageId: string) {
+    this.send({
+      type: "message.read",
+      payload: {
+        conversation_id: conversationId,
+        message_id: messageId,
       },
     });
   }

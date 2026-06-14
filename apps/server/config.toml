@@ -1,0 +1,19 @@
+[server]
+host = "0.0.0.0"
+port = 3000
+
+[database]
+url = "postgres://feiyu:feiyu_dev@localhost:5432/feiyu"
+
+[redis]
+url = "redis://localhost:6379"
+
+[jwt]
+secret = "dev-secret-change-in-production"
+
+[minio]
+endpoint = "http://localhost:9000"
+access_key = "minioadmin"
+secret_key = "minioadmin"
+bucket = "feiyu"
+public_url = "http://localhost:9000/feiyu"

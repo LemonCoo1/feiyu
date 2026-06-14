@@ -1,0 +1,242 @@
+{
+  "app": {
+    "name": "Feiyu"
+  },
+  "auth": {
+    "loginSubtitle": "Sign in to your account",
+    "registerSubtitle": "Create a new account",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "pleaseWait": "Please wait...",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "nav": {
+    "profile": "Profile",
+    "messages": "Messages",
+    "contacts": "Contacts",
+    "channels": "Channels",
+    "settings": "Settings"
+  },
+  "conversation": {
+    "createGroup": "Create Group",
+    "noConversations": "No conversations yet",
+    "groupChat": "Group",
+    "unknown": "Unknown",
+    "groupName": "Group name",
+    "selectMembers": "Select members:",
+    "noContacts": "No contacts yet",
+    "cancel": "Cancel",
+    "createWithCount": "Create ({{count}} members)",
+    "groupBadge": "G"
+  },
+  "chat": {
+    "selectConversation": "Select a conversation to start chatting",
+    "searchMessages": "Search Messages",
+    "unpin": "Unpin",
+    "pin": "Pin Conversation",
+    "groupInfo": "Group Info",
+    "searchCurrentChat": "Search in current chat...",
+    "cancel": "Cancel",
+    "groupChat": "Group",
+    "emojiAndSticker": "Emoji & Stickers",
+    "attachment": "Attachment",
+    "image": "Image",
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "hintCtrlEnter": "Ctrl+Enter to send · Enter for new line · Paste files/images to send directly",
+    "hintEnter": "Enter to send · Shift+Enter for new line · Paste files/images to send directly",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "scrollToBottom": "Scroll to bottom",
+    "sticker": "Sticker",
+    "gif": "GIF",
+    "read": "Read",
+    "file": "File"
+  },
+  "groupInfo": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "confirmRemove": "Are you sure you want to remove {{name}}?",
+    "confirmLeave": "Are you sure you want to leave this group?",
+    "title": "Group Info",
+    "groupName": "Group Name",
+    "save": "Save",
+    "edit": "Edit",
+    "searchUsername": "Search username...",
+    "cancel": "Cancel",
+    "addMember": "+ Add Member",
+    "memberCount": "Members ({{count}})",
+    "loading": "Loading...",
+    "setAdmin": "Set as Admin",
+    "remove": "Remove",
+    "leaveGroup": "Leave Group",
+    "ownerLeaveHint": "Owner must transfer ownership before leaving"
+  },
+  "channel": {
+    "title": "Channels",
+    "create": "+ Create",
+    "noChannels": "No channels yet",
+    "members": "members",
+    "createChannel": "Create Channel",
+    "channelName": "Channel name",
+    "channelDesc": "Channel description (optional)",
+    "cancel": "Cancel",
+    "createBtn": "Create",
+    "selectChannel": "Select a channel",
+    "memberCount": "{{count}} members",
+    "sendPlaceholder": "Send a message in #{{name}}...",
+    "send": "Send"
+  },
+  "contact": {
+    "title": "Contacts",
+    "add": "+ Add",
+    "noContacts": "No contacts yet",
+    "addFirst": "Add your first contact",
+    "addContact": "Add Contact",
+    "searchPlaceholder": "Search username or email...",
+    "added": "Added",
+    "addBtn": "Add",
+    "notFound": "User not found"
+  },
+  "debug": {
+    "closeLog": "Close Log",
+    "logCount": "Log ({{count}})",
+    "noLogs": "No logs yet"
+  },
+  "profile": {
+    "email": "Email",
+    "editProfile": "Edit Profile",
+    "logout": "Sign Out",
+    "online": "Online",
+    "away": "Away",
+    "offline": "Offline"
+  },
+  "search": {
+    "placeholder": "Search messages...",
+    "searching": "Searching...",
+    "noResults": "No results found",
+    "me": "Me",
+    "other": "Others"
+  },
+  "notification": {
+    "newMessage": "New Message",
+    "newMessageBody": "New message received",
+    "channelMessage": "Channel Message",
+    "channelMessageBody": "New channel message received"
+  },
+  "unknownUser": "Unknown User",
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "theme": "Appearance",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "chat": "Chat",
+    "language": "Language",
+    "storage": "Storage",
+    "shortcuts": "Shortcuts",
+    "security": "Security",
+    "about": "About",
+    "profileSection": {
+      "nickname": "Nickname",
+      "nicknamePlaceholder": "Set your nickname",
+      "username": "Username",
+      "email": "Email",
+      "save": "Save",
+      "saved": "Saved"
+    },
+    "themeSection": {
+      "title": "Appearance",
+      "themeMode": "Theme Mode",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "notificationSection": {
+      "title": "Notifications",
+      "messageNotify": "Message Notifications",
+      "messageNotifyDesc": "Receive new message notifications",
+      "sound": "Notification Sound",
+      "soundDesc": "Play sound when receiving messages",
+      "desktop": "Desktop Notifications",
+      "desktopDesc": "Show system desktop notifications",
+      "dnd": "Do Not Disturb",
+      "dndDesc": "Mute all notifications during specified hours",
+      "timeRange": "Time Range",
+      "to": "to"
+    },
+    "privacySection": {
+      "title": "Privacy",
+      "whoCanAdd": "Who can add me as a friend",
+      "everyone": "Everyone",
+      "contactsOnly": "Contacts Only",
+      "nobody": "Nobody",
+      "onlineVisible": "Online Status Visible",
+      "onlineVisibleDesc": "Others can see your online status",
+      "readReceipt": "Read Receipts",
+      "readReceiptDesc": "Send read receipts to others"
+    },
+    "chatSection": {
+      "title": "Chat Settings",
+      "sendKey": "Send Message Shortcut",
+      "enter": "Enter",
+      "enterDesc": "Press Enter to send",
+      "ctrlEnter": "Ctrl+Enter",
+      "ctrlEnterDesc": "Press Ctrl+Enter to send",
+      "fontSize": "Font Size",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "languageSection": {
+      "title": "Language",
+      "chinese": "简体中文",
+      "english": "English",
+      "refreshHint": "Language change takes effect immediately"
+    },
+    "storageSection": {
+      "title": "Storage",
+      "localCache": "Local Cache",
+      "cacheDesc": "Includes conversation list, message cache, etc.",
+      "clearCache": "Clear Cache",
+      "cacheCleared": "Cache cleared"
+    },
+    "shortcutsSection": {
+      "title": "Shortcuts",
+      "newChat": "New Conversation",
+      "searchMsg": "Search Messages",
+      "openSettings": "Open Settings",
+      "switchMessages": "Switch to Messages",
+      "switchContacts": "Switch to Contacts",
+      "switchChannels": "Switch to Channels",
+      "closePopup": "Close Popup/Panel",
+      "customHint": "Custom shortcuts coming soon"
+    },
+    "securitySection": {
+      "title": "Security",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "passwordUpdated": "Password updated",
+      "changeBtn": "Change Password",
+      "twoFactor": "Two-Factor Auth",
+      "twoFactorDesc": "Require additional verification on login",
+      "changeFailed": "Change failed"
+    },
+    "aboutSection": {
+      "title": "About",
+      "version": "Version 0.1.0",
+      "userAgreement": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "openSource": "Open Source Licenses",
+      "feedback": "Feedback"
+    }
+  }
+}

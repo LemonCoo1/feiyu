@@ -1062,7 +1062,7 @@ export default {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>飞语</title>
+    <title>飞鱼</title>
   </head>
   <body class="bg-feiyu-bg">
     <div id="root"></div>
@@ -1168,7 +1168,7 @@ fn main() {
 ```json
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-cli/schema.json",
-  "productName": "飞语",
+  "productName": "飞鱼",
   "version": "0.1.0",
   "identifier": "com.feiyu.app",
   "build": {
@@ -1178,10 +1178,10 @@ fn main() {
     "frontendDist": "../dist"
   },
   "app": {
-    "title": "飞语",
+    "title": "飞鱼",
     "windows": [
       {
-        "title": "飞语",
+        "title": "飞鱼",
         "width": 1200,
         "height": 800,
         "resizable": true,

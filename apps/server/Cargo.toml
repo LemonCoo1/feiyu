@@ -25,3 +25,5 @@ jsonwebtoken.workspace = true
 bcrypt.workspace = true
 redis.workspace = true
 futures.workspace = true
+rust-s3 = { version = "0.37.2", features = ["with-tokio"] }
+toml = "1.1.2"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ContactItem } from "./ContactItem";
 import { AddContact } from "./AddContact";
 import { useContactStore } from "../../stores/contactStore";
@@ -6,6 +7,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { api } from "../../services/api";
 
 export function ContactList() {
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
   const contacts = useContactStore((s) => s.contacts);
   const user = useAuthStore((s) => s.user);
@@ -21,25 +23,25 @@ export function ContactList() {
   };
 
   return (
-    <div className="w-[280px] bg-white border-r border-feiyu-border flex flex-col">
+    <div className="w-[280px] bg-feiyu-card border-r border-feiyu-border flex flex-col">
       <div className="px-4 py-3 border-b border-feiyu-border flex justify-between items-center">
-        <h2 className="font-medium text-feiyu-text">通讯录</h2>
+        <h2 className="font-medium text-feiyu-text">{t("contact.title")}</h2>
         <button
           onClick={() => setShowAdd(true)}
           className="text-feiyu-primary text-sm hover:underline"
         >
-          + 添加
+          {t("contact.add")}
         </button>
       </div>
       <div className="flex-1 overflow-y-auto">
         {contacts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32 text-feiyu-text-muted text-sm">
-            <span>暂无联系人</span>
+            <span>{t("contact.noContacts")}</span>
             <button
               onClick={() => setShowAdd(true)}
               className="text-feiyu-primary text-xs mt-1 hover:underline"
             >
-              添加第一个联系人
+              {t("contact.addFirst")}
             </button>
           </div>
         ) : (

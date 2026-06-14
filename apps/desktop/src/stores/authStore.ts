@@ -19,6 +19,7 @@ interface AuthState {
 
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string, displayName?: string) => Promise<void>;
+  updateProfile: (displayName: string) => Promise<void>;
   logout: () => void;
   loadFromStorage: () => void;
 }
@@ -52,6 +53,16 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: res.user, token: res.token, isLoading: false });
     } catch (e: any) {
       set({ error: e.message, isLoading: false });
+    }
+  },
+
+  updateProfile: async (displayName) => {
+    try {
+      const updated = await api.updateProfile({ display_name: displayName });
+      localStorage.setItem("user", JSON.stringify(updated));
+      set((state) => ({ user: state.user ? { ...state.user, display_name: updated.display_name } : null }));
+    } catch (e: any) {
+      set({ error: e.message });
     }
   },
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { MessageBubble } from "./MessageBubble";
 import { useChatStore } from "../../stores/chatStore";
 import { useAuthStore } from "../../stores/authStore";
@@ -9,24 +10,48 @@ function shouldShowTimeSeparator(prev: string, curr: string): boolean {
 }
 
 export function MessageList() {
+  const { t } = useTranslation();
   const activeId = useChatStore((s) => s.activeConversationId);
   const conversations = useChatStore((s) => s.conversations);
   const messages = useChatStore((s) => s.messages);
+  const conversationMembers = useChatStore((s) => s.conversationMembers);
+  const lastReadMessageIds = useChatStore((s) => s.lastReadMessageIds);
   const user = useAuthStore((s) => s.user);
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const prevActiveIdRef = useRef<string | null>(null);
+  const isSwitchingRef = useRef(false);
+
+  // Mark switching state when activeId changes
+  if (prevActiveIdRef.current !== activeId) {
+    prevActiveIdRef.current = activeId;
+    isSwitchingRef.current = true;
+  }
 
   const msgs = activeId ? messages.get(activeId) || [] : [];
   const conv = conversations.find((c) => c.id === activeId);
   const isGroup = conv?.type === "group";
+  const members = activeId ? conversationMembers.get(activeId) || [] : [];
+  const memberMap = new Map(members.map((m: any) => [m.user_id, m]));
+  const lastReadId = activeId ? lastReadMessageIds.get(activeId) : undefined;
+  const lastReadIdx = lastReadId ? msgs.findIndex((m) => m.id === lastReadId) : -1;
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    if (behavior === "instant") {
+      containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight });
+    } else {
+      bottomRef.current?.scrollIntoView({ behavior });
+    }
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    if (isSwitchingRef.current) {
+      isSwitchingRef.current = false;
+      scrollToBottom("instant");
+    } else {
+      scrollToBottom("smooth");
+    }
   }, [msgs.length, scrollToBottom]);
 
   const handleScroll = useCallback(() => {
@@ -39,7 +64,7 @@ export function MessageList() {
   if (!activeId) {
     return (
       <div className="flex-1 flex items-center justify-center text-feiyu-text-muted text-sm">
-        选择一个会话开始聊天
+        {t("chat.selectConversation")}
       </div>
     );
   }
@@ -47,15 +72,16 @@ export function MessageList() {
   const formatDateSeparator = (iso: string) => {
     const d = new Date(iso);
     const now = new Date();
+    const lang = localStorage.getItem("feiyu_language") || "zh-CN";
     if (d.toDateString() === now.toDateString()) {
-      return "今天";
+      return t("chat.today");
     }
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     if (d.toDateString() === yesterday.toDateString()) {
-      return "昨天";
+      return t("chat.yesterday");
     }
-    return d.toLocaleDateString("zh-CN", {
+    return d.toLocaleDateString(lang, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -63,7 +89,8 @@ export function MessageList() {
   };
 
   const formatTime = (iso: string) => {
-    return new Date(iso).toLocaleTimeString("zh-CN", {
+    const lang = localStorage.getItem("feiyu_language") || "zh-CN";
+    return new Date(iso).toLocaleTimeString(lang, {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -74,6 +101,7 @@ export function MessageList() {
       <div
         ref={containerRef}
         onScroll={handleScroll}
+        onContextMenu={(e) => e.preventDefault()}
         className="h-full overflow-y-auto px-5 py-4 flex flex-col"
       >
         {msgs.map((msg, idx) => {
@@ -83,6 +111,11 @@ export function MessageList() {
               ? content.text
               : JSON.stringify(content);
           const isOwn = msg.sender_id === user?.id;
+          const sender = memberMap.get(msg.sender_id);
+          const senderName = isOwn
+            ? (user?.display_name || user?.username || t("search.me"))
+            : (sender?.display_name || sender?.username || t("unknownUser"));
+          const avatarUrl = isOwn ? user?.avatar_url : sender?.avatar_url;
 
           const showSeparator =
             idx === 0 ||
@@ -104,9 +137,11 @@ export function MessageList() {
                   rawContent={content}
                   time={formatTime(msg.created_at)}
                   isOwn={isOwn}
-                  senderName={isOwn ? "我" : "对方"}
+                  isRead={isOwn && lastReadIdx >= 0 && idx <= lastReadIdx}
+                  senderName={senderName}
                   showSender={isGroup && !isOwn}
                   senderId={msg.sender_id}
+                  avatarUrl={avatarUrl}
                 />
               </div>
             </div>
@@ -117,9 +152,9 @@ export function MessageList() {
 
       {showScrollBtn && (
         <button
-          onClick={scrollToBottom}
-          className="absolute bottom-4 right-6 w-8 h-8 bg-white shadow-feiyu rounded-full flex items-center justify-center text-feiyu-text-muted hover:text-feiyu-text hover:shadow-feiyu-md transition-all"
-          title="回到底部"
+          onClick={() => scrollToBottom()}
+          className="absolute bottom-4 right-6 w-8 h-8 bg-feiyu-card shadow-feiyu rounded-full flex items-center justify-center text-feiyu-text-muted hover:text-feiyu-text hover:shadow-feiyu-md transition-all"
+          title={t("chat.scrollToBottom")}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path

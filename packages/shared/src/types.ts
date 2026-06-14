@@ -30,7 +30,7 @@ export interface Message {
   id: string;
   conversation_id: string;
   sender_id: string;
-  content_type: "text" | "image" | "file";
+  content_type: "text" | "image" | "file" | "sticker" | "gif";
   content: Record<string, unknown>;
   created_at: string;
 }
@@ -39,6 +39,7 @@ export interface Conversation {
   id: string;
   type: "direct" | "group";
   name: string | null;
+  owner_id?: string;
   created_at: string;
 }
 
@@ -75,6 +76,17 @@ export interface WsMessage<T = unknown> {
 export interface ConversationMember {
   conversation_id: string;
   user_id: string;
+  role: string;
+  joined_at: string;
+}
+
+export interface MemberWithUser {
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  status: string;
+  role: string;
   joined_at: string;
 }
 
@@ -92,7 +104,7 @@ export interface ConversationWithLastMessage extends Conversation {
 
 export interface SendMessageRequest {
   conversation_id: string;
-  content_type: "text" | "image" | "file";
+  content_type: "text" | "image" | "file" | "sticker" | "gif";
   content: Record<string, unknown>;
 }
 
@@ -106,7 +118,7 @@ export interface WsAuthOkPayload {
 
 export interface WsMessageSendPayload {
   conversation_id: string;
-  content_type: "text" | "image" | "file";
+  content_type: "text" | "image" | "file" | "sticker" | "gif";
   content: Record<string, unknown>;
   client_msg_id: string;
 }
@@ -125,4 +137,27 @@ export interface WsMessageAckPayload {
 export interface WsPresencePayload {
   user_id: string;
   status: "online" | "offline" | "away";
+}
+
+export interface UserSettings {
+  user_id: string;
+  notify_message: boolean;
+  notify_sound: boolean;
+  notify_desktop: boolean;
+  notify_dnd: boolean;
+  notify_dnd_start: string | null;
+  notify_dnd_end: string | null;
+  privacy_add_me: "everyone" | "contacts" | "nobody";
+  privacy_online_visible: boolean;
+  privacy_read_receipt: boolean;
+  chat_send_key: "enter" | "ctrl+enter";
+  chat_font_size: "small" | "medium" | "large";
+  theme: "light" | "dark";
+  language: "zh-CN" | "en";
+  two_factor_enabled: boolean;
+}
+
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
 }

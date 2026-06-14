@@ -7,6 +7,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::models::user::User;
+use crate::models::user_settings::{UserSettings, UpdateUserSettings, ChangePasswordRequest};
 use crate::services::user;
 
 #[derive(Deserialize)]
@@ -81,4 +82,42 @@ fn extract_user_id(headers: &HeaderMap, jwt_secret: &str) -> Result<Uuid, (Statu
     .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid token".to_string()))?;
 
     Ok(token_data.claims.sub)
+}
+
+pub async fn get_settings(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+) -> Result<Json<UserSettings>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    user::get_settings(&state.pool, user_id)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
+pub async fn update_settings(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Json(req): Json<UpdateUserSettings>,
+) -> Result<Json<UserSettings>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    user::update_settings(&state.pool, user_id, req)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
+pub async fn change_password(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Json(req): Json<ChangePasswordRequest>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    user::change_password(&state.pool, user_id, &req.old_password, &req.new_password)
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|e| match e {
+            user::UserError::InvalidPassword => (StatusCode::BAD_REQUEST, "旧密码错误".to_string()),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
+        })
 }

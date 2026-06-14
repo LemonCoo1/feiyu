@@ -1,5 +1,6 @@
 interface AvatarProps {
   name: string;
+  url?: string | null;
   size?: "sm" | "md" | "lg";
   online?: boolean;
 }
@@ -14,19 +15,27 @@ function hashCode(str: string): number {
   return Math.abs(hash);
 }
 
-export function Avatar({ name, size = "md", online }: AvatarProps) {
+export function Avatar({ name, url, size = "md", online }: AvatarProps) {
   const sizeClass = size === "sm" ? "w-8 h-8 text-xs" : size === "lg" ? "w-12 h-12 text-lg" : "w-10 h-10 text-sm";
   const color = colors[hashCode(name) % colors.length];
   const initial = name.charAt(0).toUpperCase();
 
   return (
     <div className="relative flex-shrink-0">
-      <div
-        className={`${sizeClass} rounded-lg flex items-center justify-center text-white font-bold`}
-        style={{ backgroundColor: color }}
-      >
-        {initial}
-      </div>
+      {url ? (
+        <img
+          src={url}
+          alt={name}
+          className={`${sizeClass} rounded-lg object-cover`}
+        />
+      ) : (
+        <div
+          className={`${sizeClass} rounded-lg flex items-center justify-center text-white font-bold`}
+          style={{ backgroundColor: color }}
+        >
+          {initial}
+        </div>
+      )}
       {online !== undefined && (
         <div
           className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${

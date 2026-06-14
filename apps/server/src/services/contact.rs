@@ -22,18 +22,6 @@ pub async fn add_contact(
         return Err(ContactError::CannotAddSelf);
     }
 
-    let existing = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS(SELECT 1 FROM contacts WHERE user_id = $1 AND contact_id = $2)",
-    )
-    .bind(user_id)
-    .bind(contact_id)
-    .fetch_one(pool)
-    .await?;
-
-    if existing {
-        return Err(ContactError::AlreadyExists);
-    }
-
     sqlx::query(
         r#"
         INSERT INTO contacts (user_id, contact_id, status)

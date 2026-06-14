@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --feiyu-bg: #f5f5f6;
+  --feiyu-bg-hover: #eeeff0;
+  --feiyu-card: #ffffff;
+  --feiyu-sidebar: #2b2f36;
+  --feiyu-sidebar-hover: #3a3f48;
+  --feiyu-primary: #3370ff;
+  --feiyu-primary-hover: #2860e1;
+  --feiyu-primary-light: #e8f0fe;
+  --feiyu-border: #e5e5e6;
+  --feiyu-border-light: #f0f0f1;
+  --feiyu-text: #1f2329;
+  --feiyu-text-secondary: #646a73;
+  --feiyu-text-muted: #8f959e;
+  --feiyu-bubble-own: #3370ff;
+  --feiyu-bubble-other: #ffffff;
+}
+
+:root.dark {
+  --feiyu-bg: #111111;
+  --feiyu-bg-hover: #1a1a1a;
+  --feiyu-card: #1e1e1e;
+  --feiyu-sidebar: #0a0a0a;
+  --feiyu-sidebar-hover: #1a1a1a;
+  --feiyu-primary: #4d8aff;
+  --feiyu-primary-hover: #3a7aff;
+  --feiyu-primary-light: #1a2a44;
+  --feiyu-border: #2a2a2a;
+  --feiyu-border-light: #222222;
+  --feiyu-text: #e5e5e5;
+  --feiyu-text-secondary: #a0a0a0;
+  --feiyu-text-muted: #666666;
+  --feiyu-bubble-own: #2563eb;
+  --feiyu-bubble-other: #262626;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -16,6 +52,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
   user-select: none;
+  background-color: var(--feiyu-bg);
+  color: var(--feiyu-text);
 }
 
 /* Smooth scrollbar */
@@ -29,8 +67,23 @@ body {
   background: #d1d5db;
   border-radius: 3px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #444;
+}
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Skeleton loading animation */
@@ -41,3 +94,25 @@ body {
 .skeleton-pulse {
   animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.15s ease-out;
+}
+
+/* Theme transition */
+body, body * {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Dark mode gray overrides */
+.dark .bg-gray-50 { background-color: #1e1e1e; }
+.dark .bg-gray-100 { background-color: #252525; }
+.dark .bg-gray-200 { background-color: #333333; }
+.dark .hover\:bg-gray-50:hover { background-color: #1e1e1e; }
+.dark .hover\:bg-gray-100:hover { background-color: #1a1a1a; }
+.dark .border-gray-100 { border-color: #2a2a2a; }

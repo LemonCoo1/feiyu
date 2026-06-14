@@ -1,11 +1,12 @@
 use axum::{
-    extract::State,
+    extract::{Path, State},
     http::{HeaderMap, StatusCode},
     Json,
 };
 use uuid::Uuid;
 
 use crate::models::conversation::ConversationWithMeta;
+use crate::models::conversation::MemberWithUser;
 use crate::services::conversation;
 
 pub async fn list(
@@ -48,6 +49,101 @@ pub async fn create_group(
 ) -> Result<Json<crate::models::conversation::Conversation>, (StatusCode, String)> {
     let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
     conversation::create_group(&state.pool, user_id, &req.name, &req.member_ids)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
+pub async fn get_members(
+    State(state): State<crate::api::AppState>,
+    Path(conversation_id): Path<Uuid>,
+) -> Result<Json<Vec<MemberWithUser>>, (StatusCode, String)> {
+    conversation::get_members(&state.pool, conversation_id)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
+#[derive(serde::Deserialize)]
+pub struct AddMemberRequest {
+    pub user_id: Uuid,
+}
+
+pub async fn add_member(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Path(conversation_id): Path<Uuid>,
+    Json(req): Json<AddMemberRequest>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    conversation::add_member(&state.pool, conversation_id, user_id, req.user_id)
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|e| match e {
+            conversation::ConversationError::PermissionDenied => (StatusCode::FORBIDDEN, e.to_string()),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
+        })
+}
+
+pub async fn remove_member(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Path((conversation_id, target_user_id)): Path<(Uuid, Uuid)>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    conversation::remove_member(&state.pool, conversation_id, user_id, target_user_id)
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|e| match e {
+            conversation::ConversationError::PermissionDenied => (StatusCode::FORBIDDEN, e.to_string()),
+            conversation::ConversationError::OwnerCannotLeave => (StatusCode::BAD_REQUEST, e.to_string()),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
+        })
+}
+
+#[derive(serde::Deserialize)]
+pub struct AssignAdminRequest {
+    pub user_id: Uuid,
+}
+
+pub async fn assign_admin(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Path(conversation_id): Path<Uuid>,
+    Json(req): Json<AssignAdminRequest>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    conversation::assign_admin(&state.pool, conversation_id, user_id, req.user_id)
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|e| match e {
+            conversation::ConversationError::PermissionDenied => (StatusCode::FORBIDDEN, e.to_string()),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
+        })
+}
+
+#[derive(serde::Deserialize)]
+pub struct UpdateConversationRequest {
+    pub name: Option<String>,
+}
+
+pub async fn update(
+    State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
+    Path(conversation_id): Path<Uuid>,
+    Json(req): Json<UpdateConversationRequest>,
+) -> Result<Json<crate::models::conversation::Conversation>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    let role = conversation::get_member_role(&state.pool, conversation_id, user_id)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    match role.as_deref() {
+        Some("owner") | Some("admin") => {}
+        _ => return Err((StatusCode::FORBIDDEN, "Permission denied".to_string())),
+    }
+
+    let name = req.name.ok_or((StatusCode::BAD_REQUEST, "name is required".to_string()))?;
+    conversation::update_name(&state.pool, conversation_id, &name)
         .await
         .map(Json)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))

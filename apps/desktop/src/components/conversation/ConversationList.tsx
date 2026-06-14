@@ -1,35 +1,50 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { SearchBar } from "./SearchBar";
 import { ConversationItem } from "./ConversationItem";
 import { useChatStore } from "../../stores/chatStore";
 import { useContactStore } from "../../stores/contactStore";
 
 export function ConversationList() {
+  const { t } = useTranslation();
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const conversations = useChatStore((s) => s.conversations);
   const isLoadingConvs = useChatStore((s) => s.isLoadingConvs);
   const activeId = useChatStore((s) => s.activeConversationId);
+  const pinnedConversations = useChatStore((s) => s.pinnedConversations);
   const setActive = useChatStore((s) => s.setActiveConversation);
   const createGroup = useChatStore((s) => s.createGroup);
   const contacts = useContactStore((s) => s.contacts);
+
+  const sortedConversations = useMemo(() => {
+    const pinned = conversations.filter((c) => pinnedConversations.has(c.id));
+    const unpinned = conversations.filter((c) => !pinnedConversations.has(c.id));
+    return [...pinned, ...unpinned];
+  }, [conversations, pinnedConversations]);
 
   const formatTime = (iso?: string) => {
     if (!iso) return "";
     const d = new Date(iso);
     const now = new Date();
+    const lang = localStorage.getItem("feiyu_language") || "zh-CN";
     if (d.toDateString() === now.toDateString()) {
-      return d.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+      return d.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" });
     }
-    return d.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+    return d.toLocaleDateString(lang, { month: "short", day: "numeric" });
   };
 
   const getLastMessage = (conv: any) => {
-    if (!conv.last_message_content) return "暂无消息";
+    if (!conv.last_message_content) return t("conversation.noConversations");
+    const ct = conv.last_message_content_type;
     const content = conv.last_message_content;
-    if (content.text) return content.text;
+    if (ct === "image") return `[${t("chat.image")}]`;
+    if (ct === "gif") return "[GIF]";
+    if (ct === "sticker") return `[${t("chat.sticker")}]`;
+    if (ct === "file") return `[${t("chat.file")}] ${content.filename || ""}`.trim();
     if (typeof content === "string") return content;
+    if (content.text) return content.text;
     return JSON.stringify(content);
   };
 
@@ -48,7 +63,7 @@ export function ConversationList() {
   };
 
   return (
-    <div className="w-[280px] bg-white border-r border-feiyu-border flex flex-col">
+    <div className="w-[280px] bg-feiyu-card border-r border-feiyu-border flex flex-col">
       <div className="border-b border-feiyu-border flex items-center">
         <div className="flex-1">
           <SearchBar />
@@ -57,7 +72,7 @@ export function ConversationList() {
           onClick={() => setShowCreateGroup(true)}
           className="text-feiyu-primary text-xs hover:underline mr-3 flex-shrink-0"
         >
-          创建群聊
+          {t("conversation.createGroup")}
         </button>
       </div>
       <div className="flex-1 overflow-y-auto">
@@ -75,17 +90,19 @@ export function ConversationList() {
           </div>
         ) : conversations.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-feiyu-text-muted text-sm">
-            暂无会话
+            {t("conversation.noConversations")}
           </div>
         ) : (
-          conversations.map((conv) => (
+          sortedConversations.map((conv) => (
             <ConversationItem
               key={conv.id}
-              name={conv.type === "group" ? (conv.name || "群聊") : (conv.other_display_name || conv.other_username || conv.name || "未知")}
+              name={conv.type === "group" ? (conv.name || t("conversation.groupChat")) : (conv.other_display_name || conv.other_username || conv.name || t("conversation.unknown"))}
               lastMessage={getLastMessage(conv)}
               time={formatTime(conv.last_message_at)}
               active={activeId === conv.id}
               isGroup={conv.type === "group"}
+              isPinned={pinnedConversations.has(conv.id)}
+              unread={conv.unread_count}
               onClick={() => setActive(conv.id)}
             />
           ))
@@ -94,21 +111,21 @@ export function ConversationList() {
 
       {showCreateGroup && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-[360px] p-6">
-            <h3 className="font-medium text-feiyu-text mb-4">创建群聊</h3>
+          <div className="bg-feiyu-card rounded-xl shadow-xl w-[360px] p-6">
+            <h3 className="font-medium text-feiyu-text mb-4">{t("conversation.createGroup")}</h3>
             <input
               type="text"
-              placeholder="群聊名称"
+              placeholder={t("conversation.groupName")}
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-feiyu-primary"
               autoFocus
             />
             <div className="mb-3">
-              <p className="text-xs text-feiyu-text-muted mb-2">选择成员：</p>
+              <p className="text-xs text-feiyu-text-muted mb-2">{t("conversation.selectMembers")}</p>
               <div className="max-h-48 overflow-y-auto space-y-1">
                 {contacts.length === 0 ? (
-                  <p className="text-xs text-feiyu-text-muted">暂无联系人</p>
+                  <p className="text-xs text-feiyu-text-muted">{t("conversation.noContacts")}</p>
                 ) : (
                   contacts.map((c) => (
                     <button
@@ -131,14 +148,14 @@ export function ConversationList() {
                 onClick={() => { setShowCreateGroup(false); setSelectedMembers([]); setGroupName(""); }}
                 className="px-4 py-2 text-sm text-feiyu-text-muted hover:text-feiyu-text"
               >
-                取消
+                {t("conversation.cancel")}
               </button>
               <button
                 onClick={handleCreateGroup}
                 disabled={!groupName.trim() || selectedMembers.length === 0}
                 className="px-4 py-2 text-sm bg-feiyu-primary text-white rounded-lg hover:bg-feiyu-primary-hover disabled:opacity-50"
               >
-                创建 ({selectedMembers.length} 人)
+                {t("conversation.createWithCount", { count: selectedMembers.length })}
               </button>
             </div>
           </div>

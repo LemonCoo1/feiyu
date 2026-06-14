@@ -89,4 +89,11 @@ pub enum WsServerMessage {
         user_id: Uuid,
         conversation_id: Uuid,
     },
+
+    #[serde(rename = "message.read")]
+    MessageReadNotify {
+        user_id: Uuid,
+        conversation_id: Uuid,
+        message_id: Uuid,
+    },
 }

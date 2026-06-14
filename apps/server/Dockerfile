@@ -1,0 +1,42 @@
+# ---- Builder ----
+FROM rust:1.82-bookworm AS builder
+
+WORKDIR /app
+
+# 复制 workspace 结构（仅 Rust 部分）
+COPY Cargo.toml Cargo.lock ./
+COPY apps/server/Cargo.toml apps/server/Cargo.toml
+COPY apps/desktop/src-tauri/Cargo.toml apps/desktop/src-tauri/Cargo.toml
+
+# 创建空 src 以满足 cargo 依赖检查（workspace 其他成员）
+RUN mkdir -p apps/server/src apps/desktop/src-tauri/src && \
+    echo "fn main() {}" > apps/server/src/main.rs && \
+    echo "fn main() {}" > apps/desktop/src-tauri/src/main.rs
+
+# 预下载依赖
+RUN cargo build --release -p feiyu-server || true
+
+# 复制真实源码
+COPY apps/server/src apps/server/src
+COPY apps/server/migrations apps/server/migrations
+
+# 最终构建
+RUN touch apps/server/src/main.rs && \
+    cargo build --release -p feiyu-server
+
+# ---- Runtime ----
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /app/target/release/feiyu-server .
+COPY apps/server/config.toml .
+COPY apps/server/migrations migrations/
+
+EXPOSE 3000
+
+ENTRYPOINT ["./feiyu-server"]

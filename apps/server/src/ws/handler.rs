@@ -133,9 +133,13 @@ async fn handle_socket(mut socket: WebSocket, pool: PgPool, hub: Hub, jwt_secret
 }
 
 async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &Hub) {
+    tracing::debug!("[WS] 收到消息: user_id={}, raw={}", user_id, text);
     let msg: WsClientMessage = match serde_json::from_str(text) {
         Ok(m) => m,
-        Err(_) => return,
+        Err(e) => {
+            tracing::error!("[WS] 消息反序列化失败: user_id={}, error={}, raw={}", user_id, e, text);
+            return;
+        }
     };
 
     match msg {
@@ -145,12 +149,14 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             content,
             client_msg_id,
         } => {
+            tracing::info!("[消息发送] user_id={}, conv={}, content_type={}, content={}", user_id, conversation_id, content_type, content);
             // Ensure conversation members are registered in the hub
             let members = crate::services::conversation::get_members(pool, conversation_id)
                 .await
                 .unwrap_or_default();
             if !members.is_empty() {
-                hub.register_conversation(conversation_id, members).await;
+                let member_ids: Vec<Uuid> = members.iter().map(|m| m.user_id).collect();
+                hub.register_conversation(conversation_id, member_ids).await;
             }
 
             let result = sqlx::query_as::<_, DbMessage>(
@@ -169,6 +175,8 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
 
             match result {
                 Ok(db_msg) => {
+                    tracing::info!("[消息保存成功] msg_id={}, content_type={}, content={}", db_msg.id, db_msg.content_type, db_msg.content);
+
                     // Send ACK to sender
                     let ack = serde_json::to_string(&WsServerMessage::MessageAck {
                         client_msg_id: client_msg_id.clone(),
@@ -178,13 +186,19 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                     .unwrap();
                     hub.send_to_user(&user_id, &ack).await;
 
-                    // Deliver to other members
+                    // Deliver to all members including sender
                     let deliver = serde_json::to_string(&WsServerMessage::MessageDeliver {
                         message: db_msg,
                         conversation_id,
                     })
                     .unwrap();
-                    hub.send_to_conversation(&conversation_id, &user_id, &deliver).await;
+                    let members = crate::services::conversation::get_members(pool, conversation_id)
+                        .await
+                        .unwrap_or_default();
+                    tracing::info!("[消息投递] 投递给 {} 个成员", members.len());
+                    for mid in &members {
+                        hub.send_to_user(&mid.user_id, &deliver).await;
+                    }
                 }
                 Err(e) => {
                     tracing::error!("Failed to save message: {}", e);
@@ -208,6 +222,15 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             .bind(message_id)
             .execute(pool)
             .await;
+
+            // 通知同会话其他成员
+            let notify = serde_json::to_string(&WsServerMessage::MessageReadNotify {
+                user_id,
+                conversation_id,
+                message_id,
+            })
+            .unwrap();
+            hub.send_to_conversation(&conversation_id, &user_id, &notify).await;
         }
         WsClientMessage::TypingStart { conversation_id } => {
             let typing = serde_json::to_string(&WsServerMessage::TypingStart {
@@ -262,14 +285,12 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                         channel_id,
                     })
                     .unwrap();
-                    // Broadcast to all channel members except sender
+                    // Broadcast to all channel members including sender
                     let member_ids = crate::services::channel::get_member_ids(pool, channel_id)
                         .await
                         .unwrap_or_default();
                     for mid in &member_ids {
-                        if *mid != user_id {
-                            hub.send_to_user(mid, &deliver).await;
-                        }
+                        hub.send_to_user(mid, &deliver).await;
                     }
                 }
                 Err(e) => {

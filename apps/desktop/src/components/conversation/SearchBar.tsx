@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useChatStore } from "../../stores/chatStore";
 import { useAuthStore } from "../../stores/authStore";
 
 export function SearchBar() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchMessages = useChatStore((s) => s.searchMessages);
@@ -62,18 +64,18 @@ export function SearchBar() {
     <div ref={containerRef} className="relative px-3 py-2">
       <input
         type="text"
-        placeholder="搜索消息..."
+        placeholder={t("search.placeholder")}
         value={query}
         onChange={(e) => handleChange(e.target.value)}
         onFocus={() => { if (searchResults.length > 0) setShowResults(true); }}
-        className="w-full bg-white border border-feiyu-border rounded-md px-3 py-2 text-sm text-feiyu-text placeholder:text-feiyu-text-muted focus:outline-none focus:border-feiyu-primary"
+        className="w-full bg-feiyu-card border border-feiyu-border rounded-md px-3 py-2 text-sm text-feiyu-text placeholder:text-feiyu-text-muted focus:outline-none focus:border-feiyu-primary"
       />
       {showResults && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-feiyu-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-feiyu-card border border-feiyu-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
           {isSearching ? (
-            <div className="px-3 py-4 text-sm text-feiyu-text-muted text-center">搜索中...</div>
+            <div className="px-3 py-4 text-sm text-feiyu-text-muted text-center">{t("search.searching")}</div>
           ) : searchResults.length === 0 ? (
-            <div className="px-3 py-4 text-sm text-feiyu-text-muted text-center">无搜索结果</div>
+            <div className="px-3 py-4 text-sm text-feiyu-text-muted text-center">{t("search.noResults")}</div>
           ) : (
             searchResults.map((msg) => {
               const content = formatContent(msg.content);
@@ -85,7 +87,7 @@ export function SearchBar() {
                   className="w-full px-3 py-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
                 >
                   <div className="text-xs text-feiyu-text-muted mb-0.5">
-                    {isOwn ? "我" : "他人"} · {new Date(msg.created_at).toLocaleString("zh-CN")}
+                    {isOwn ? t("search.me") : t("search.other")} · {new Date(msg.created_at).toLocaleString(localStorage.getItem("feiyu_language") || "zh-CN")}
                   </div>
                   <div className="text-sm text-feiyu-text truncate">{content}</div>
                 </button>

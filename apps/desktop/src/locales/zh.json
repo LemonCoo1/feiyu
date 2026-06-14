@@ -1,0 +1,242 @@
+{
+  "app": {
+    "name": "飞鱼"
+  },
+  "auth": {
+    "loginSubtitle": "登录你的账号",
+    "registerSubtitle": "创建新账号",
+    "username": "用户名",
+    "email": "邮箱",
+    "password": "密码",
+    "pleaseWait": "请稍候...",
+    "login": "登录",
+    "register": "注册",
+    "noAccount": "没有账号？",
+    "hasAccount": "已有账号？"
+  },
+  "nav": {
+    "profile": "个人信息",
+    "messages": "消息",
+    "contacts": "通讯录",
+    "channels": "频道",
+    "settings": "设置"
+  },
+  "conversation": {
+    "createGroup": "创建群聊",
+    "noConversations": "暂无会话",
+    "groupChat": "群聊",
+    "unknown": "未知",
+    "groupName": "群聊名称",
+    "selectMembers": "选择成员：",
+    "noContacts": "暂无联系人",
+    "cancel": "取消",
+    "createWithCount": "创建 ({{count}} 人)",
+    "groupBadge": "群"
+  },
+  "chat": {
+    "selectConversation": "选择一个会话开始聊天",
+    "searchMessages": "搜索消息",
+    "unpin": "取消置顶",
+    "pin": "置顶会话",
+    "groupInfo": "群聊信息",
+    "searchCurrentChat": "搜索当前会话消息...",
+    "cancel": "取消",
+    "groupChat": "群聊",
+    "emojiAndSticker": "表情与贴纸",
+    "attachment": "附件",
+    "image": "图片",
+    "inputPlaceholder": "输入消息...",
+    "send": "发送",
+    "hintCtrlEnter": "Ctrl+Enter 发送 · Enter 换行 · 粘贴文件/图片可直接发送",
+    "hintEnter": "Enter 发送 · Shift+Enter 换行 · 粘贴文件/图片可直接发送",
+    "today": "今天",
+    "yesterday": "昨天",
+    "scrollToBottom": "回到底部",
+    "sticker": "贴纸",
+    "gif": "GIF",
+    "read": "已读",
+    "file": "文件"
+  },
+  "groupInfo": {
+    "owner": "群主",
+    "admin": "管理员",
+    "confirmRemove": "确定要移除 {{name}} 吗？",
+    "confirmLeave": "确定要退出群聊吗？",
+    "title": "群聊信息",
+    "groupName": "群名称",
+    "save": "保存",
+    "edit": "编辑",
+    "searchUsername": "搜索用户名...",
+    "cancel": "取消",
+    "addMember": "+ 添加成员",
+    "memberCount": "成员 ({{count}})",
+    "loading": "加载中...",
+    "setAdmin": "设为管理",
+    "remove": "移除",
+    "leaveGroup": "退出群聊",
+    "ownerLeaveHint": "群主请先转让群主身份后再退出"
+  },
+  "channel": {
+    "title": "频道",
+    "create": "+ 创建",
+    "noChannels": "暂无频道",
+    "members": "成员",
+    "createChannel": "创建频道",
+    "channelName": "频道名称",
+    "channelDesc": "频道描述（可选）",
+    "cancel": "取消",
+    "createBtn": "创建",
+    "selectChannel": "选择一个频道",
+    "memberCount": "{{count}} 成员",
+    "sendPlaceholder": "在 #{{name}} 中发送消息...",
+    "send": "发送"
+  },
+  "contact": {
+    "title": "通讯录",
+    "add": "+ 添加",
+    "noContacts": "暂无联系人",
+    "addFirst": "添加第一个联系人",
+    "addContact": "添加联系人",
+    "searchPlaceholder": "搜索用户名 or 邮箱...",
+    "added": "已添加",
+    "addBtn": "添加",
+    "notFound": "未找到用户"
+  },
+  "debug": {
+    "closeLog": "关闭日志",
+    "logCount": "日志 ({{count}})",
+    "noLogs": "暂无日志"
+  },
+  "profile": {
+    "email": "邮箱",
+    "editProfile": "编辑资料",
+    "logout": "退出登录",
+    "online": "在线",
+    "away": "离开",
+    "offline": "离线"
+  },
+  "search": {
+    "placeholder": "搜索消息...",
+    "searching": "搜索中...",
+    "noResults": "无搜索结果",
+    "me": "我",
+    "other": "他人"
+  },
+  "notification": {
+    "newMessage": "新消息",
+    "newMessageBody": "收到新消息",
+    "channelMessage": "频道消息",
+    "channelMessageBody": "收到新频道消息"
+  },
+  "unknownUser": "未知用户",
+  "settings": {
+    "title": "设置",
+    "profile": "账号资料",
+    "theme": "外观主题",
+    "notifications": "通知设置",
+    "privacy": "隐私设置",
+    "chat": "聊天设置",
+    "language": "语言",
+    "storage": "存储管理",
+    "shortcuts": "快捷键",
+    "security": "账号安全",
+    "about": "关于",
+    "profileSection": {
+      "nickname": "昵称",
+      "nicknamePlaceholder": "设置你的昵称",
+      "username": "用户名",
+      "email": "邮箱",
+      "save": "保存",
+      "saved": "已保存"
+    },
+    "themeSection": {
+      "title": "外观主题",
+      "themeMode": "主题模式",
+      "light": "浅色",
+      "dark": "深色",
+      "system": "跟随系统"
+    },
+    "notificationSection": {
+      "title": "通知设置",
+      "messageNotify": "消息通知",
+      "messageNotifyDesc": "接收新消息通知",
+      "sound": "通知声音",
+      "soundDesc": "收到消息时播放声音",
+      "desktop": "桌面通知",
+      "desktopDesc": "显示系统桌面通知",
+      "dnd": "免打扰模式",
+      "dndDesc": "在指定时段内静音所有通知",
+      "timeRange": "时段",
+      "to": "至"
+    },
+    "privacySection": {
+      "title": "隐私设置",
+      "whoCanAdd": "谁可以添加我为好友",
+      "everyone": "所有人",
+      "contactsOnly": "通讯录联系人",
+      "nobody": "不允许",
+      "onlineVisible": "在线状态可见",
+      "onlineVisibleDesc": "其他用户可以看到你的在线状态",
+      "readReceipt": "已读回执",
+      "readReceiptDesc": "发送已读回执给对方"
+    },
+    "chatSection": {
+      "title": "聊天设置",
+      "sendKey": "发送消息快捷键",
+      "enter": "Enter",
+      "enterDesc": "按 Enter 发送",
+      "ctrlEnter": "Ctrl+Enter",
+      "ctrlEnterDesc": "按 Ctrl+Enter 发送",
+      "fontSize": "字体大小",
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
+    "languageSection": {
+      "title": "语言设置",
+      "chinese": "简体中文",
+      "english": "English",
+      "refreshHint": "切换语言后将立即生效"
+    },
+    "storageSection": {
+      "title": "存储管理",
+      "localCache": "本地缓存",
+      "cacheDesc": "包括会话列表、消息缓存等",
+      "clearCache": "清除缓存",
+      "cacheCleared": "缓存已清除"
+    },
+    "shortcutsSection": {
+      "title": "快捷键",
+      "newChat": "新建会话",
+      "searchMsg": "搜索消息",
+      "openSettings": "打开设置",
+      "switchMessages": "切换到消息",
+      "switchContacts": "切换到通讯录",
+      "switchChannels": "切换到频道",
+      "closePopup": "关闭弹窗/面板",
+      "customHint": "快捷键自定义功能即将推出"
+    },
+    "securitySection": {
+      "title": "账号安全",
+      "changePassword": "修改密码",
+      "currentPassword": "当前密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "passwordMinLength": "新密码至少 6 个字符",
+      "passwordMismatch": "两次输入的密码不一致",
+      "passwordUpdated": "密码已更新",
+      "changeBtn": "修改密码",
+      "twoFactor": "两步验证",
+      "twoFactorDesc": "登录时需要额外验证",
+      "changeFailed": "修改失败"
+    },
+    "aboutSection": {
+      "title": "关于",
+      "version": "版本 0.1.0",
+      "userAgreement": "用户协议",
+      "privacyPolicy": "隐私政策",
+      "openSource": "开源许可",
+      "feedback": "反馈建议"
+    }
+  }
+}

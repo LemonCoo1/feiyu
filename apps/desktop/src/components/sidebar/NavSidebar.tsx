@@ -1,4 +1,9 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NavItem } from "./NavItem";
+import { Avatar } from "../common/Avatar";
+import { ProfilePanel } from "../profile/ProfilePanel";
+import { useAuthStore } from "../../stores/authStore";
 
 type NavView = "messages" | "contacts" | "channels" | "settings";
 
@@ -8,36 +13,54 @@ interface NavSidebarProps {
 }
 
 export function NavSidebar({ activeView, onViewChange }: NavSidebarProps) {
+  const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const displayName = user?.display_name || user?.username || "F";
+  const [profileOpen, setProfileOpen] = useState(false);
+
   return (
-    <div className="w-[60px] bg-feiyu-sidebar flex flex-col items-center pt-3 gap-2">
-      <div className="w-10 h-10 rounded-xl bg-feiyu-primary flex items-center justify-center text-white text-xl font-bold mb-3">
-        F
+    <>
+      <div className="w-[60px] bg-feiyu-sidebar flex flex-col items-center pt-3 gap-2">
+        <button
+          onClick={() => setProfileOpen(true)}
+          className="mb-3 transition-transform hover:scale-105"
+          title={t("nav.profile")}
+        >
+          <Avatar name={displayName} size="md" />
+        </button>
+        <NavItem
+          icon="💬"
+          label={t("nav.messages")}
+          active={activeView === "messages"}
+          onClick={() => onViewChange("messages")}
+        />
+        <NavItem
+          icon="👥"
+          label={t("nav.contacts")}
+          active={activeView === "contacts"}
+          onClick={() => onViewChange("contacts")}
+        />
+        <NavItem
+          icon="📋"
+          label={t("nav.channels")}
+          active={activeView === "channels"}
+          onClick={() => onViewChange("channels")}
+        />
+        <div className="flex-1" />
+        <NavItem
+          icon="⚙️"
+          label={t("nav.settings")}
+          active={activeView === "settings"}
+          onClick={() => onViewChange("settings")}
+        />
       </div>
-      <NavItem
-        icon="💬"
-        label="消息"
-        active={activeView === "messages"}
-        onClick={() => onViewChange("messages")}
-      />
-      <NavItem
-        icon="👥"
-        label="通讯录"
-        active={activeView === "contacts"}
-        onClick={() => onViewChange("contacts")}
-      />
-      <NavItem
-        icon="📋"
-        label="频道"
-        active={activeView === "channels"}
-        onClick={() => onViewChange("channels")}
-      />
-      <div className="flex-1" />
-      <NavItem
-        icon="⚙️"
-        label="设置"
-        active={activeView === "settings"}
-        onClick={() => onViewChange("settings")}
-      />
-    </div>
+
+      {profileOpen && (
+        <ProfilePanel
+          onClose={() => setProfileOpen(false)}
+          onOpenSettings={() => onViewChange("settings")}
+        />
+      )}
+    </>
   );
 }
