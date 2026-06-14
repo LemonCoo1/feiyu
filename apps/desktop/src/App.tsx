@@ -19,6 +19,7 @@ import { DebugPanel } from "./components/common/DebugPanel";
 import { ConnectionBanner } from "./components/common/ConnectionBanner";
 import { wsClient } from "./services/ws";
 import type { ConnectionStatus } from "./services/ws";
+import * as cacheService from "./services/cacheService";
 
 type NavView = "messages" | "contacts" | "channels" | "settings";
 
@@ -46,6 +47,11 @@ function App() {
 
   useEffect(() => {
     loadFromStorage();
+  }, []);
+
+  // 启动时自动清理过期缓存
+  useEffect(() => {
+    cacheService.runAutoCleanup();
   }, []);
 
   useEffect(() => {
