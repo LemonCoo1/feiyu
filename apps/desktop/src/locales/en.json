@@ -128,6 +128,12 @@
     "channelMessage": "Channel Message",
     "channelMessageBody": "New channel message received"
   },
+  "connection": {
+    "disconnected": "Connection lost, reconnecting...",
+    "connecting": "Connecting to server...",
+    "connected": "Reconnected",
+    "waiting": "Waiting for connection..."
+  },
   "unknownUser": "Unknown User",
   "settings": {
     "title": "Settings",

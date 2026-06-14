@@ -16,6 +16,9 @@ import { useSettingsStore } from "./stores/settingsStore";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useTheme } from "./hooks/useTheme";
 import { DebugPanel } from "./components/common/DebugPanel";
+import { ConnectionBanner } from "./components/common/ConnectionBanner";
+import { wsClient } from "./services/ws";
+import type { ConnectionStatus } from "./services/ws";
 
 type NavView = "messages" | "contacts" | "channels" | "settings";
 
@@ -31,8 +34,15 @@ function App() {
   const loadChannels = useChannelStore((s) => s.loadChannels);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
 
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("connected");
+
   useWebSocket();
   useTheme();
+
+  useEffect(() => {
+    wsClient.onStatusChange(setConnectionStatus);
+    return () => wsClient.offStatusChange(setConnectionStatus);
+  }, []);
 
   useEffect(() => {
     loadFromStorage();
@@ -52,23 +62,26 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen">
-      <NavSidebar activeView={activeView} onViewChange={setActiveView} />
-      {activeView === "messages" && (
-        <>
-          <ConversationList />
-          <ChatWindow />
-        </>
-      )}
-      {activeView === "contacts" && <ContactList />}
-      {activeView === "channels" && (
-        <>
-          <ChannelList />
-          <ChannelView />
-        </>
-      )}
-      {activeView === "settings" && <SettingsView />}
-      <DebugPanel />
+    <div className="flex h-screen w-screen flex-col">
+      <ConnectionBanner status={connectionStatus} />
+      <div className="flex flex-1 overflow-hidden">
+        <NavSidebar activeView={activeView} onViewChange={setActiveView} />
+        {activeView === "messages" && (
+          <>
+            <ConversationList />
+            <ChatWindow />
+          </>
+        )}
+        {activeView === "contacts" && <ContactList />}
+        {activeView === "channels" && (
+          <>
+            <ChannelList />
+            <ChannelView />
+          </>
+        )}
+        {activeView === "settings" && <SettingsView />}
+        <DebugPanel />
+      </div>
     </div>
   );
 }
