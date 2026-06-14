@@ -4,6 +4,7 @@ import { wsClient } from "../services/ws";
 import { debugLog } from "../utils/debugLog";
 import { compressImage } from "../utils/compressImage";
 import { useSettingsStore } from "./settingsStore";
+import * as cacheService from "../services/cacheService";
 
 interface Message {
   id: string;
@@ -109,16 +110,49 @@ export const useChatStore = create<ChatState>((set, get) => ({
   loadMessages: async (conversationId) => {
     set({ isLoadingMsgs: true });
     try {
-      const msgs = await api.getMessages(conversationId);
-      const reversed = msgs.reverse();
-      set((state) => {
-        const newMessages = new Map(state.messages);
-        newMessages.set(conversationId, reversed);
-        return { messages: newMessages, isLoadingMsgs: false };
-      });
-      // 加载完毕后标记最后一条消息为已读
-      if (reversed.length > 0) {
-        wsClient.sendRead(conversationId, reversed[reversed.length - 1].id);
+      // 1. 先从本地缓存读取，立即展示
+      const localMsgs = await cacheService.getLocalMessages(conversationId);
+      if (localMsgs.length > 0) {
+        set((state) => {
+          const newMessages = new Map(state.messages);
+          newMessages.set(conversationId, localMsgs);
+          return { messages: newMessages, isLoadingMsgs: false };
+        });
+      }
+
+      // 2. 增量同步：拉取 since 之后的新消息
+      const newMsgs = await cacheService.syncNewMessages(conversationId);
+
+      // 3. 合并更新
+      if (newMsgs.length > 0) {
+        set((state) => {
+          const newMessages = new Map(state.messages);
+          const existing = newMessages.get(conversationId) || localMsgs;
+          const existingIds = new Set(existing.map((m) => m.id));
+          const merged = [...existing, ...newMsgs.filter((m) => !existingIds.has(m.id))];
+          merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+          newMessages.set(conversationId, merged);
+          return { messages: newMessages, isLoadingMsgs: false };
+        });
+      } else if (localMsgs.length === 0) {
+        // 本地无数据且增量无新数据 → 全量拉取
+        const msgs = await api.getMessages(conversationId);
+        const reversed = msgs.reverse();
+        for (const msg of reversed) {
+          await cacheService.cacheMessage(msg);
+        }
+        set((state) => {
+          const newMessages = new Map(state.messages);
+          newMessages.set(conversationId, reversed);
+          return { messages: newMessages, isLoadingMsgs: false };
+        });
+      }
+
+      // 标记已读
+      const state = get();
+      const msgs = state.messages.get(conversationId) || [];
+      if (msgs.length > 0) {
+        wsClient.sendRead(conversationId, msgs[msgs.length - 1].id);
       }
     } catch (e) {
       console.error("Failed to load messages:", e);
@@ -210,6 +244,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   addIncomingMessage: (message) => {
+    // 写入本地缓存
+    cacheService.cacheMessage(message).catch((e) =>
+      console.error("Failed to cache incoming message:", e)
+    );
+
     console.log("[chatStore] addIncomingMessage", { id: message.id, content_type: message.content_type, content: message.content, conversation_id: message.conversation_id });
     set((state) => {
       const newMessages = new Map(state.messages);
