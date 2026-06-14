@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "../common/Avatar";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { getCachedMediaUrl } from "../../services/cacheService";
 
 interface MessageBubbleProps {
   content: string;
@@ -15,6 +17,19 @@ interface MessageBubbleProps {
   avatarUrl?: string | null;
 }
 
+function useCachedUrl(url: string | undefined): string | undefined {
+  const [cached, setCached] = useState(url);
+  useEffect(() => {
+    if (!url) return;
+    let cancelled = false;
+    getCachedMediaUrl(url).then((localUrl) => {
+      if (!cancelled) setCached(localUrl);
+    });
+    return () => { cancelled = true; };
+  }, [url]);
+  return cached;
+}
+
 export function MessageBubble({ content, contentType, rawContent, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
   const { t } = useTranslation();
   const fontSize = useSettingsStore((s) => s.settings.chat_font_size);
@@ -24,6 +39,9 @@ export function MessageBubble({ content, contentType, rawContent, time, isOwn, i
   const isGif = contentType === "gif";
 
   const textSizeClass = fontSize === "small" ? "text-xs" : fontSize === "large" ? "text-base" : "text-sm";
+
+  const cachedStickerUrl = useCachedUrl(rawContent?.url);
+  const cachedImageUrl = useCachedUrl(rawContent?.url);
 
   // 贴纸和 GIF 不使用气泡样式
   if (isSticker || isGif) {
@@ -36,7 +54,7 @@ export function MessageBubble({ content, contentType, rawContent, time, isOwn, i
           )}
           <div className="relative group">
             <img
-              src={rawContent?.url}
+              src={cachedStickerUrl}
               alt={rawContent?.name || (isSticker ? t("chat.sticker") : t("chat.gif"))}
               className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-lg hover:opacity-90 transition-opacity`}
               onClick={() => rawContent?.url && window.open(rawContent.url, "_blank")}
@@ -73,7 +91,7 @@ export function MessageBubble({ content, contentType, rawContent, time, isOwn, i
           {isImage && rawContent?.url ? (
             <div>
               <img
-                src={rawContent.url}
+                src={cachedImageUrl}
                 alt={rawContent.filename || t("chat.image")}
                 className="max-w-[240px] max-h-[240px] rounded-md object-contain cursor-pointer"
                 onClick={() => window.open(rawContent.url, "_blank")}
