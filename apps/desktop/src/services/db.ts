@@ -45,5 +45,49 @@ export async function getDb(): Promise<Database> {
     )
   `);
 
+  // 会话列表缓存表
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS cached_conversations (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      name TEXT,
+      owner_id TEXT,
+      created_at TEXT,
+      last_message_content TEXT,
+      last_message_content_type TEXT,
+      last_message_at TEXT,
+      other_user_id TEXT,
+      other_username TEXT,
+      other_display_name TEXT,
+      other_avatar_url TEXT,
+      unread_count INTEGER DEFAULT 0,
+      updated_at TEXT
+    )
+  `);
+
+  // 联系人缓存表
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS cached_contacts (
+      id TEXT PRIMARY KEY,
+      username TEXT,
+      display_name TEXT,
+      avatar_url TEXT,
+      status TEXT DEFAULT 'offline',
+      updated_at TEXT
+    )
+  `);
+
+  // 频道缓存表
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS cached_channels (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT,
+      owner_id TEXT,
+      created_at TEXT,
+      updated_at TEXT
+    )
+  `);
+
   return db;
 }
