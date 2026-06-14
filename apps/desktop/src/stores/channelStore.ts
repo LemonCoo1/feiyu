@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { api } from "../services/api";
 import { wsClient } from "../services/ws";
+import * as cacheService from "../services/cacheService";
 
 interface Channel {
   id: string;
@@ -41,8 +42,16 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
 
   loadChannels: async () => {
     try {
+      // 1. 先读本地缓存
+      const cached = await cacheService.getCachedChannels();
+      if (cached.length > 0) {
+        set({ channels: cached });
+      }
+      // 2. 从服务器拉取最新
       const channels = await api.getChannels();
       set({ channels });
+      // 3. 写入缓存
+      await cacheService.cacheChannels(channels);
     } catch (e) {
       console.error("Failed to load channels:", e);
     }
