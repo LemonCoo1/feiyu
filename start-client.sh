@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# 加载 cargo 环境（非交互 shell 不会自动加载）
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+
 GREEN='\033[0;32m'
 NC='\033[0m'
 log() { echo -e "${GREEN}[client]${NC} $1"; }

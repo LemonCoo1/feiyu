@@ -11,6 +11,7 @@ export default {
           card: "var(--feiyu-card)",
           sidebar: "var(--feiyu-sidebar)",
           "sidebar-hover": "var(--feiyu-sidebar-hover)",
+          "primary-soft": "var(--feiyu-primary-soft)",
           primary: "var(--feiyu-primary)",
           "primary-hover": "var(--feiyu-primary-hover)",
           "primary-light": "var(--feiyu-primary-light)",

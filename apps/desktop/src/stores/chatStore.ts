@@ -100,16 +100,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isLoadingConvs: true });
     try {
       // 1. 先读本地缓存，立即展示
-      console.log("[loadConversations] 读取本地缓存...");
       const cached = await cacheService.getCachedConversations();
-      console.log("[loadConversations] 缓存返回:", cached.length, "条");
       if (cached.length > 0) {
         set({ conversations: cached, isLoadingConvs: false });
       }
       // 2. 从服务器拉取最新数据
-      console.log("[loadConversations] 从服务器拉取...");
       const convs = await api.getConversations();
-      console.log("[loadConversations] 服务器返回:", convs.length, "条");
       set({ conversations: convs, isLoadingConvs: false });
       // 3. 写入缓存
       await cacheService.cacheConversations(convs);
@@ -264,7 +260,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       console.error("Failed to cache incoming message:", e)
     );
 
-    console.log("[chatStore] addIncomingMessage", { id: message.id, content_type: message.content_type, content: message.content, conversation_id: message.conversation_id });
+    console.log("[chatStore] addIncomingMessage", { id: message.id, content_type: message.content_type, conversation_id: message.conversation_id });
     set((state) => {
       const newMessages = new Map(state.messages);
       const convMsgs = newMessages.get(message.conversation_id) || [];

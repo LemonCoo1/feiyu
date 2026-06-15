@@ -70,3 +70,17 @@
 - [x] Task 4: 替换所有组件中的硬编码中文文案为 t() 调用
 - [x] Task 5: 日期时间格式化跟随语言设置，EmojiPicker 动态切换语言
 - [x] Task 6: 通知文案国际化
+
+### Phase 10: 断线重连与存储管理（2026-06-15）
+- [x] Task 1: WsClient 增强 — 指数退避重连、心跳检测、连接状态事件、发送队列
+- [x] Task 2: 数据库新增缓存表 — cached_conversations、cached_contacts、cached_channels
+- [x] Task 3: ConnectionBanner 顶部横幅组件 — 红/橙/绿三态显示，集成连接状态监听
+- [x] Task 4: 断连时禁用消息输入框，显示等待连接提示
+- [x] Task 5: cacheService 扩展 — 会话/联系人/频道缓存读写函数
+- [x] Task 6: cacheService 详细统计与分类清理 — DetailedCacheStats、5 类独立清理、自动清理策略
+- [x] Task 7: chatStore 会话列表本地优先加载 + 实时同步缓存
+- [x] Task 8: contactStore 联系人本地优先加载
+- [x] Task 9: channelStore 频道列表本地优先加载
+- [x] Task 10: settingsStore 扩展分类缓存统计和清理 action
+- [x] Task 11: 设置页存储管理改为分组展示，支持分类清理
+- [x] Task 12: App 启动时自动清理过期缓存 + i18n 翻译
