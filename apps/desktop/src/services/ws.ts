@@ -1,3 +1,5 @@
+import { getServerUrl } from "./serverConfig";
+
 type MessageHandler = (data: any) => void;
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -63,7 +65,7 @@ class WsClient {
 
     this.setStatus('connecting');
 
-    const httpBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const httpBase = getServerUrl();
     const wsBase = httpBase.replace(/^http/, "ws");
     this.ws = new WebSocket(`${wsBase}/api/ws`);
 

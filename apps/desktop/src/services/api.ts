@@ -1,6 +1,5 @@
 import { debugLog } from "../utils/debugLog";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+import { getServerUrl } from "./serverConfig";
 
 async function request<T>(
   path: string,
@@ -15,7 +14,7 @@ async function request<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(`${getServerUrl()}${path}`, {
     ...options,
     headers,
   });
@@ -36,7 +35,7 @@ async function uploadFile(file: File): Promise<{ url: string; filename: string }
   // 使用 XHR 代替 fetch — WebKit 的 fetch 对大文件 FormData 上传会抛出 TypeError: Load failed
   const result = await new Promise<{ url: string; filename: string }>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${BASE_URL}/api/files/upload`);
+    xhr.open("POST", `${getServerUrl()}/api/files/upload`);
     if (token) {
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     }
