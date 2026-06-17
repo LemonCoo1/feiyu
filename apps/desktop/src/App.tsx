@@ -18,6 +18,7 @@ import { useTheme } from "./hooks/useTheme";
 import { DebugPanel } from "./components/common/DebugPanel";
 import { ConnectionBanner } from "./components/common/ConnectionBanner";
 import { wsClient } from "./services/ws";
+import { getServerUrl, setServerUrl, validateServerUrl, normalizeServerUrl, getDefaultServerUrl } from "./services/serverConfig";
 import type { ConnectionStatus } from "./services/ws";
 import * as cacheService from "./services/cacheService";
 
@@ -106,6 +107,10 @@ function AuthScreen({
   const [password, setPassword] = useState("");
   const error = useAuthStore((s) => s.error);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const [serverUrl, setServerUrlState] = useState<string>(getServerUrl());
+  const [urlError, setUrlError] = useState<string | null>(null);
+  const [testState, setTestState] = useState<"idle" | "testing" | "ok" | "fail">("idle");
+  const [testMsg, setTestMsg] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +118,44 @@ function AuthScreen({
       await onLogin(email, password);
     } else {
       await onRegister(username, email, password);
+    }
+  };
+
+  const handleServerUrlBlur = () => {
+    const err = validateServerUrl(serverUrl);
+    if (err) {
+      setUrlError(err);
+      return;
+    }
+    setUrlError(null);
+    setServerUrl(serverUrl);
+  };
+
+  const handleTestConnection = async () => {
+    const err = validateServerUrl(serverUrl);
+    if (err) {
+      setUrlError(err);
+      return;
+    }
+    setUrlError(null);
+    setTestState("testing");
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 5000);
+      const res = await fetch(`${normalizeServerUrl(serverUrl)}/api/health`, {
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (res.ok) {
+        setTestState("ok");
+        setTestMsg("");
+      } else {
+        setTestState("fail");
+        setTestMsg(`${res.status}`);
+      }
+    } catch (e: any) {
+      setTestState("fail");
+      setTestMsg(e?.name === "AbortError" ? "timeout" : e?.message || "network");
     }
   };
 
@@ -167,6 +210,44 @@ function AuthScreen({
             {isLoading ? t("auth.pleaseWait") : mode === "login" ? t("auth.login") : t("auth.register")}
           </button>
         </form>
+
+        <details className="text-sm border-t border-feiyu-border pt-3">
+          <summary className="cursor-pointer text-feiyu-text-muted hover:text-feiyu-text select-none">
+            {t("auth.serverSettings")}
+          </summary>
+          <div className="mt-2 space-y-2">
+            <input
+              type="text"
+              value={serverUrl}
+              onChange={(e) => setServerUrlState(e.target.value)}
+              onBlur={handleServerUrlBlur}
+              placeholder={getDefaultServerUrl()}
+              className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-feiyu-primary"
+            />
+            {urlError && (
+              <p className="text-red-500 text-xs">{t(`auth.urlError.${urlError}`)}</p>
+            )}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleTestConnection}
+                disabled={testState === "testing"}
+                className="text-xs border border-feiyu-border rounded px-2 py-1 hover:bg-feiyu-bg disabled:opacity-50"
+              >
+                {testState === "testing" ? t("auth.testing") : t("auth.testConnection")}
+              </button>
+              {testState === "ok" && (
+                <span className="text-green-500 text-xs">✓ {t("auth.connectionOk")}</span>
+              )}
+              {testState === "fail" && (
+                <span className="text-red-500 text-xs">
+                  ✗ {t("auth.connectionFailed")}
+                  {testMsg ? `: ${testMsg}` : ""}
+                </span>
+              )}
+            </div>
+          </div>
+        </details>
 
         <p className="text-center mt-4 text-sm text-feiyu-text-muted">
           {mode === "login" ? t("auth.noAccount") : t("auth.hasAccount")}

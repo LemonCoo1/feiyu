@@ -12,7 +12,17 @@
     "login": "登录",
     "register": "注册",
     "noAccount": "没有账号？",
-    "hasAccount": "已有账号？"
+    "hasAccount": "已有账号？",
+    "serverSettings": "服务器设置",
+    "testConnection": "测试连接",
+    "testing": "测试中...",
+    "connectionOk": "连接成功",
+    "connectionFailed": "连接失败",
+    "urlError": {
+      "empty": "地址不能为空",
+      "invalid": "地址格式无效",
+      "protocol": "必须以 http:// 或 https:// 开头"
+    }
   },
   "nav": {
     "profile": "个人信息",

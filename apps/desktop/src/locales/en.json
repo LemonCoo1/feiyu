@@ -12,7 +12,17 @@
     "login": "Sign In",
     "register": "Sign Up",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "serverSettings": "Server Settings",
+    "testConnection": "Test Connection",
+    "testing": "Testing...",
+    "connectionOk": "Connected",
+    "connectionFailed": "Connection failed",
+    "urlError": {
+      "empty": "URL cannot be empty",
+      "invalid": "Invalid URL format",
+      "protocol": "Must start with http:// or https://"
+    }
   },
   "nav": {
     "profile": "Profile",
