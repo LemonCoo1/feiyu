@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import "./i18n";
 import { NavSidebar } from "./components/sidebar/NavSidebar";
@@ -111,6 +111,7 @@ function AuthScreen({
   const [urlError, setUrlError] = useState<string | null>(null);
   const [testState, setTestState] = useState<"idle" | "testing" | "ok" | "fail">("idle");
   const [testMsg, setTestMsg] = useState<string>("");
+  const testAbortRef = useRef<AbortController | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,9 +139,13 @@ function AuthScreen({
       return;
     }
     setUrlError(null);
+    if (testAbortRef.current) {
+      testAbortRef.current.abort();
+    }
+    const ctrl = new AbortController();
+    testAbortRef.current = ctrl;
     setTestState("testing");
     try {
-      const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 5000);
       const res = await fetch(`${normalizeServerUrl(serverUrl)}/api/health`, {
         signal: ctrl.signal,
@@ -153,9 +158,10 @@ function AuthScreen({
         setTestState("fail");
         setTestMsg(`${res.status}`);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "network";
       setTestState("fail");
-      setTestMsg(e?.name === "AbortError" ? "timeout" : e?.message || "network");
+      setTestMsg(e instanceof DOMException && e.name === "AbortError" ? "timeout" : msg);
     }
   };
 
@@ -219,7 +225,11 @@ function AuthScreen({
             <input
               type="text"
               value={serverUrl}
-              onChange={(e) => setServerUrlState(e.target.value)}
+              onChange={(e) => {
+                setServerUrlState(e.target.value);
+                setTestState("idle");
+                setTestMsg("");
+              }}
               onBlur={handleServerUrlBlur}
               placeholder={getDefaultServerUrl()}
               className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-feiyu-primary"
