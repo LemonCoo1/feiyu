@@ -113,8 +113,19 @@ function AuthScreen({
   const [testMsg, setTestMsg] = useState<string>("");
   const testAbortRef = useRef<AbortController | null>(null);
 
+  useEffect(() => {
+    return () => {
+      testAbortRef.current?.abort();
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Ensure server URL is saved before making API calls
+    const urlErr = validateServerUrl(serverUrl);
+    if (!urlErr) {
+      setServerUrl(serverUrl);
+    }
     if (mode === "login") {
       await onLogin(email, password);
     } else {
