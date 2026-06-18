@@ -84,3 +84,9 @@
 - [x] Task 10: settingsStore 扩展分类缓存统计和清理 action
 - [x] Task 11: 设置页存储管理改为分组展示，支持分类清理
 - [x] Task 12: App 启动时自动清理过期缓存 + i18n 翻译
+
+### Phase 11: 登录页服务端地址配置（2026-06-16）
+- [x] Task 1: 新增 serverConfig 模块 — localStorage 读写、URL 校验与规范化
+- [x] Task 2: api/ws 改用运行时服务端地址 — 移除编译期常量，改为 getServerUrl()
+- [x] Task 3: 登录页 UI — 可折叠"服务器设置"区域 + 校验 + 测试连接 + 中英文 i18n
+- [x] Task 4: 修复 — AbortController 竞态、类型安全、testState 重置、提交前持久化
