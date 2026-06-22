@@ -75,7 +75,7 @@ export function ConversationList() {
           {t("conversation.createGroup")}
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {isLoadingConvs ? (
           <div className="space-y-0">
             {Array.from({ length: 6 }).map((_, i) => (
