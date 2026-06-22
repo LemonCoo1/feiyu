@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "../common/Avatar";
 import { useAuthStore } from "../../stores/authStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { getServerUrl } from "../../services/serverConfig";
 
 type SettingsSection = "profile" | "theme" | "notifications" | "privacy" | "chat" | "language" | "storage" | "shortcuts" | "security" | "about";
 
@@ -74,6 +75,8 @@ function ProfileSection() {
   const updateProfile = useAuthStore((s) => s.updateProfile);
   const [displayName, setDisplayName] = useState(user?.display_name || "");
   const [saved, setSaved] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     await updateProfile(displayName);
@@ -81,12 +84,53 @@ function ProfileSection() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${getServerUrl()}/api/users/avatar`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // 更新本地 user 状态
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const u = JSON.parse(userStr);
+          u.avatar_url = data.avatar_url;
+          localStorage.setItem("user", JSON.stringify(u));
+        }
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div>
       <h3 className="text-lg font-bold text-feiyu-text mb-6">{t("settings.profile")}</h3>
 
       <div className="flex items-center gap-4 mb-8">
-        <Avatar name={user?.display_name || user?.username || "?"} size="lg" />
+        <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+          <Avatar name={user?.display_name || user?.username || "?"} size="lg" />
+          <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-white text-xs">{uploading ? "..." : t("settings.profileSection.uploadAvatar")}</span>
+          </div>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+        </div>
         <div>
           <div className="text-sm font-medium text-feiyu-text">{user?.display_name || user?.username}</div>
           <div className="text-xs text-feiyu-text-muted">@{user?.username}</div>
