@@ -303,6 +303,7 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             }
         }
         WsClientMessage::ReactionAdd { message_id, emoji } => {
+            tracing::info!("[回应添加] user_id={}, msg_id={}, emoji={}", user_id, message_id, emoji);
             // 查询 message 所属会话
             if let Ok(Some(msg)) = sqlx::query_as::<_, DbMessage>(
                 "SELECT * FROM messages WHERE id = $1",
@@ -311,7 +312,8 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             .fetch_optional(pool)
             .await
             {
-                let _ = crate::services::reaction::add(pool, message_id, user_id, &emoji).await;
+                let result = crate::services::reaction::add(pool, message_id, user_id, &emoji).await;
+                tracing::info!("[回应添加] DB结果: {:?}", result.is_ok());
                 let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
                     message_id,
                     user_id,
@@ -322,9 +324,12 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                 hub.send_to_conversation(&msg.conversation_id, &user_id, &update)
                     .await;
                 hub.send_to_user(&user_id, &update).await;
+            } else {
+                tracing::warn!("[回应添加] 消息不存在: msg_id={}", message_id);
             }
         }
         WsClientMessage::ReactionRemove { message_id, emoji } => {
+            tracing::info!("[回应移除] user_id={}, msg_id={}, emoji={}", user_id, message_id, emoji);
             if let Ok(Some(msg)) = sqlx::query_as::<_, DbMessage>(
                 "SELECT * FROM messages WHERE id = $1",
             )
@@ -346,6 +351,7 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             }
         }
         WsClientMessage::MessageRecall { message_id } => {
+            tracing::info!("[消息撤回] user_id={}, msg_id={}", user_id, message_id);
             // 查消息，验证是自己的消息且在 2 分钟内
             if let Ok(Some(msg)) = sqlx::query_as::<_, DbMessage>(
                 "SELECT * FROM messages WHERE id = $1 AND sender_id = $2",
