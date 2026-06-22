@@ -9,7 +9,7 @@ import { getServerUrl } from "../../services/serverConfig";
 import { useAuthStore } from "../../stores/authStore";
 
 interface MessageBubbleProps {
-  messageId: string;
+  messageId?: string;
   conversationId?: string;
   content: string;
   contentType?: string;
@@ -132,6 +132,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
   // 撤回消息
   const handleRecall = useCallback(() => {
     setShowMenu(false);
+    if (!messageId) return;
     wsClient.send({
       type: "message.recall",
       payload: { message_id: messageId }
@@ -271,11 +272,44 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
             style={{ left: menuPos.x, top: menuPos.y }}
           >
             <button
+              onClick={() => { setShowMenu(false); setShowEmojiPicker(true); }}
+              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+            >
+              {t("chat.react")}
+            </button>
+            <button
               onClick={handleForwardClick}
               className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
             >
               {t("chat.forward")}
             </button>
+            {isOwn && (
+              <button
+                onClick={handleRecall}
+                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+              >
+                {t("chat.recall")}
+              </button>
+            )}
+          </div>
+        )}
+        {showEmojiPicker && (
+          <div
+            className="fixed bg-feiyu-card rounded-lg shadow-lg border border-feiyu-border p-2 z-40"
+            style={{ left: menuPos.x, top: menuPos.y }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex gap-1">
+              {QUICK_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => handleToggleReaction(emoji)}
+                  className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-lg"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {showForward && conversationId && (
@@ -333,6 +367,27 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
             content
           )}
         </div>
+        {reactions.length > 0 && (
+          <div className={`flex flex-wrap gap-1 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
+            {reactions.map((r) => {
+              const hasMyReaction = user && r.user_ids.includes(user.id);
+              return (
+                <button
+                  key={r.emoji}
+                  onClick={() => handleToggleReaction(r.emoji)}
+                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs border transition-colors ${
+                    hasMyReaction
+                      ? "border-feiyu-primary bg-feiyu-primary/10 text-feiyu-primary"
+                      : "border-feiyu-border bg-feiyu-card text-feiyu-text-muted hover:bg-gray-50"
+                  }`}
+                >
+                  <span>{r.emoji}</span>
+                  <span>{r.count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className={`text-[11px] text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
           {time}
           {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
@@ -344,11 +399,44 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           style={{ left: menuPos.x, top: menuPos.y }}
         >
           <button
+            onClick={() => { setShowMenu(false); setShowEmojiPicker(true); }}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+          >
+            {t("chat.react")}
+          </button>
+          <button
             onClick={handleForwardClick}
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
           >
             {t("chat.forward")}
           </button>
+          {isOwn && (
+            <button
+              onClick={handleRecall}
+              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+            >
+              {t("chat.recall")}
+            </button>
+          )}
+        </div>
+      )}
+      {showEmojiPicker && (
+        <div
+          className="fixed bg-feiyu-card rounded-lg shadow-lg border border-feiyu-border p-2 z-40"
+          style={{ left: menuPos.x, top: menuPos.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex gap-1">
+            {QUICK_EMOJIS.map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => handleToggleReaction(emoji)}
+                className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-lg"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
         </div>
       )}
       {showForward && conversationId && (

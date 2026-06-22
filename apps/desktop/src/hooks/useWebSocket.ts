@@ -56,11 +56,26 @@ export function useWebSocket() {
       updateLastRead(payload.conversation_id, payload.message_id);
     };
 
+    const handleMessageRecalled = (payload: { message_id: string; conversation_id: string; user_id: string }) => {
+      const chatState = useChatStore.getState();
+      const msgs = chatState.messages.get(payload.conversation_id);
+      if (!msgs) return;
+      const updatedMsgs = msgs.map((m) =>
+        m.id === payload.message_id ? { ...m, recalled: true } : m
+      );
+      useChatStore.setState((state) => {
+        const newMessages = new Map(state.messages);
+        newMessages.set(payload.conversation_id, updatedMsgs);
+        return { messages: newMessages };
+      });
+    };
+
     wsClient.on("message.deliver", handleDeliver);
     wsClient.on("message.ack", handleAck);
     wsClient.on("presence.update", handlePresence);
     wsClient.on("channel.message.deliver", handleChannelDeliver);
     wsClient.on("message.read", handleReadNotify);
+    wsClient.on("message.recalled", handleMessageRecalled);
 
     return () => {
       wsClient.off("message.deliver", handleDeliver);
@@ -68,6 +83,7 @@ export function useWebSocket() {
       wsClient.off("presence.update", handlePresence);
       wsClient.off("channel.message.deliver", handleChannelDeliver);
       wsClient.off("message.read", handleReadNotify);
+      wsClient.off("message.recalled", handleMessageRecalled);
     };
   }, [addIncomingMessage, updateLastRead, updatePresence, addChannelMessage]);
 }

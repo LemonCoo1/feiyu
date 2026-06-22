@@ -132,6 +132,7 @@ export function MessageList() {
               )}
               <div className="py-0.5">
                 <MessageBubble
+                  messageId={msg.id}
                   conversationId={activeId}
                   content={text}
                   contentType={msg.content_type}

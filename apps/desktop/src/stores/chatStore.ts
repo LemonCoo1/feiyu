@@ -13,6 +13,7 @@ interface Message {
   content_type: string;
   content: any;
   created_at: string;
+  recalled?: boolean;
 }
 
 interface Conversation {
