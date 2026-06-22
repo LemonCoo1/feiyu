@@ -1,7 +1,9 @@
+pub mod announcement;
 pub mod auth;
 pub mod channel;
 pub mod contact;
 pub mod conversation;
 pub mod minio;
 pub mod message;
+pub mod reaction;
 pub mod user;

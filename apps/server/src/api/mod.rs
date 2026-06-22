@@ -1,9 +1,11 @@
+pub mod announcements;
 pub mod auth;
 pub mod channels;
 pub mod contacts;
 pub mod conversations;
 pub mod files;
 pub mod messages;
+pub mod reactions;
 pub mod users;
 
 use axum::{
@@ -78,8 +80,17 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
             patch(conversations::update),
         )
         .route("/api/messages/search", get(messages::search_messages))
+        .route(
+            "/api/conversations/{conversation_id}/announcements",
+            get(announcements::list).post(announcements::create),
+        )
+        .route(
+            "/api/announcements/{announcement_id}",
+            put(announcements::update).delete(announcements::remove),
+        )
         .route("/api/users/{user_id}", get(users::get_user))
         .route("/api/users/search", get(users::search_users))
+        .route("/api/users/avatar", post(users::upload_avatar))
         .route("/api/users/profile", post(users::update_profile))
         .route("/api/users/settings", get(users::get_settings).put(users::update_settings))
         .route("/api/users/change-password", post(users::change_password))
@@ -92,6 +103,14 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
         .route("/api/channels/{channel_id}/messages", get(channels::get_messages))
         .route("/api/files/upload", post(files::upload))
         .route("/api/files/{filename}", get(files::download))
+        .route(
+            "/api/messages/{message_id}/reactions",
+            get(reactions::get_reactions).post(reactions::add_reaction),
+        )
+        .route(
+            "/api/messages/{message_id}/reactions/{emoji}",
+            delete(reactions::remove_reaction),
+        )
         .route("/api/ws", get(crate::ws::handler::ws_handler))
         .layer(cors)
         .layer(DefaultBodyLimit::max(50 * 1024 * 1024)) // 50MB
