@@ -41,13 +41,17 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
   activeChannelId: null,
 
   loadChannels: async () => {
+    // 1. 先读本地缓存
     try {
-      // 1. 先读本地缓存
       const cached = await cacheService.getCachedChannels();
       if (cached.length > 0) {
         set({ channels: cached });
       }
-      // 2. 从服务器拉取最新
+    } catch (e) {
+      console.error("频道缓存读取失败:", e);
+    }
+    // 2. 从服务器拉取最新
+    try {
       const channels = await api.getChannels();
       set({ channels });
       // 3. 写入缓存

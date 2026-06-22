@@ -98,23 +98,28 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   loadConversations: async () => {
     set({ isLoadingConvs: true });
+    // 1. 先读本地缓存，立即展示
     try {
-      // 1. 先读本地缓存，立即展示
       const cached = await cacheService.getCachedConversations();
       if (cached.length > 0) {
-        set({ conversations: cached, isLoadingConvs: false });
+        set({ conversations: cached });
       }
-      // 2. 从服务器拉取最新数据
+    } catch (e) {
+      console.error("[loadConversations] 缓存读取失败:", e);
+    }
+    // 2. 从服务器拉取最新数据
+    try {
       const convs = await api.getConversations();
-      set({ conversations: convs, isLoadingConvs: false });
+      set({ conversations: convs });
       // 3. 写入缓存
       await cacheService.cacheConversations(convs);
     } catch (e) {
-      console.error("[loadConversations] 失败:", e);
-      // 网络失败，已有缓存数据则静默降级
+      console.error("[loadConversations] 服务器请求失败:", e);
       if (get().conversations.length === 0) {
-        set({ isLoadingConvs: false });
+        set({ conversations: [] });
       }
+    } finally {
+      set({ isLoadingConvs: false });
     }
   },
 
@@ -122,51 +127,62 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isLoadingMsgs: true });
     try {
       // 1. 先从本地缓存读取，立即展示
-      const localMsgs = await cacheService.getLocalMessages(conversationId);
-      if (localMsgs.length > 0) {
-        set((state) => {
-          const newMessages = new Map(state.messages);
-          newMessages.set(conversationId, localMsgs);
-          return { messages: newMessages, isLoadingMsgs: false };
-        });
-      }
-
-      // 2. 增量同步：拉取 since 之后的新消息
-      const newMsgs = await cacheService.syncNewMessages(conversationId);
-
-      // 3. 合并更新
-      if (newMsgs.length > 0) {
-        set((state) => {
-          const newMessages = new Map(state.messages);
-          const existing = newMessages.get(conversationId) || localMsgs;
-          const existingIds = new Set(existing.map((m) => m.id));
-          const merged = [...existing, ...newMsgs.filter((m) => !existingIds.has(m.id))];
-          merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          newMessages.set(conversationId, merged);
-          return { messages: newMessages, isLoadingMsgs: false };
-        });
-      } else if (localMsgs.length === 0) {
-        // 本地无数据且增量无新数据 → 全量拉取
-        const msgs = await api.getMessages(conversationId);
-        const reversed = msgs.reverse();
-        for (const msg of reversed) {
-          await cacheService.cacheMessage(msg);
+      let localMsgs: Message[] = [];
+      try {
+        localMsgs = await cacheService.getLocalMessages(conversationId);
+        if (localMsgs.length > 0) {
+          set((state) => {
+            const newMessages = new Map(state.messages);
+            newMessages.set(conversationId, localMsgs);
+            return { messages: newMessages };
+          });
         }
+      } catch (e) {
+        console.error("[loadMessages] 缓存读取失败:", e);
+      }
+
+      // 2. 从服务器拉取消息（增量或全量）
+      let serverMsgs: Message[] = [];
+      try {
+        serverMsgs = await cacheService.syncNewMessages(conversationId);
+      } catch (e) {
+        console.error("[loadMessages] 增量同步失败:", e);
+      }
+
+      // 3. 如果服务器无数据且本地也无数据，走全量拉取
+      if (serverMsgs.length === 0 && localMsgs.length === 0) {
+        try {
+          const msgs = await api.getMessages(conversationId);
+          serverMsgs = msgs.reverse();
+          for (const msg of serverMsgs) {
+            await cacheService.cacheMessage(msg);
+          }
+        } catch (e) {
+          console.error("[loadMessages] 全量拉取失败:", e);
+        }
+      }
+
+      // 4. 合并并设置最终数据
+      if (serverMsgs.length > 0) {
+        const existingIds = new Set(localMsgs.map((m) => m.id));
+        const merged = [...localMsgs, ...serverMsgs.filter((m) => !existingIds.has(m.id))];
+        merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         set((state) => {
           const newMessages = new Map(state.messages);
-          newMessages.set(conversationId, reversed);
-          return { messages: newMessages, isLoadingMsgs: false };
+          newMessages.set(conversationId, merged);
+          return { messages: newMessages };
         });
       }
 
-      // 标记已读
+      // 5. 标记已读
       const state = get();
       const msgs = state.messages.get(conversationId) || [];
       if (msgs.length > 0) {
         wsClient.sendRead(conversationId, msgs[msgs.length - 1].id);
       }
     } catch (e) {
-      console.error("Failed to load messages:", e);
+      console.error("[loadMessages] 未知错误:", e);
+    } finally {
       set({ isLoadingMsgs: false });
     }
   },

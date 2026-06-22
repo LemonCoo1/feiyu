@@ -30,22 +30,28 @@ export const useContactStore = create<ContactState>((set, get) => ({
 
   loadContacts: async () => {
     set({ isLoading: true });
+    // 1. 先读本地缓存
     try {
-      // 1. 先读本地缓存
       const cached = await cacheService.getCachedContacts();
       if (cached.length > 0) {
-        set({ contacts: cached, isLoading: false });
+        set({ contacts: cached });
       }
-      // 2. 从服务器拉取最新
+    } catch (e) {
+      console.error("缓存读取失败:", e);
+    }
+    // 2. 从服务器拉取最新
+    try {
       const contacts = await api.getContacts();
-      set({ contacts, isLoading: false });
+      set({ contacts });
       // 3. 写入缓存
       await cacheService.cacheContacts(contacts);
     } catch (e) {
       console.error("Failed to load contacts:", e);
       if (get().contacts.length === 0) {
-        set({ isLoading: false });
+        set({ contacts: [] });
       }
+    } finally {
+      set({ isLoading: false });
     }
   },
 
