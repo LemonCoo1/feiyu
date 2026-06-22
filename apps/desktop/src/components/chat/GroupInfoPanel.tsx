@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "../common/Avatar";
 import { api } from "../../services/api";
+import { getServerUrl } from "../../services/serverConfig";
 import { useChatStore } from "../../stores/chatStore";
 import { useAuthStore } from "../../stores/authStore";
 
@@ -44,8 +45,25 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
   const isOwner = myRole === "owner";
   const isAdmin = myRole === "admin" || isOwner;
 
+  // 公告相关
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [showAnnForm, setShowAnnForm] = useState(false);
+  const [annContent, setAnnContent] = useState("");
+
   useEffect(() => {
     loadMembers();
+  }, [conversationId]);
+
+  // 加载公告
+  useEffect(() => {
+    if (!conversationId) return;
+    const token = localStorage.getItem("token");
+    fetch(`${getServerUrl()}/api/conversations/${conversationId}/announcements`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setAnnouncements)
+      .catch(() => {});
   }, [conversationId]);
 
   const loadMembers = async () => {
@@ -126,6 +144,42 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
       onClose();
     } catch (e) {
       console.error("Failed to leave:", e);
+    }
+  };
+
+  const handleCreateAnnouncement = async () => {
+    if (!annContent.trim()) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${getServerUrl()}/api/conversations/${conversationId}/announcements`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: annContent }),
+      });
+      if (res.ok) {
+        const ann = await res.json();
+        setAnnouncements((prev) => [ann, ...prev]);
+        setAnnContent("");
+        setShowAnnForm(false);
+      }
+    } catch (e) {
+      console.error("Failed to create announcement:", e);
+    }
+  };
+
+  const handleDeleteAnnouncement = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${getServerUrl()}/api/announcements/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+    } catch (e) {
+      console.error("Failed to delete announcement:", e);
     }
   };
 
@@ -264,6 +318,53 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                 )}
               </div>
             ))
+          )}
+        </div>
+
+        {/* 群公告 */}
+        <div className="border-t border-feiyu-border px-4 py-3">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="text-xs font-medium text-feiyu-text-muted">{t("groupInfo.announcements")}</h4>
+            {isAdmin && (
+              <button
+                onClick={() => setShowAnnForm(!showAnnForm)}
+                className="text-xs text-feiyu-primary hover:underline"
+              >
+                {t("groupInfo.addAnnouncement")}
+              </button>
+            )}
+          </div>
+          {showAnnForm && (
+            <div className="mb-2 space-y-2">
+              <textarea
+                value={annContent}
+                onChange={(e) => setAnnContent(e.target.value)}
+                placeholder={t("groupInfo.announcementPlaceholder")}
+                className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-feiyu-primary"
+                rows={3}
+              />
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => setShowAnnForm(false)} className="text-xs px-3 py-1 border border-feiyu-border rounded">{t("groupInfo.cancel")}</button>
+                <button onClick={handleCreateAnnouncement} className="text-xs px-3 py-1 bg-feiyu-primary text-white rounded">{t("groupInfo.publish")}</button>
+              </div>
+            </div>
+          )}
+          {announcements.length === 0 ? (
+            <p className="text-xs text-feiyu-text-muted">{t("groupInfo.noAnnouncements")}</p>
+          ) : (
+            <div className="space-y-2">
+              {announcements.map((ann) => (
+                <div key={ann.id} className="bg-feiyu-bg rounded-lg p-2.5">
+                  <p className="text-sm text-feiyu-text">{ann.content}</p>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-xs text-feiyu-text-muted">{new Date(ann.created_at).toLocaleString()}</span>
+                    {isAdmin && (
+                      <button onClick={() => handleDeleteAnnouncement(ann.id)} className="text-xs text-red-400 hover:text-red-500">{t("groupInfo.deleteAnnouncement")}</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
