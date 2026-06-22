@@ -35,6 +35,9 @@ pub enum WsClientMessage {
 
     #[serde(rename = "typing.stop")]
     TypingStop { conversation_id: Uuid },
+
+    #[serde(rename = "ping")]
+    Ping,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -96,4 +99,7 @@ pub enum WsServerMessage {
         conversation_id: Uuid,
         message_id: Uuid,
     },
+
+    #[serde(rename = "pong")]
+    Pong,
 }

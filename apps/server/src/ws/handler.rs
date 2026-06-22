@@ -248,6 +248,10 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             .unwrap();
             hub.send_to_conversation(&conversation_id, &user_id, &typing).await;
         }
+        WsClientMessage::Ping => {
+            let pong = serde_json::to_string(&WsServerMessage::Pong).unwrap();
+            hub.send_to_user(&user_id, &pong).await;
+        }
         WsClientMessage::ChannelMessageSend {
             channel_id,
             content_type,
