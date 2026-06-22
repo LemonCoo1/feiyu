@@ -4,8 +4,12 @@ import { Avatar } from "../common/Avatar";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { getCachedMediaUrl } from "../../services/cacheService";
 import { ForwardModal } from "./ForwardModal";
+import { wsClient } from "../../services/ws";
+import { getServerUrl } from "../../services/serverConfig";
+import { useAuthStore } from "../../stores/authStore";
 
 interface MessageBubbleProps {
+  messageId: string;
   conversationId?: string;
   content: string;
   contentType?: string;
@@ -32,44 +36,151 @@ function useCachedUrl(url: string | undefined): string | undefined {
   return cached;
 }
 
-export function MessageBubble({ conversationId, content, contentType, rawContent, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
+interface ReactionItem {
+  emoji: string;
+  count: number;
+  user_ids: string[];
+}
+
+const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "🎉", "👏"];
+
+export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
   const { t } = useTranslation();
   const fontSize = useSettingsStore((s) => s.settings.chat_font_size);
+  const user = useAuthStore((s) => s.user);
   const isImage = contentType === "image" || (rawContent?.type === "image");
   const isFile = contentType === "file" || (rawContent?.type === "file");
   const isSticker = contentType === "sticker";
   const isGif = contentType === "gif";
   const isForward = contentType === "forward";
+  const isRecalled = rawContent?.recalled;
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
   const [showForward, setShowForward] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [reactions, setReactions] = useState<ReactionItem[]>([]);
 
   const textSizeClass = fontSize === "small" ? "text-xs" : fontSize === "large" ? "text-base" : "text-sm";
 
   const cachedStickerUrl = useCachedUrl(rawContent?.url);
   const cachedImageUrl = useCachedUrl(rawContent?.url);
 
-  // 点击其他地方关闭右键菜单
-  const handleDocClick = useCallback(() => setShowMenu(false), []);
+  // 获取回应数据
   useEffect(() => {
-    if (showMenu) {
+    if (!messageId) return;
+    const url = `${getServerUrl()}/api/messages/${messageId}/reactions`;
+    fetch(url, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then(r => r.ok ? r.json() : [])
+      .then((data: any[]) => setReactions(data))
+      .catch(() => {});
+  }, [messageId]);
+
+  // 监听 WS reaction.update 事件
+  useEffect(() => {
+    if (!messageId) return;
+    const handler = (payload: { message_id: string; user_id: string; emoji: string; action: string }) => {
+      if (payload.message_id !== messageId) return;
+      setReactions(prev => {
+        if (payload.action === "add") {
+          const existing = prev.find(r => r.emoji === payload.emoji);
+          if (existing) {
+            if (existing.user_ids.includes(payload.user_id)) return prev;
+            return prev.map(r => r.emoji === payload.emoji
+              ? { ...r, count: r.count + 1, user_ids: [...r.user_ids, payload.user_id] }
+              : r);
+          }
+          return [...prev, { emoji: payload.emoji, count: 1, user_ids: [payload.user_id] }];
+        } else {
+          return prev.map(r => r.emoji === payload.emoji
+            ? { ...r, count: r.count - 1, user_ids: r.user_ids.filter(id => id !== payload.user_id) }
+            : r).filter(r => r.count > 0);
+        }
+      });
+    };
+    wsClient.on("reaction.update", handler);
+    return () => wsClient.off("reaction.update", handler);
+  }, [messageId]);
+
+  // 点击其他地方关闭右键菜单和 emoji 选择器
+  const handleDocClick = useCallback(() => {
+    setShowMenu(false);
+    setShowEmojiPicker(false);
+  }, []);
+  useEffect(() => {
+    if (showMenu || showEmojiPicker) {
       document.addEventListener("click", handleDocClick);
       return () => document.removeEventListener("click", handleDocClick);
     }
-  }, [showMenu, handleDocClick]);
+  }, [showMenu, showEmojiPicker, handleDocClick]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setMenuPos({ x: e.clientX, y: e.clientY });
     setShowMenu(true);
+    setShowEmojiPicker(false);
   }, []);
 
   const handleForwardClick = useCallback(() => {
     setShowMenu(false);
     setShowForward(true);
   }, []);
+
+  // 撤回消息
+  const handleRecall = useCallback(() => {
+    setShowMenu(false);
+    wsClient.send({
+      type: "message.recall",
+      payload: { message_id: messageId }
+    });
+  }, [messageId]);
+
+  // 切换表情回应
+  const handleToggleReaction = useCallback((emoji: string) => {
+    setShowEmojiPicker(false);
+    setShowMenu(false);
+    if (!messageId) return;
+    const hasMyReaction = reactions.find(r => r.emoji === emoji)?.user_ids.includes(user?.id || "");
+    const url = `${getServerUrl()}/api/messages/${messageId}/reactions`;
+    if (hasMyReaction) {
+      fetch(`${url}/${encodeURIComponent(emoji)}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+      }).catch(() => {});
+    } else {
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ emoji })
+      }).catch(() => {});
+    }
+  }, [messageId, reactions, user]);
+
+  // 已撤回消息显示
+  if (isRecalled) {
+    return (
+      <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
+        <Avatar name={senderName} url={avatarUrl} size="sm" />
+        <div>
+          {showSender && (
+            <div className="text-[11px] text-feiyu-text-secondary mb-0.5">{senderName}</div>
+          )}
+          <div className="bg-feiyu-card border border-feiyu-border rounded-xl px-4 py-2.5 text-feiyu-text-muted text-sm italic">
+            {t("chat.recalled")}
+          </div>
+          <div className={`text-[11px] text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
+            {time}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // 转发消息渲染
   if (isForward) {

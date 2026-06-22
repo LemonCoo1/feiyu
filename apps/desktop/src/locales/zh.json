@@ -69,7 +69,10 @@
     "dropToSend": "拖拽文件到此处发送",
     "forward": "转发",
     "forwarded": "[转发]",
-    "noConversations": "暂无可转发的会话"
+    "noConversations": "暂无可转发的会话",
+    "recall": "撤回",
+    "recalled": "已撤回",
+    "react": "回应"
   },
   "groupInfo": {
     "owner": "群主",
@@ -88,7 +91,13 @@
     "setAdmin": "设为管理",
     "remove": "移除",
     "leaveGroup": "退出群聊",
-    "ownerLeaveHint": "群主请先转让群主身份后再退出"
+    "ownerLeaveHint": "群主请先转让群主身份后再退出",
+    "announcements": "群公告",
+    "addAnnouncement": "发布公告",
+    "announcementPlaceholder": "输入公告内容...",
+    "publish": "发布",
+    "noAnnouncements": "暂无公告",
+    "deleteAnnouncement": "删除"
   },
   "channel": {
     "title": "频道",
@@ -190,7 +199,8 @@
       "username": "用户名",
       "email": "邮箱",
       "save": "保存",
-      "saved": "已保存"
+      "saved": "已保存",
+      "uploadAvatar": "更换头像"
     },
     "themeSection": {
       "title": "外观主题",

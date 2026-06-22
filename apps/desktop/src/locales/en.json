@@ -69,7 +69,10 @@
     "dropToSend": "Drop files here to send",
     "forward": "Forward",
     "forwarded": "[Forwarded]",
-    "noConversations": "No conversations to forward"
+    "noConversations": "No conversations to forward",
+    "recall": "Recall",
+    "recalled": "Message recalled",
+    "react": "React"
   },
   "groupInfo": {
     "owner": "Owner",
@@ -88,7 +91,13 @@
     "setAdmin": "Set as Admin",
     "remove": "Remove",
     "leaveGroup": "Leave Group",
-    "ownerLeaveHint": "Owner must transfer ownership before leaving"
+    "ownerLeaveHint": "Owner must transfer ownership before leaving",
+    "announcements": "Announcements",
+    "addAnnouncement": "New Announcement",
+    "announcementPlaceholder": "Enter announcement...",
+    "publish": "Publish",
+    "noAnnouncements": "No announcements",
+    "deleteAnnouncement": "Delete"
   },
   "channel": {
     "title": "Channels",
@@ -190,7 +199,8 @@
       "username": "Username",
       "email": "Email",
       "save": "Save",
-      "saved": "Saved"
+      "saved": "Saved",
+      "uploadAvatar": "Change Avatar"
     },
     "themeSection": {
       "title": "Appearance",
