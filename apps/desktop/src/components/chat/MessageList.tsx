@@ -137,6 +137,7 @@ export function MessageList() {
                   content={text}
                   contentType={msg.content_type}
                   rawContent={content}
+                  recalled={msg.recalled}
                   time={formatTime(msg.created_at)}
                   isOwn={isOwn}
                   isRead={isOwn && lastReadIdx >= 0 && idx <= lastReadIdx}
