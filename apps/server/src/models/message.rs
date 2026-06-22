@@ -10,6 +10,8 @@ pub struct Message {
     pub content_type: String,
     pub content: serde_json::Value,
     pub created_at: DateTime<Utc>,
+    #[serde(default)]
+    pub recalled: bool,
 }
 
 #[derive(Debug, Deserialize)]

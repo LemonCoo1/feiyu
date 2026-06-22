@@ -38,6 +38,21 @@ pub enum WsClientMessage {
 
     #[serde(rename = "ping")]
     Ping,
+
+    #[serde(rename = "reaction.add")]
+    ReactionAdd {
+        message_id: Uuid,
+        emoji: String,
+    },
+
+    #[serde(rename = "reaction.remove")]
+    ReactionRemove {
+        message_id: Uuid,
+        emoji: String,
+    },
+
+    #[serde(rename = "message.recall")]
+    MessageRecall { message_id: Uuid },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -102,4 +117,19 @@ pub enum WsServerMessage {
 
     #[serde(rename = "pong")]
     Pong,
+
+    #[serde(rename = "reaction.update")]
+    ReactionUpdate {
+        message_id: Uuid,
+        user_id: Uuid,
+        emoji: String,
+        action: String,
+    },
+
+    #[serde(rename = "message.recalled")]
+    MessageRecalled {
+        message_id: Uuid,
+        conversation_id: Uuid,
+        user_id: Uuid,
+    },
 }

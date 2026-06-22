@@ -302,6 +302,82 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                 }
             }
         }
+        WsClientMessage::ReactionAdd { message_id, emoji } => {
+            // 查询 message 所属会话
+            if let Ok(Some(msg)) = sqlx::query_as::<_, DbMessage>(
+                "SELECT * FROM messages WHERE id = $1",
+            )
+            .bind(message_id)
+            .fetch_optional(pool)
+            .await
+            {
+                let _ = crate::services::reaction::add(pool, message_id, user_id, &emoji).await;
+                let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
+                    message_id,
+                    user_id,
+                    emoji,
+                    action: "add".to_string(),
+                })
+                .unwrap();
+                hub.send_to_conversation(&msg.conversation_id, &user_id, &update)
+                    .await;
+            }
+        }
+        WsClientMessage::ReactionRemove { message_id, emoji } => {
+            if let Ok(Some(msg)) = sqlx::query_as::<_, DbMessage>(
+                "SELECT * FROM messages WHERE id = $1",
+            )
+            .bind(message_id)
+            .fetch_optional(pool)
+            .await
+            {
+                let _ = crate::services::reaction::remove(pool, message_id, user_id, &emoji).await;
+                let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
+                    message_id,
+                    user_id,
+                    emoji,
+                    action: "remove".to_string(),
+                })
+                .unwrap();
+                hub.send_to_conversation(&msg.conversation_id, &user_id, &update)
+                    .await;
+            }
+        }
+        WsClientMessage::MessageRecall { message_id } => {
+            // 查消息，验证是自己的消息且在 2 分钟内
+            if let Ok(Some(msg)) = sqlx::query_as::<_, DbMessage>(
+                "SELECT * FROM messages WHERE id = $1 AND sender_id = $2",
+            )
+            .bind(message_id)
+            .bind(user_id)
+            .fetch_optional(pool)
+            .await
+            {
+                // 检查 2 分钟限制
+                let now = chrono::Utc::now();
+                let elapsed = now.signed_duration_since(msg.created_at);
+                if elapsed.num_minutes() <= 2 {
+                    let _ = sqlx::query("UPDATE messages SET recalled = TRUE WHERE id = $1")
+                        .bind(message_id)
+                        .execute(pool)
+                        .await;
+                    let notify = serde_json::to_string(&WsServerMessage::MessageRecalled {
+                        message_id,
+                        conversation_id: msg.conversation_id,
+                        user_id,
+                    })
+                    .unwrap();
+                    // 广播给所有成员
+                    let members =
+                        crate::services::conversation::get_members(pool, msg.conversation_id)
+                            .await
+                            .unwrap_or_default();
+                    for mid in &members {
+                        hub.send_to_user(&mid.user_id, &notify).await;
+                    }
+                }
+            }
+        }
         _ => {}
     }
 }
