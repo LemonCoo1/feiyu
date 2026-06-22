@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
@@ -16,6 +16,8 @@ export function ChatWindow() {
   const [searchQuery, setSearchQuery] = useState("");
   const searchMessages = useChatStore((s) => s.searchMessages);
   const clearSearch = useChatStore((s) => s.clearSearch);
+  const sendFile = useChatStore((s) => s.sendFile);
+  const [dragOver, setDragOver] = useState(false);
 
   const conv = conversations.find((c) => c.id === activeId);
   const isGroup = conv?.type === "group";
@@ -35,6 +37,39 @@ export function ChatWindow() {
     }
   };
 
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // 只在离开整个窗口时隐藏
+    if (e.currentTarget === e.target) {
+      setDragOver(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0 || !activeId) return;
+
+    // 逐个上传并发送
+    for (const file of files) {
+      try {
+        await sendFile(activeId, file);
+      } catch (err) {
+        console.error("拖拽上传失败:", err);
+      }
+    }
+  }, [activeId, sendFile]);
+
   const handleCloseSearch = () => {
     setShowSearch(false);
     setSearchQuery("");
@@ -50,7 +85,20 @@ export function ChatWindow() {
   }
 
   return (
-    <div className="flex-1 bg-feiyu-bg flex flex-col">
+    <div
+      className="flex-1 bg-feiyu-bg flex flex-col relative"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* 拖拽 overlay */}
+      {dragOver && (
+        <div className="absolute inset-0 bg-feiyu-primary/10 border-2 border-dashed border-feiyu-primary rounded-lg flex items-center justify-center z-30 pointer-events-none">
+          <div className="text-feiyu-primary text-lg font-medium">
+            {t("chat.dropToSend")}
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="px-5 py-3 border-b border-feiyu-border bg-feiyu-card flex justify-between items-center">
         <div className="flex items-center gap-1.5">
