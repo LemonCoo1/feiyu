@@ -90,3 +90,11 @@
 - [x] Task 2: api/ws 改用运行时服务端地址 — 移除编译期常量，改为 getServerUrl()
 - [x] Task 3: 登录页 UI — 可折叠"服务器设置"区域 + 校验 + 测试连接 + 中英文 i18n
 - [x] Task 4: 修复 — AbortController 竞态、类型安全、testState 重置、提交前持久化
+
+### Phase 12: 消息增强功能（2026-06-22）
+- [x] Task 1: 表情回应 (Reactions) — 数据库迁移、模型、服务、API、WS 协议、客户端回应显示与 emoji 选择器
+- [x] Task 2: 消息转发 — 右键菜单转发到其他会话、ForwardModal 会话选择器
+- [x] Task 3: 文件拖拽发送 — ChatWindow 拖拽 overlay、sendFile 复用
+- [x] Task 4: 群公告 — 数据库迁移、模型、服务、API、GroupInfoPanel 公告区域
+- [x] Task 5: 用户头像上传 — 服务端 MinIO 上传 API、设置页点击头像上传
+- [x] Task 6: 消息撤回 — 数据库 recalled 字段、WS 协议、2 分钟限制、客户端撤回菜单与已撤回显示
