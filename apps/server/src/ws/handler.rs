@@ -315,12 +315,13 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                 let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
                     message_id,
                     user_id,
-                    emoji,
+                    emoji: emoji.clone(),
                     action: "add".to_string(),
                 })
                 .unwrap();
                 hub.send_to_conversation(&msg.conversation_id, &user_id, &update)
                     .await;
+                hub.send_to_user(&user_id, &update).await;
             }
         }
         WsClientMessage::ReactionRemove { message_id, emoji } => {
@@ -335,12 +336,13 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                 let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
                     message_id,
                     user_id,
-                    emoji,
+                    emoji: emoji.clone(),
                     action: "remove".to_string(),
                 })
                 .unwrap();
                 hub.send_to_conversation(&msg.conversation_id, &user_id, &update)
                     .await;
+                hub.send_to_user(&user_id, &update).await;
             }
         }
         WsClientMessage::MessageRecall { message_id } => {
@@ -356,7 +358,7 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                 // 检查 2 分钟限制
                 let now = chrono::Utc::now();
                 let elapsed = now.signed_duration_since(msg.created_at);
-                if elapsed.num_minutes() <= 2 {
+                if elapsed.num_seconds() <= 120 {
                     let _ = sqlx::query("UPDATE messages SET recalled = TRUE WHERE id = $1")
                         .bind(message_id)
                         .execute(pool)
@@ -367,7 +369,7 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                         user_id,
                     })
                     .unwrap();
-                    // 广播给所有成员
+                    // 广播给所有成员（包括发送者自己）
                     let members =
                         crate::services::conversation::get_members(pool, msg.conversation_id)
                             .await
@@ -375,6 +377,9 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
                     for mid in &members {
                         hub.send_to_user(&mid.user_id, &notify).await;
                     }
+                    tracing::info!("[消息撤回] msg_id={}, user_id={}, 已广播给 {} 个成员", message_id, user_id, members.len());
+                } else {
+                    tracing::warn!("[消息撤回] 超过2分钟限制: msg_id={}, elapsed={}s", message_id, elapsed.num_seconds());
                 }
             }
         }

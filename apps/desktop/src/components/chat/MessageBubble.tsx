@@ -14,6 +14,7 @@ interface MessageBubbleProps {
   content: string;
   contentType?: string;
   rawContent?: any;
+  recalled?: boolean;
   time: string;
   isOwn: boolean;
   isRead?: boolean;
@@ -44,7 +45,7 @@ interface ReactionItem {
 
 const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "🎉", "👏"];
 
-export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
+export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
   const { t } = useTranslation();
   const fontSize = useSettingsStore((s) => s.settings.chat_font_size);
   const user = useAuthStore((s) => s.user);
@@ -53,7 +54,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
   const isSticker = contentType === "sticker";
   const isGif = contentType === "gif";
   const isForward = contentType === "forward";
-  const isRecalled = rawContent?.recalled;
+  const isRecalled = recalled || rawContent?.recalled;
 
   const [showMenu, setShowMenu] = useState(false);
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
