@@ -43,6 +43,18 @@ export function ConversationList() {
     if (ct === "gif") return "[GIF]";
     if (ct === "sticker") return `[${t("chat.sticker")}]`;
     if (ct === "file") return `[${t("chat.file")}] ${content.filename || ""}`.trim();
+    if (ct === "forward") {
+      const original = content.original_content;
+      const originalType = content.original_content_type;
+      if (original) {
+        if (originalType === "text") return `[${t("chat.forwarded")}] ${original.text || ""}`;
+        if (originalType === "image") return `[${t("chat.forwarded")}] [${t("chat.image")}]`;
+        if (originalType === "file") return `[${t("chat.forwarded")}] [${t("chat.file")}]`;
+        if (originalType === "sticker") return `[${t("chat.forwarded")}] [${t("chat.sticker")}]`;
+        if (originalType === "gif") return `[${t("chat.forwarded")}] [GIF]`;
+      }
+      return t("chat.forwarded");
+    }
     if (typeof content === "string") return content;
     if (content.text) return content.text;
     return JSON.stringify(content);
