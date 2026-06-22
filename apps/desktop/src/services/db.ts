@@ -5,10 +5,10 @@ let db: Database | null = null;
 export async function getDb(): Promise<Database> {
   if (db) return db;
 
-  db = await Database.load("sqlite:feiyu.db");
+  const instance = await Database.load("sqlite:feiyu.db");
 
   // 消息本地缓存表
-  await db.execute(`
+  await instance.execute(`
     CREATE TABLE IF NOT EXISTS cached_messages (
       id TEXT PRIMARY KEY,
       conversation_id TEXT NOT NULL,
@@ -20,13 +20,13 @@ export async function getDb(): Promise<Database> {
     )
   `);
 
-  await db.execute(`
+  await instance.execute(`
     CREATE INDEX IF NOT EXISTS idx_cached_messages_conv_time
       ON cached_messages(conversation_id, created_at)
   `);
 
   // 同步状态表
-  await db.execute(`
+  await instance.execute(`
     CREATE TABLE IF NOT EXISTS sync_state (
       conversation_id TEXT PRIMARY KEY,
       last_sync_at TEXT NOT NULL,
@@ -36,7 +36,7 @@ export async function getDb(): Promise<Database> {
   `);
 
   // 媒体缓存索引表
-  await db.execute(`
+  await instance.execute(`
     CREATE TABLE IF NOT EXISTS media_cache (
       url TEXT PRIMARY KEY,
       local_path TEXT NOT NULL,
@@ -46,7 +46,7 @@ export async function getDb(): Promise<Database> {
   `);
 
   // 会话列表缓存表
-  await db.execute(`
+  await instance.execute(`
     CREATE TABLE IF NOT EXISTS cached_conversations (
       id TEXT PRIMARY KEY,
       type TEXT NOT NULL,
@@ -66,7 +66,7 @@ export async function getDb(): Promise<Database> {
   `);
 
   // 联系人缓存表
-  await db.execute(`
+  await instance.execute(`
     CREATE TABLE IF NOT EXISTS cached_contacts (
       id TEXT PRIMARY KEY,
       username TEXT,
@@ -78,7 +78,7 @@ export async function getDb(): Promise<Database> {
   `);
 
   // 频道缓存表
-  await db.execute(`
+  await instance.execute(`
     CREATE TABLE IF NOT EXISTS cached_channels (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -89,5 +89,6 @@ export async function getDb(): Promise<Database> {
     )
   `);
 
+  db = instance;
   return db;
 }
