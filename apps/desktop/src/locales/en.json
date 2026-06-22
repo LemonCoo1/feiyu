@@ -65,7 +65,11 @@
     "sticker": "Sticker",
     "gif": "GIF",
     "read": "Read",
-    "file": "File"
+    "file": "File",
+    "dropToSend": "Drop files here to send",
+    "forward": "Forward",
+    "forwarded": "[Forwarded]",
+    "noConversations": "No conversations to forward"
   },
   "groupInfo": {
     "owner": "Owner",

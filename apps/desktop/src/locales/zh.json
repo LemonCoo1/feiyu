@@ -65,7 +65,11 @@
     "sticker": "贴纸",
     "gif": "GIF",
     "read": "已读",
-    "file": "文件"
+    "file": "文件",
+    "dropToSend": "拖拽文件到此处发送",
+    "forward": "转发",
+    "forwarded": "[转发]",
+    "noConversations": "暂无可转发的会话"
   },
   "groupInfo": {
     "owner": "群主",
