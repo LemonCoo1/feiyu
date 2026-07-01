@@ -59,6 +59,38 @@ pub async fn create_direct(
     Ok(conv)
 }
 
+pub async fn get_conversation_with_meta(
+    pool: &PgPool,
+    conversation_id: Uuid,
+    user_id: Uuid,
+) -> Result<Option<ConversationWithMeta>, ConversationError> {
+    let conv = sqlx::query_as::<_, ConversationWithMeta>(
+        r#"
+        SELECT
+            c.id,
+            c.type,
+            c.name,
+            c.owner_id,
+            c.created_at,
+            (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_content,
+            (SELECT content_type FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_content_type,
+            (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_at,
+            (SELECT user_id FROM conversation_members WHERE conversation_id = c.id AND user_id != $2 LIMIT 1) as other_user_id,
+            (SELECT username FROM users WHERE id = (SELECT user_id FROM conversation_members WHERE conversation_id = c.id AND user_id != $2 LIMIT 1)) as other_username,
+            (SELECT display_name FROM users WHERE id = (SELECT user_id FROM conversation_members WHERE conversation_id = c.id AND user_id != $2 LIMIT 1)) as other_display_name,
+            0 as unread_count
+        FROM conversations c
+        WHERE c.id = $1
+        "#,
+    )
+    .bind(conversation_id)
+    .bind(user_id)
+    .fetch_optional(pool)
+    .await?;
+
+    Ok(conv)
+}
+
 pub async fn list_for_user(
     pool: &PgPool,
     user_id: Uuid,

@@ -36,10 +36,20 @@ pub async fn create_direct(
     if user_id != req.user1_id && user_id != req.user2_id {
         return Err((StatusCode::FORBIDDEN, "Cannot create conversation for other users".to_string()));
     }
-    conversation::create_direct(&state.pool, req.user1_id, req.user2_id)
+    let conv = conversation::create_direct(&state.pool, req.user1_id, req.user2_id)
         .await
-        .map(Json)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // 通知对方有新会话（排除创建者自己）
+    let other_user_id = if user_id == req.user1_id { req.user2_id } else { req.user1_id };
+    if let Ok(Some(meta)) = conversation::get_conversation_with_meta(&state.pool, conv.id, other_user_id).await {
+        let event = serde_json::to_string(&crate::ws::protocol::WsServerMessage::ConversationCreated {
+            conversation: meta,
+        }).unwrap();
+        state.hub.send_to_user(&other_user_id, &event).await;
+    }
+
+    Ok(Json(conv))
 }
 
 #[derive(serde::Deserialize)]
@@ -54,10 +64,23 @@ pub async fn create_group(
     Json(req): Json<CreateGroupRequest>,
 ) -> Result<Json<crate::models::conversation::Conversation>, (StatusCode, String)> {
     let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
-    conversation::create_group(&state.pool, user_id, &req.name, &req.member_ids)
+    let conv = conversation::create_group(&state.pool, user_id, &req.name, &req.member_ids)
         .await
-        .map(Json)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    // 通知除创建者外的所有成员有新会话
+    for member_id in &req.member_ids {
+        if *member_id != user_id {
+            if let Ok(Some(meta)) = conversation::get_conversation_with_meta(&state.pool, conv.id, *member_id).await {
+                let event = serde_json::to_string(&crate::ws::protocol::WsServerMessage::ConversationCreated {
+                    conversation: meta,
+                }).unwrap();
+                state.hub.send_to_user(member_id, &event).await;
+            }
+        }
+    }
+
+    Ok(Json(conv))
 }
 
 pub async fn get_members(

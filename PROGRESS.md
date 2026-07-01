@@ -107,3 +107,9 @@
 - [x] Task 5: 后端加固 — create_direct 增加鉴权（调用方须为会话一方）；add_contact 校验目标用户存在（404）与已是好友（409）；用户搜索改用 PublicUser DTO 不再泄露 email，仅按用户名/昵称匹配
 - [x] Task 6: cacheService 修复空列表幽灵数据 — contacts/conversations/channels 缓存在服务端返回空列表时清空全表
 - [x] Task 7: ContactList 新增删除联系人入口（悬浮 ✕ + 二次确认），接通此前的孤儿 removeContact API
+
+### Phase 14: 新会话实时推送（2026-07-01）
+- [x] Task 1: 服务端 WsServerMessage 新增 conversation.created 事件 — 携带 ConversationWithMeta
+- [x] Task 2: create_direct/create_group 成功后通过 Hub 推送 conversation.created 给其他成员
+- [x] Task 3: 前端 chatStore 新增 addConversation action（去重 + 插入列表顶部 + 写缓存）
+- [x] Task 4: useWebSocket 监听 conversation.created 事件，调用 addConversation 实时显示新会话

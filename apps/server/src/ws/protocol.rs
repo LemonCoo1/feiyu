@@ -126,6 +126,11 @@ pub enum WsServerMessage {
         action: String,
     },
 
+    #[serde(rename = "conversation.created")]
+    ConversationCreated {
+        conversation: crate::models::conversation::ConversationWithMeta,
+    },
+
     #[serde(rename = "message.recalled")]
     MessageRecalled {
         message_id: Uuid,

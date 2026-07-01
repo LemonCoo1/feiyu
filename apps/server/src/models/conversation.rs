@@ -37,7 +37,7 @@ pub struct CreateConversationRequest {
     pub member_ids: Vec<Uuid>,
 }
 
-#[derive(Debug, Serialize, sqlx::FromRow)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct ConversationWithMeta {
     pub id: Uuid,
     pub r#type: String,

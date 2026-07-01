@@ -11,6 +11,7 @@ import { notifyDesktop, playNotificationSound } from "../utils/notify";
 export function useWebSocket() {
   const addIncomingMessage = useChatStore((s) => s.addIncomingMessage);
   const updateLastRead = useChatStore((s) => s.updateLastRead);
+  const addConversation = useChatStore((s) => s.addConversation);
   const updatePresence = useContactStore((s) => s.updatePresence);
   const addChannelMessage = useChannelStore((s) => s.addIncomingMessage);
 
@@ -70,12 +71,17 @@ export function useWebSocket() {
       });
     };
 
+    const handleConversationCreated = (payload: any) => {
+      addConversation(payload.conversation);
+    };
+
     wsClient.on("message.deliver", handleDeliver);
     wsClient.on("message.ack", handleAck);
     wsClient.on("presence.update", handlePresence);
     wsClient.on("channel.message.deliver", handleChannelDeliver);
     wsClient.on("message.read", handleReadNotify);
     wsClient.on("message.recalled", handleMessageRecalled);
+    wsClient.on("conversation.created", handleConversationCreated);
 
     return () => {
       wsClient.off("message.deliver", handleDeliver);
@@ -84,8 +90,9 @@ export function useWebSocket() {
       wsClient.off("channel.message.deliver", handleChannelDeliver);
       wsClient.off("message.read", handleReadNotify);
       wsClient.off("message.recalled", handleMessageRecalled);
+      wsClient.off("conversation.created", handleConversationCreated);
     };
-  }, [addIncomingMessage, updateLastRead, updatePresence, addChannelMessage]);
+  }, [addIncomingMessage, updateLastRead, updatePresence, addChannelMessage, addConversation]);
 }
 
 export function useConnectionStatus(): ConnectionStatus {

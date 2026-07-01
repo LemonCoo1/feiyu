@@ -82,6 +82,7 @@ interface ChatState {
   clearSearch: () => void;
   togglePin: (conversationId: string) => void;
   updateConversation: (conversationId: string, data: { name?: string }) => void;
+  addConversation: (conv: Conversation) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -371,5 +372,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
         c.id === conversationId ? { ...c, ...data } : c
       ),
     }));
+  },
+
+  addConversation: (conv) => {
+    set((state) => {
+      // 避免重复添加
+      if (state.conversations.some((c) => c.id === conv.id)) {
+        return state;
+      }
+      const newConvs = [conv, ...state.conversations];
+      // 异步写入缓存
+      cacheService.cacheConversations(newConvs).catch((e) =>
+        console.error("Failed to cache conversations:", e)
+      );
+      return { conversations: newConvs };
+    });
   },
 }));
