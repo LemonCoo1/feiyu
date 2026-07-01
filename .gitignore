@@ -23,6 +23,9 @@ release/
 # Tauri
 *.pdb
 *.wixpdb
+# Tauri 构建生成的 schema（由 tauri_build 自动重新生成）
+apps/desktop/src-tauri/gen/schemas/
+apps/desktop/src-tauri/gen/schemas/
 
 # Docker volumes
 pgdata/
