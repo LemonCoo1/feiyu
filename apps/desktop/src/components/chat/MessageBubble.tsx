@@ -146,21 +146,16 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     setShowMenu(false);
     if (!messageId) return;
     const hasMyReaction = reactions.find(r => r.emoji === emoji)?.user_ids.includes(user?.id || "");
-    const url = `${getServerUrl()}/api/messages/${messageId}/reactions`;
     if (hasMyReaction) {
-      fetch(`${url}/${encodeURIComponent(emoji)}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      }).catch(() => {});
+      wsClient.send({
+        type: "reaction.remove",
+        payload: { message_id: messageId, emoji }
+      });
     } else {
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ emoji })
-      }).catch(() => {});
+      wsClient.send({
+        type: "reaction.add",
+        payload: { message_id: messageId, emoji }
+      });
     }
   }, [messageId, reactions, user]);
 

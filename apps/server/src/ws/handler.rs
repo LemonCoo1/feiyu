@@ -312,6 +312,15 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             .fetch_optional(pool)
             .await
             {
+                // 确保会话成员已注册到 Hub
+                let members = crate::services::conversation::get_members(pool, msg.conversation_id)
+                    .await
+                    .unwrap_or_default();
+                if !members.is_empty() {
+                    let member_ids: Vec<Uuid> = members.iter().map(|m| m.user_id).collect();
+                    hub.register_conversation(msg.conversation_id, member_ids).await;
+                }
+
                 let result = crate::services::reaction::add(pool, message_id, user_id, &emoji).await;
                 tracing::info!("[回应添加] DB结果: {:?}", result.is_ok());
                 let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
@@ -337,6 +346,15 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             .fetch_optional(pool)
             .await
             {
+                // 确保会话成员已注册到 Hub
+                let members = crate::services::conversation::get_members(pool, msg.conversation_id)
+                    .await
+                    .unwrap_or_default();
+                if !members.is_empty() {
+                    let member_ids: Vec<Uuid> = members.iter().map(|m| m.user_id).collect();
+                    hub.register_conversation(msg.conversation_id, member_ids).await;
+                }
+
                 let _ = crate::services::reaction::remove(pool, message_id, user_id, &emoji).await;
                 let update = serde_json::to_string(&WsServerMessage::ReactionUpdate {
                     message_id,
