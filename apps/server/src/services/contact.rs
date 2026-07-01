@@ -9,6 +9,8 @@ pub enum ContactError {
     AlreadyExists,
     #[error("Cannot add yourself")]
     CannotAddSelf,
+    #[error("User not found")]
+    UserNotFound,
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
 }
@@ -22,7 +24,17 @@ pub async fn add_contact(
         return Err(ContactError::CannotAddSelf);
     }
 
-    sqlx::query(
+    // 先校验目标用户存在，否则外键约束错误会退化成 500
+    let exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)")
+        .bind(contact_id)
+        .fetch_one(pool)
+        .await?;
+    if !exists {
+        return Err(ContactError::UserNotFound);
+    }
+
+    // 双向插入；ON CONFLICT DO NOTHING 保持幂等，rows_affected == 0 表示已是好友
+    let result = sqlx::query(
         r#"
         INSERT INTO contacts (user_id, contact_id, status)
         VALUES ($1, $2, 'accepted'), ($2, $1, 'accepted')
@@ -33,6 +45,10 @@ pub async fn add_contact(
     .bind(contact_id)
     .execute(pool)
     .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(ContactError::AlreadyExists);
+    }
 
     Ok(())
 }

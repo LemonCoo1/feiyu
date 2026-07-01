@@ -38,7 +38,7 @@ pub async fn search_users(
     State(state): State<crate::api::AppState>,
     headers: HeaderMap,
     Query(query): Query<SearchQuery>,
-) -> Result<Json<Vec<User>>, (StatusCode, String)> {
+) -> Result<Json<Vec<user::PublicUser>>, (StatusCode, String)> {
     let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
     user::search(&state.pool, &query.q, user_id)
         .await

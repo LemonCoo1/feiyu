@@ -98,3 +98,12 @@
 - [x] Task 4: 群公告 — 数据库迁移、模型、服务、API、GroupInfoPanel 公告区域
 - [x] Task 5: 用户头像上传 — 服务端 MinIO 上传 API、设置页点击头像上传
 - [x] Task 6: 消息撤回 — 数据库 recalled 字段、WS 协议、2 分钟限制、客户端撤回菜单与已撤回显示
+
+### Phase 13: 通讯录模块修复（2026-07-01）
+- [x] Task 1: 修复"添加联系人无反应"根因 — api.ts request<T> 对 201/204/空 body/非 JSON 响应做健壮处理，避免空响应体抛 SyntaxError 被静默吞掉；新增 ApiError 携带 HTTP 状态码
+- [x] Task 2: 修复"点击联系人无法发消息" — ContactList 创建会话后刷新会话列表、选中会话并切换到消息视图（App 传入 onOpenConversation 回调）
+- [x] Task 3: contactStore 重构 — 抽出 refreshContacts 统一拉取+写缓存，addContact 成功回写缓存、保留搜索结果、增加 isAdding/addError 状态；新增 removeContact action
+- [x] Task 4: AddContact 交互优化 — 搜索防抖 250ms + 竞态保护、添加按钮 pending 禁用、错误提示、notFound 仅搜索完成后显示
+- [x] Task 5: 后端加固 — create_direct 增加鉴权（调用方须为会话一方）；add_contact 校验目标用户存在（404）与已是好友（409）；用户搜索改用 PublicUser DTO 不再泄露 email，仅按用户名/昵称匹配
+- [x] Task 6: cacheService 修复空列表幽灵数据 — contacts/conversations/channels 缓存在服务端返回空列表时清空全表
+- [x] Task 7: ContactList 新增删除联系人入口（悬浮 ✕ + 二次确认），接通此前的孤儿 removeContact API

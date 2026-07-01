@@ -120,10 +120,13 @@
     "noContacts": "No contacts yet",
     "addFirst": "Add your first contact",
     "addContact": "Add Contact",
-    "searchPlaceholder": "Search username or email...",
+    "searchPlaceholder": "Search username or nickname...",
     "added": "Added",
     "addBtn": "Add",
-    "notFound": "User not found"
+    "notFound": "User not found",
+    "startChat": "Message",
+    "remove": "Remove",
+    "confirmRemove": "Remove contact {{name}}?"
   },
   "debug": {
     "closeLog": "Close Log",

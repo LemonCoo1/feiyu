@@ -4,6 +4,16 @@ use uuid::Uuid;
 use crate::models::user::User;
 use crate::models::user_settings::{UserSettings, UpdateUserSettings};
 
+/// 搜索/公开场景返回的精简用户信息，不含 email 等隐私字段
+#[derive(Debug, serde::Serialize, sqlx::FromRow)]
+pub struct PublicUser {
+    pub id: Uuid,
+    pub username: String,
+    pub display_name: Option<String>,
+    pub avatar_url: Option<String>,
+    pub status: String,
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum UserError {
     #[error("User not found")]
@@ -24,13 +34,15 @@ pub async fn get_by_id(pool: &PgPool, user_id: Uuid) -> Result<User, UserError> 
         .ok_or(UserError::NotFound)
 }
 
-pub async fn search(pool: &PgPool, query: &str, current_user_id: Uuid) -> Result<Vec<User>, UserError> {
+pub async fn search(pool: &PgPool, query: &str, current_user_id: Uuid) -> Result<Vec<PublicUser>, UserError> {
     let pattern = format!("%{}%", query);
-    let users = sqlx::query_as::<_, User>(
+    // 仅按 username/display_name 匹配，避免按 email 反查泄露隐私
+    let users = sqlx::query_as::<_, PublicUser>(
         r#"
-        SELECT * FROM users
-        WHERE (username ILIKE $1 OR display_name ILIKE $1 OR email ILIKE $1)
+        SELECT id, username, display_name, avatar_url, status FROM users
+        WHERE (username ILIKE $1 OR display_name ILIKE $1)
           AND id != $2
+        ORDER BY display_name, username
         LIMIT 20
         "#,
     )

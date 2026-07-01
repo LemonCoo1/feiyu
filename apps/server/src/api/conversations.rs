@@ -28,8 +28,14 @@ pub struct CreateDirectRequest {
 
 pub async fn create_direct(
     State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
     Json(req): Json<CreateDirectRequest>,
 ) -> Result<Json<crate::models::conversation::Conversation>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    // 鉴权：调用方必须是会话的其中一方，禁止为他人创建会话
+    if user_id != req.user1_id && user_id != req.user2_id {
+        return Err((StatusCode::FORBIDDEN, "Cannot create conversation for other users".to_string()));
+    }
     conversation::create_direct(&state.pool, req.user1_id, req.user2_id)
         .await
         .map(Json)

@@ -79,7 +79,9 @@ function App() {
             <ChatWindow />
           </>
         )}
-        {activeView === "contacts" && <ContactList />}
+        {activeView === "contacts" && (
+          <ContactList onOpenConversation={() => setActiveView("messages")} />
+        )}
         {activeView === "channels" && (
           <>
             <ChannelList />

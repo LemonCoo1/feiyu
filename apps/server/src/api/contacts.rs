@@ -33,6 +33,7 @@ pub async fn add(
         .map_err(|e| match e {
             contact::ContactError::CannotAddSelf => (StatusCode::BAD_REQUEST, e.to_string()),
             contact::ContactError::AlreadyExists => (StatusCode::CONFLICT, e.to_string()),
+            contact::ContactError::UserNotFound => (StatusCode::NOT_FOUND, e.to_string()),
             _ => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
         })
 }

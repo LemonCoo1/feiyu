@@ -120,10 +120,13 @@
     "noContacts": "暂无联系人",
     "addFirst": "添加第一个联系人",
     "addContact": "添加联系人",
-    "searchPlaceholder": "搜索用户名 or 邮箱...",
+    "searchPlaceholder": "搜索用户名或昵称...",
     "added": "已添加",
     "addBtn": "添加",
-    "notFound": "未找到用户"
+    "notFound": "未找到用户",
+    "startChat": "发消息",
+    "remove": "删除",
+    "confirmRemove": "确定要删除联系人 {{name}} 吗？"
   },
   "debug": {
     "closeLog": "关闭日志",

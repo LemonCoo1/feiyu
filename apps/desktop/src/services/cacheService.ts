@@ -418,6 +418,9 @@ export async function cacheConversations(convs: any[]): Promise<void> {
       `DELETE FROM cached_conversations WHERE id NOT IN (${placeholders})`,
       ids
     );
+  } else {
+    // 列表为空时清空全表，避免残留已删除的幽灵数据
+    await db.execute(`DELETE FROM cached_conversations`);
   }
 }
 
@@ -459,6 +462,9 @@ export async function cacheContacts(contacts: any[]): Promise<void> {
       `DELETE FROM cached_contacts WHERE id NOT IN (${placeholders})`,
       ids
     );
+  } else {
+    // 联系人为空时清空全表，避免残留已删除的幽灵数据
+    await db.execute(`DELETE FROM cached_contacts`);
   }
 }
 
@@ -496,6 +502,9 @@ export async function cacheChannels(channels: any[]): Promise<void> {
       `DELETE FROM cached_channels WHERE id NOT IN (${placeholders})`,
       ids
     );
+  } else {
+    // 频道为空时清空全表，避免残留已删除的幽灵数据
+    await db.execute(`DELETE FROM cached_channels`);
   }
 }
 

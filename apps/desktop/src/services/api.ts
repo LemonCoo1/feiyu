@@ -1,6 +1,16 @@
 import { debugLog } from "../utils/debugLog";
 import { getServerUrl } from "./serverConfig";
 
+// 带 HTTP 状态码的错误，供 store 层按状态码分支给出中文提示
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
@@ -14,17 +24,36 @@ async function request<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${getServerUrl()}${path}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${getServerUrl()}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (e: any) {
+    // 网络异常（断网、DNS、CORS 等）统一包裹
+    throw new ApiError(0, `网络请求失败: ${e?.message ?? e}`);
+  }
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`${res.status}: ${text}`);
+    throw new ApiError(res.status, text || String(res.status));
   }
 
-  return res.json();
+  // 空 body 端点（如 201 CREATED / 204 No Content 的 request<void>）不做 JSON 解析
+  if (res.status === 204 || res.headers.get("Content-Length") === "0") {
+    return undefined as T;
+  }
+  const contentType = res.headers.get("Content-Type") || "";
+  if (!contentType.includes("application/json")) {
+    return undefined as T;
+  }
+  // 即使声明了 JSON，也可能实际是空体，先读文本再解析，避免 res.json() 对空字符串抛 SyntaxError
+  const text = await res.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }
 
 async function uploadFile(file: File): Promise<{ url: string; filename: string }> {
