@@ -44,6 +44,15 @@ interface ReactionItem {
   user_ids: string[];
 }
 
+/** 将相对路径（如 /api/files/xxx）拼接为完整 URL */
+function resolveFileUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:") || url.startsWith("data:")) {
+    return url;
+  }
+  return `${getServerUrl()}${url}`;
+}
+
 const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "🎉", "👏"];
 
 export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
@@ -65,8 +74,9 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
 
   const textSizeClass = fontSize === "small" ? "text-xs" : fontSize === "large" ? "text-base" : "text-sm";
 
-  const cachedStickerUrl = useCachedUrl(rawContent?.url);
-  const cachedImageUrl = useCachedUrl(rawContent?.url);
+  const fileUrl = resolveFileUrl(rawContent?.url);
+  const cachedStickerUrl = useCachedUrl(fileUrl);
+  const cachedImageUrl = useCachedUrl(fileUrl);
 
   useEffect(() => {
     if (!messageId) return;
@@ -245,7 +255,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
               src={cachedStickerUrl}
               alt={rawContent?.name || (isSticker ? t("chat.sticker") : t("chat.gif"))}
               className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-feiyu-lg hover:opacity-90 transition-opacity`}
-              onClick={() => rawContent?.url && window.open(rawContent.url, "_blank")}
+              onClick={() => fileUrl && window.open(fileUrl, "_blank")}
             />
             <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-eyebrow bg-feiyu-overlay-heavy text-white px-1.5 py-0.5 rounded-feiyu-md">
@@ -337,7 +347,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
                 src={cachedImageUrl}
                 alt={rawContent.filename || t("chat.image")}
                 className="max-w-[240px] max-h-[240px] rounded-feiyu-md object-contain cursor-pointer"
-                onClick={() => window.open(rawContent.url, "_blank")}
+                onClick={() => fileUrl && window.open(fileUrl, "_blank")}
               />
               {rawContent.filename && (
                 <div className={`text-xs mt-1 ${isOwn ? "text-white/70" : "text-feiyu-text-muted"}`}>
@@ -347,7 +357,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
             </div>
           ) : isFile && rawContent?.url ? (
             <a
-              href={rawContent.url}
+              href={fileUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={`flex items-center gap-2 underline ${isOwn ? "text-white" : "text-feiyu-primary"}`}
