@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Search, Pin, Users } from "lucide-react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { GroupInfoPanel } from "./GroupInfoPanel";
@@ -46,7 +47,6 @@ export function ChatWindow() {
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // 只在离开整个窗口时隐藏
     if (e.currentTarget === e.target) {
       setDragOver(false);
     }
@@ -60,7 +60,6 @@ export function ChatWindow() {
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0 || !activeId) return;
 
-    // 逐个上传并发送
     for (const file of files) {
       try {
         await sendFile(activeId, file);
@@ -78,7 +77,7 @@ export function ChatWindow() {
 
   if (!activeId) {
     return (
-      <div className="flex-1 bg-feiyu-bg flex items-center justify-center">
+      <div className="flex-1 bg-feiyu-surface flex items-center justify-center">
         <span className="text-feiyu-text-muted text-sm">{t("chat.selectConversation")}</span>
       </div>
     );
@@ -86,55 +85,52 @@ export function ChatWindow() {
 
   return (
     <div
-      className="flex-1 bg-feiyu-bg flex flex-col relative"
+      className="flex-1 bg-feiyu-surface flex flex-col relative"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       {/* 拖拽 overlay */}
       {dragOver && (
-        <div className="absolute inset-0 bg-feiyu-primary/10 border-2 border-dashed border-feiyu-primary rounded-lg flex items-center justify-center z-30 pointer-events-none">
+        <div className="absolute inset-0 bg-feiyu-primary/10 border-2 border-dashed border-feiyu-primary rounded-feiyu-lg flex items-center justify-center z-30 pointer-events-none">
           <div className="text-feiyu-primary text-lg font-medium">
             {t("chat.dropToSend")}
           </div>
         </div>
       )}
       {/* Header */}
-      <div className="px-5 py-3 border-b border-feiyu-border bg-feiyu-card flex justify-between items-center">
+      <div className="px-5 py-3 border-b border-feiyu-border bg-feiyu-surface flex justify-between items-center">
         <div className="flex items-center gap-1.5">
-          {isGroup && <span className="text-blue-500 text-xs">{t("conversation.groupBadge")}</span>}
+          {isGroup && <span className="text-feiyu-info text-xs">{t("conversation.groupBadge")}</span>}
           <span className="font-medium text-feiyu-text">{title}</span>
-          {isPinned && <span className="text-feiyu-text-muted text-xs">📌</span>}
+          {isPinned && <Pin size={12} className="text-feiyu-text-muted" />}
         </div>
         <div className="flex items-center gap-1">
-          {/* Search */}
           <button
             onClick={() => { showSearch ? handleCloseSearch() : setShowSearch(true); }}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-colors ${
-              showSearch ? "bg-feiyu-primary/10 text-feiyu-primary" : "text-feiyu-text-muted hover:bg-gray-100 hover:text-feiyu-text"
+            className={`w-8 h-8 rounded-feiyu-md flex items-center justify-center text-sm transition-colors ${
+              showSearch ? "bg-feiyu-primary-light text-feiyu-primary" : "text-feiyu-text-muted hover:bg-feiyu-surface-container-high hover:text-feiyu-text"
             }`}
             title={t("chat.searchMessages")}
           >
-            🔍
+            <Search size={16} />
           </button>
-          {/* Pin */}
           <button
             onClick={() => activeId && togglePin(activeId)}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-colors ${
-              isPinned ? "bg-feiyu-primary/10 text-feiyu-primary" : "text-feiyu-text-muted hover:bg-gray-100 hover:text-feiyu-text"
+            className={`w-8 h-8 rounded-feiyu-md flex items-center justify-center text-sm transition-colors ${
+              isPinned ? "bg-feiyu-primary-light text-feiyu-primary" : "text-feiyu-text-muted hover:bg-feiyu-surface-container-high hover:text-feiyu-text"
             }`}
             title={isPinned ? t("chat.unpin") : t("chat.pin")}
           >
-            📌
+            <Pin size={16} />
           </button>
-          {/* Group info */}
           {isGroup && (
             <button
               onClick={() => setShowGroupInfo(true)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-sm text-feiyu-text-muted hover:bg-gray-100 hover:text-feiyu-text transition-colors"
+              className="w-8 h-8 rounded-feiyu-md flex items-center justify-center text-sm text-feiyu-text-muted hover:bg-feiyu-surface-container-high hover:text-feiyu-text transition-colors"
               title={t("chat.groupInfo")}
             >
-              👥
+              <Users size={16} />
             </button>
           )}
         </div>
@@ -142,13 +138,13 @@ export function ChatWindow() {
 
       {/* Search bar */}
       {showSearch && (
-        <div className="px-5 py-2 bg-feiyu-card border-b border-feiyu-border flex items-center gap-2">
+        <div className="px-5 py-2 bg-feiyu-surface border-b border-feiyu-border flex items-center gap-2">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder={t("chat.searchCurrentChat")}
-            className="flex-1 bg-gray-50 border border-feiyu-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-feiyu-primary"
+            className="flex-1 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-md px-3 py-1.5 text-sm focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
             autoFocus
           />
           <button onClick={handleCloseSearch} className="text-xs text-feiyu-text-muted hover:text-feiyu-text">
@@ -157,12 +153,9 @@ export function ChatWindow() {
         </div>
       )}
 
-      {/* Messages */}
       <MessageList />
-      {/* Input */}
       <MessageInput />
 
-      {/* Group info panel */}
       {showGroupInfo && conv && (
         <GroupInfoPanel
           conversationId={conv.id}

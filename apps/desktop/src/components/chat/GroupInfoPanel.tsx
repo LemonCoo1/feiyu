@@ -45,7 +45,6 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
   const isOwner = myRole === "owner";
   const isAdmin = myRole === "admin" || isOwner;
 
-  // 公告相关
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [showAnnForm, setShowAnnForm] = useState(false);
   const [annContent, setAnnContent] = useState("");
@@ -54,7 +53,6 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
     loadMembers();
   }, [conversationId]);
 
-  // 加载公告
   useEffect(() => {
     if (!conversationId) return;
     const token = localStorage.getItem("token");
@@ -185,11 +183,11 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/20" onClick={onClose} />
-      <div className="relative w-[320px] bg-feiyu-card shadow-xl flex flex-col">
+      <div className="absolute inset-0 bg-feiyu-overlay-light" onClick={onClose} />
+      <div className="relative w-[320px] bg-feiyu-surface shadow-feiyu-5 flex flex-col">
         {/* Header */}
         <div className="px-4 py-3 border-b border-feiyu-border flex items-center justify-between">
-          <h3 className="font-medium text-feiyu-text">{t("groupInfo.title")}</h3>
+          <h3 className="font-semibold text-feiyu-text">{t("groupInfo.title")}</h3>
           <button onClick={onClose} className="text-feiyu-text-muted hover:text-feiyu-text text-lg">
             ✕
           </button>
@@ -204,7 +202,7 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="flex-1 border border-feiyu-border rounded px-2 py-1 text-sm focus:outline-none focus:border-feiyu-primary"
+                className="flex-1 border border-feiyu-border rounded-feiyu-sm px-2 py-1 text-sm focus:outline-none focus:border-feiyu-primary"
                 autoFocus
                 onKeyDown={(e) => e.key === "Enter" && handleRename()}
               />
@@ -230,16 +228,16 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                   value={searchQuery}
                   onChange={(e) => handleSearchUsers(e.target.value)}
                   placeholder={t("groupInfo.searchUsername")}
-                  className="w-full border border-feiyu-border rounded px-2 py-1.5 text-sm focus:outline-none focus:border-feiyu-primary"
+                  className="w-full border border-feiyu-border rounded-feiyu-sm px-2 py-1.5 text-sm focus:outline-none focus:border-feiyu-primary"
                   autoFocus
                 />
                 {searchResults.length > 0 && (
-                  <div className="max-h-[200px] overflow-y-auto border border-feiyu-border rounded">
+                  <div className="max-h-[200px] overflow-y-auto border border-feiyu-border rounded-feiyu-md">
                     {searchResults.map((u: any) => (
                       <button
                         key={u.id}
                         onClick={() => handleAddMember(u.id)}
-                        className="w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-50 text-left"
+                        className="w-full px-3 py-2 flex items-center gap-2 hover:bg-feiyu-surface-container-high text-left"
                       >
                         <Avatar name={u.display_name || u.username} size="sm" />
                         <div className="flex-1 min-w-0">
@@ -255,7 +253,7 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
             ) : (
               <button
                 onClick={() => setShowAddMember(true)}
-                className="w-full text-sm text-feiyu-primary hover:bg-gray-50 py-1.5 rounded transition-colors"
+                className="w-full text-sm text-feiyu-primary hover:bg-feiyu-surface-container-high py-1.5 rounded-feiyu-md transition-colors"
               >
                 {t("groupInfo.addMember")}
               </button>
@@ -272,7 +270,7 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
             <div className="px-4 py-8 text-center text-sm text-feiyu-text-muted">{t("groupInfo.loading")}</div>
           ) : (
             members.map((m) => (
-              <div key={m.user_id} className="px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 group">
+              <div key={m.user_id} className="px-4 py-2.5 flex items-center gap-3 hover:bg-feiyu-surface-container-high group">
                 <Avatar name={m.display_name || m.username} size="sm" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
@@ -280,10 +278,10 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                       {m.display_name || m.username}
                     </span>
                     {m.role !== "member" && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                      <span className={`text-eyebrow px-1.5 py-0.5 rounded-feiyu-sm ${
                         m.role === "owner"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-blue-100 text-blue-700"
+                          ? "bg-feiyu-warning/15 text-feiyu-warning"
+                          : "bg-feiyu-info/15 text-feiyu-info"
                       }`}>
                         {t(roleLabels[m.role]) || m.role}
                       </span>
@@ -299,7 +297,7 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                     {isOwner && m.role === "member" && (
                       <button
                         onClick={() => handleAssignAdmin(m.user_id)}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100"
+                        className="text-eyebrow px-1.5 py-0.5 rounded-feiyu-sm bg-feiyu-info/10 text-feiyu-info hover:bg-feiyu-info/20"
                         title={t("groupInfo.setAdmin")}
                       >
                         {t("groupInfo.setAdmin")}
@@ -308,7 +306,7 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                     {isAdmin && (
                       <button
                         onClick={() => handleRemoveMember(m.user_id, m.display_name || m.username)}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-500 hover:bg-red-100"
+                        className="text-eyebrow px-1.5 py-0.5 rounded-feiyu-sm bg-feiyu-danger/10 text-feiyu-danger hover:bg-feiyu-danger/20"
                         title={t("groupInfo.remove")}
                       >
                         {t("groupInfo.remove")}
@@ -340,12 +338,12 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
                 value={annContent}
                 onChange={(e) => setAnnContent(e.target.value)}
                 placeholder={t("groupInfo.announcementPlaceholder")}
-                className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-feiyu-primary"
+                className="w-full border border-feiyu-border rounded-feiyu-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
                 rows={3}
               />
               <div className="flex gap-2 justify-end">
-                <button onClick={() => setShowAnnForm(false)} className="text-xs px-3 py-1 border border-feiyu-border rounded">{t("groupInfo.cancel")}</button>
-                <button onClick={handleCreateAnnouncement} className="text-xs px-3 py-1 bg-feiyu-primary text-white rounded">{t("groupInfo.publish")}</button>
+                <button onClick={() => setShowAnnForm(false)} className="text-xs px-3 py-1 border border-feiyu-border rounded-feiyu-sm">{t("groupInfo.cancel")}</button>
+                <button onClick={handleCreateAnnouncement} className="text-xs px-3 py-1 bg-feiyu-primary text-white rounded-feiyu-sm">{t("groupInfo.publish")}</button>
               </div>
             </div>
           )}
@@ -354,12 +352,12 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
           ) : (
             <div className="space-y-2">
               {announcements.map((ann) => (
-                <div key={ann.id} className="bg-feiyu-bg rounded-lg p-2.5">
+                <div key={ann.id} className="bg-feiyu-surface-dim rounded-feiyu-lg p-2.5">
                   <p className="text-sm text-feiyu-text">{ann.content}</p>
                   <div className="flex justify-between items-center mt-1">
                     <span className="text-xs text-feiyu-text-muted">{new Date(ann.created_at).toLocaleString()}</span>
                     {isAdmin && (
-                      <button onClick={() => handleDeleteAnnouncement(ann.id)} className="text-xs text-red-400 hover:text-red-500">{t("groupInfo.deleteAnnouncement")}</button>
+                      <button onClick={() => handleDeleteAnnouncement(ann.id)} className="text-xs text-feiyu-danger hover:text-feiyu-danger">{t("groupInfo.deleteAnnouncement")}</button>
                     )}
                   </div>
                 </div>
@@ -373,7 +371,7 @@ export function GroupInfoPanel({ conversationId, conversationName, ownerId: _own
           <div className="px-4 py-3 border-t border-feiyu-border">
             <button
               onClick={handleLeave}
-              className="w-full text-sm text-red-500 hover:text-red-600 hover:bg-red-50 py-2 rounded transition-colors"
+              className="w-full text-sm text-feiyu-danger hover:text-feiyu-danger hover:bg-feiyu-surface-container-high py-2 rounded-feiyu-md transition-colors"
             >
               {t("groupInfo.leaveGroup")}
             </button>

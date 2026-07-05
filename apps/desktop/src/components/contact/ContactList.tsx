@@ -22,10 +22,8 @@ export function ContactList({ onOpenConversation }: ContactListProps) {
     if (!user) return;
     try {
       const conv = await api.createDirectConversation(user.id, contactId);
-      // 刷新会话列表，确保新会话进入列表并带上 other_user 元数据
       await useChatStore.getState().loadConversations();
       useChatStore.getState().setActiveConversation(conv.id);
-      // 切换到消息视图
       onOpenConversation();
     } catch (e) {
       console.error("Failed to create conversation:", e);
@@ -42,7 +40,7 @@ export function ContactList({ onOpenConversation }: ContactListProps) {
   };
 
   return (
-    <div className="w-[280px] bg-feiyu-card border-r border-feiyu-border flex flex-col">
+    <div className="w-[280px] bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
       <div className="px-4 py-3 border-b border-feiyu-border flex justify-between items-center">
         <h2 className="font-medium text-feiyu-text">{t("contact.title")}</h2>
         <button

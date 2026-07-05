@@ -20,7 +20,6 @@ export function ForwardModal({ conversationId, content, content_type, onClose }:
   const handleForward = async () => {
     if (!selectedId || sent) return;
     setSent(true);
-    // 发送转发消息：content_type 为 "forward"，content 包含原消息信息
     wsClient.sendMessage(selectedId, "forward", {
       original_content: content,
       original_content_type: content_type,
@@ -28,14 +27,13 @@ export function ForwardModal({ conversationId, content, content_type, onClose }:
     onClose();
   };
 
-  // 排除当前会话
   const targetConvs = conversations.filter((c) => c.id !== conversationId);
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-feiyu-card rounded-xl shadow-xl w-[360px] max-h-[480px] flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-feiyu-overlay-heavy flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-feiyu-surface rounded-feiyu-xl shadow-feiyu-5 w-[360px] max-h-[480px] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="px-4 py-3 border-b border-feiyu-border flex justify-between items-center">
-          <span className="font-medium text-feiyu-text">{t("chat.forward")}</span>
+          <span className="font-semibold text-feiyu-text">{t("chat.forward")}</span>
           <button onClick={onClose} className="text-feiyu-text-muted hover:text-feiyu-text">✕</button>
         </div>
         <div className="flex-1 overflow-y-auto p-2">
@@ -49,11 +47,11 @@ export function ForwardModal({ conversationId, content, content_type, onClose }:
                 <button
                   key={conv.id}
                   onClick={() => setSelectedId(conv.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center gap-2 transition-colors ${
-                    selectedId === conv.id ? "bg-feiyu-primary/10 text-feiyu-primary" : "hover:bg-gray-50 text-feiyu-text"
+                  className={`w-full text-left px-3 py-2.5 rounded-feiyu-md text-sm flex items-center gap-2 transition-colors ${
+                    selectedId === conv.id ? "bg-feiyu-primary-light text-feiyu-primary" : "hover:bg-feiyu-surface-container-high text-feiyu-text"
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${isGroup ? "bg-blue-400" : "bg-feiyu-primary"}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${isGroup ? "bg-feiyu-info" : "bg-feiyu-primary"}`}>
                     {name.charAt(0).toUpperCase()}
                   </div>
                   <span className="truncate">{name}</span>
@@ -63,11 +61,11 @@ export function ForwardModal({ conversationId, content, content_type, onClose }:
           )}
         </div>
         <div className="px-4 py-3 border-t border-feiyu-border flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-1.5 text-sm rounded-lg border border-feiyu-border hover:bg-gray-50">{t("conversation.cancel")}</button>
+          <button onClick={onClose} className="px-4 py-1.5 text-sm rounded-feiyu-md border border-feiyu-border hover:bg-feiyu-surface-container-high">{t("conversation.cancel")}</button>
           <button
             onClick={handleForward}
             disabled={!selectedId || sent}
-            className="px-4 py-1.5 text-sm rounded-lg bg-feiyu-primary text-white hover:bg-feiyu-primary-hover disabled:opacity-50"
+            className="px-4 py-1.5 text-sm rounded-feiyu-md bg-feiyu-primary text-white hover:bg-feiyu-primary-hover disabled:opacity-50"
           >
             {t("chat.send")}
           </button>

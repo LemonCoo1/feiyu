@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { MessageBubble } from "./MessageBubble";
 import { useChatStore } from "../../stores/chatStore";
@@ -23,7 +23,6 @@ export function MessageList() {
   const prevActiveIdRef = useRef<string | null>(null);
   const isSwitchingRef = useRef(false);
 
-  // Mark switching state when activeId changes
   if (prevActiveIdRef.current !== activeId) {
     prevActiveIdRef.current = activeId;
     isSwitchingRef.current = true;
@@ -125,7 +124,7 @@ export function MessageList() {
             <div key={msg.id}>
               {showSeparator && (
                 <div className="flex items-center justify-center my-3">
-                  <span className="text-[11px] text-feiyu-text-muted bg-feiyu-bg px-3 py-0.5 rounded-full">
+                  <span className="text-caption text-feiyu-text-muted bg-feiyu-surface-container-high px-3 py-0.5 rounded-feiyu-pill">
                     {formatDateSeparator(msg.created_at)}
                   </span>
                 </div>
@@ -156,7 +155,7 @@ export function MessageList() {
       {showScrollBtn && (
         <button
           onClick={() => scrollToBottom()}
-          className="absolute bottom-4 right-6 w-8 h-8 bg-feiyu-card shadow-feiyu rounded-full flex items-center justify-center text-feiyu-text-muted hover:text-feiyu-text hover:shadow-feiyu-md transition-all"
+          className="absolute bottom-4 right-6 w-8 h-8 bg-feiyu-card shadow-feiyu-2 rounded-full flex items-center justify-center text-feiyu-text-muted hover:text-feiyu-text hover:shadow-feiyu-3 transition-all"
           title={t("chat.scrollToBottom")}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

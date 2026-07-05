@@ -19,14 +19,12 @@ export function AddContact({ onClose }: { onClose: () => void }) {
 
   const handleSearch = (q: string) => {
     setQuery(q);
-    // 防抖：避免逐字符发请求，减少不必要的搜索调用与输入抖动
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
       searchUsers(q);
     }, 250);
   };
 
-  // 卸载时清理计时器，避免弹窗关闭后仍触发搜索
   useEffect(() => {
     return () => {
       if (searchTimer.current) clearTimeout(searchTimer.current);
@@ -37,17 +35,17 @@ export function AddContact({ onClose }: { onClose: () => void }) {
     try {
       await addContact(contactId);
     } catch {
-      // 错误已记录到 store.addError，在此吞掉避免未处理的 Promise 拒绝
+      // error handled in store
     }
   };
 
   const contactIds = new Set(contacts.map((c) => c.id));
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-feiyu-card rounded-xl shadow-xl w-[400px] max-h-[500px] flex flex-col">
+    <div className="fixed inset-0 bg-feiyu-overlay flex items-center justify-center z-50">
+      <div className="bg-feiyu-surface rounded-feiyu-xl shadow-feiyu-5 w-[400px] max-h-[500px] flex flex-col">
         <div className="px-4 py-3 border-b border-feiyu-border flex justify-between items-center">
-          <h3 className="font-medium text-feiyu-text">{t("contact.addContact")}</h3>
+          <h3 className="font-semibold text-feiyu-text">{t("contact.addContact")}</h3>
           <button onClick={() => { clearSearch(); onClose(); }} className="text-feiyu-text-muted hover:text-feiyu-text">✕</button>
         </div>
         <div className="px-4 py-2">
@@ -56,7 +54,7 @@ export function AddContact({ onClose }: { onClose: () => void }) {
             placeholder={t("contact.searchPlaceholder")}
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-feiyu-primary"
+            className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2 text-sm focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
             autoFocus
           />
         </div>
@@ -73,7 +71,7 @@ export function AddContact({ onClose }: { onClose: () => void }) {
                   <button
                     onClick={() => handleAdd(u.id)}
                     disabled={isAdding}
-                    className="text-xs bg-feiyu-primary text-white px-3 py-1 rounded-md hover:bg-feiyu-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="text-xs bg-feiyu-primary text-white px-3 py-1 rounded-feiyu-sm hover:bg-feiyu-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {t("contact.addBtn")}
                   </button>

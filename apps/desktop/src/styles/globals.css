@@ -1,43 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --feiyu-bg: #f5f5f6;
-  --feiyu-bg-hover: #eeeff0;
-  --feiyu-card: #ffffff;
-  --feiyu-sidebar: #2b2f36;
-  --feiyu-sidebar-hover: #3a3f48;
-  --feiyu-primary: #3370ff;
-  --feiyu-primary-hover: #2860e1;
+  /* ── Primary ── */
+  --feiyu-primary: #1456f0;
+  --feiyu-primary-hover: #0e47d6;
   --feiyu-primary-light: #e8f0fe;
-  --feiyu-primary-soft: #f0f5ff;
-  --feiyu-border: #e5e5e6;
-  --feiyu-border-light: #f0f0f1;
+  --feiyu-primary-soft: #e8f0fe;
+
+  /* ── Semantic ── */
+  --feiyu-success: #18a058;
+  --feiyu-warning: #de9318;
+  --feiyu-danger: #f53f3f;
+  --feiyu-info: #2f74cf;
+
+  /* ── Text ── */
   --feiyu-text: #1f2329;
   --feiyu-text-secondary: #646a73;
   --feiyu-text-muted: #8f959e;
-  --feiyu-bubble-own: #3370ff;
-  --feiyu-bubble-other: #ffffff;
+
+  /* ── Surface ── */
+  --feiyu-bg: #f5f6f7;
+  --feiyu-bg-hover: #eff0f1;
+  --feiyu-card: #f8f9fa;
+  --feiyu-surface: #ffffff;
+  --feiyu-surface-dim: #eff0f1;
+  --feiyu-surface-container: #f5f6f7;
+  --feiyu-surface-container-high: #eff0f1;
+  --feiyu-surface-container-highest: #dee0e3;
+
+  /* ── Sidebar ── */
+  --feiyu-sidebar: #1f2329;
+  --feiyu-sidebar-hover: #2e3236;
+  --feiyu-sidebar-active: #2e3236;
+
+  /* ── Border ── */
+  --feiyu-border: #d0d3d6;
+  --feiyu-border-light: #eff0f1;
+
+  /* ── Bubble ── */
+  --feiyu-bubble-own: #1456f0;
+  --feiyu-bubble-other: #f8f9fa;
+
+  /* ── Shadow ── */
+  --feiyu-shadow-1: 0 1px 2px 0 rgba(31,35,41,0.06);
+  --feiyu-shadow-2: 0 2px 4px 0 rgba(31,35,41,0.08);
+  --feiyu-shadow-3: 0 4px 8px 0 rgba(31,35,41,0.10);
+  --feiyu-shadow-4: 0 8px 16px 0 rgba(31,35,41,0.12);
+  --feiyu-shadow-5: 0 12px 24px 0 rgba(31,35,41,0.16);
+
+  /* ── Radius ── */
+  --feiyu-radius-sm: 4px;
+  --feiyu-radius-md: 6px;
+  --feiyu-radius-lg: 8px;
+  --feiyu-radius-xl: 12px;
+  --feiyu-radius-pill: 9999px;
+
+  /* ── Overlay ── */
+  --feiyu-overlay: rgba(0,0,0,0.3);
+  --feiyu-overlay-light: rgba(0,0,0,0.2);
+  --feiyu-overlay-heavy: rgba(0,0,0,0.5);
+
+  /* ── Typography ── */
+  --font-display: 'Inter', PingFang SC, -apple-system, BlinkMacSystemFont, Segoe UI, Microsoft YaHei, sans-serif;
+  --font-body: PingFang SC, -apple-system, BlinkMacSystemFont, Segoe UI, Microsoft YaHei, sans-serif;
+  --font-mono: 'Menlo', 'Consolas', monospace;
+
+  /* ── Spacing ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* ── Sizes ── */
+  --size-input-height: 36px;
+  --size-button-sm: 32px;
+  --size-button-md: 36px;
+  --size-button-lg: 40px;
+  --size-icon-sm: 16px;
+  --size-icon-md: 20px;
+  --size-icon-lg: 24px;
 }
 
 :root.dark {
-  --feiyu-bg: #111111;
-  --feiyu-bg-hover: #1a1a1a;
-  --feiyu-card: #1e1e1e;
-  --feiyu-sidebar: #0a0a0a;
-  --feiyu-sidebar-hover: #1a1a1a;
-  --feiyu-primary: #4d8aff;
+  /* ── Primary ── */
+  --feiyu-primary: #4a82f3;
   --feiyu-primary-hover: #3a7aff;
   --feiyu-primary-light: #1a2a44;
   --feiyu-primary-soft: #1a2744;
-  --feiyu-border: #2a2a2a;
-  --feiyu-border-light: #222222;
+
+  /* ── Text ── */
   --feiyu-text: #e5e5e5;
   --feiyu-text-secondary: #a0a0a0;
   --feiyu-text-muted: #666666;
-  --feiyu-bubble-own: #2563eb;
-  --feiyu-bubble-other: #262626;
+
+  /* ── Surface ── */
+  --feiyu-bg: #1f2329;
+  --feiyu-bg-hover: #2e3236;
+  --feiyu-card: #262a2e;
+  --feiyu-surface: #1f2329;
+  --feiyu-surface-dim: #262a2e;
+  --feiyu-surface-container: #2e3236;
+  --feiyu-surface-container-high: #3a3f44;
+  --feiyu-surface-container-highest: #4e5459;
+
+  /* ── Sidebar ── */
+  --feiyu-sidebar: #1f2329;
+  --feiyu-sidebar-hover: #2e3236;
+  --feiyu-sidebar-active: #2e3236;
+
+  /* ── Border ── */
+  --feiyu-border: #3a3f44;
+  --feiyu-border-light: #2e3236;
+
+  /* ── Bubble ── */
+  --feiyu-bubble-own: #4a82f3;
+  --feiyu-bubble-other: #262a2e;
+
+  /* ── Overlay ── */
+  --feiyu-overlay: rgba(0,0,0,0.3);
+  --feiyu-overlay-light: rgba(0,0,0,0.2);
+  --feiyu-overlay-heavy: rgba(0,0,0,0.5);
+
+  /* ── Semantic ── */
+  --feiyu-success: #47c984;
+  --feiyu-warning: #f7b738;
+  --feiyu-danger: #e35864;
+  --feiyu-info: #65a1ef;
 }
 
 * {
@@ -47,9 +141,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
@@ -66,17 +158,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #444;
+  background: var(--feiyu-surface-container-highest);
+  border-radius: var(--feiyu-radius-sm);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--feiyu-text-muted);
 }
 
 /* Hide scrollbar but keep scroll functionality */
@@ -110,11 +196,3 @@ body {
 body, body * {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
-
-/* Dark mode gray overrides */
-.dark .bg-gray-50 { background-color: #1e1e1e; }
-.dark .bg-gray-100 { background-color: #252525; }
-.dark .bg-gray-200 { background-color: #333333; }
-.dark .hover\:bg-gray-50:hover { background-color: #1e1e1e; }
-.dark .hover\:bg-gray-100:hover { background-color: #1a1a1a; }
-.dark .border-gray-100 { border-color: #2a2a2a; }

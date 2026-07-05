@@ -50,7 +50,6 @@ function App() {
     loadFromStorage();
   }, []);
 
-  // 启动时自动清理过期缓存
   useEffect(() => {
     cacheService.runAutoCleanup();
   }, []);
@@ -123,7 +122,6 @@ function AuthScreen({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Ensure server URL is saved before making API calls
     const urlErr = validateServerUrl(serverUrl);
     if (!urlErr) {
       setServerUrl(serverUrl);
@@ -180,12 +178,12 @@ function AuthScreen({
 
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-feiyu-bg">
-      <div className="bg-feiyu-card rounded-xl shadow-lg p-8 w-[360px]">
+      <div className="bg-feiyu-surface rounded-feiyu-xl shadow-feiyu-4 p-8 w-[360px]">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-feiyu-primary flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+          <div className="w-14 h-14 rounded-feiyu-xl bg-feiyu-primary flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
             F
           </div>
-          <h1 className="text-xl font-bold text-feiyu-text">{t("app.name")}</h1>
+          <h1 className="text-xl font-bold text-feiyu-text font-display">{t("app.name")}</h1>
           <p className="text-sm text-feiyu-text-muted mt-1">
             {mode === "login" ? t("auth.loginSubtitle") : t("auth.registerSubtitle")}
           </p>
@@ -198,7 +196,7 @@ function AuthScreen({
               placeholder={t("auth.username")}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-feiyu-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-feiyu-primary"
+              className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2.5 text-sm focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
               required
             />
           )}
@@ -207,7 +205,7 @@ function AuthScreen({
             placeholder={t("auth.email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-feiyu-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-feiyu-primary"
+            className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2.5 text-sm focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
             required
           />
           <input
@@ -215,22 +213,22 @@ function AuthScreen({
             placeholder={t("auth.password")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-feiyu-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-feiyu-primary"
+            className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2.5 text-sm focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
             required
           />
           {error && (
-            <p className="text-red-500 text-xs">{error}</p>
+            <p className="text-feiyu-danger text-xs">{error}</p>
           )}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-feiyu-primary text-white rounded-lg py-2.5 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50 transition-colors"
+            className="w-full bg-feiyu-primary text-white rounded-feiyu-md py-2.5 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50 transition-colors"
           >
             {isLoading ? t("auth.pleaseWait") : mode === "login" ? t("auth.login") : t("auth.register")}
           </button>
         </form>
 
-        <details className="text-sm border-t border-feiyu-border pt-3">
+        <details className="text-sm border-t border-feiyu-border pt-3 mt-3">
           <summary className="cursor-pointer text-feiyu-text-muted hover:text-feiyu-text select-none">
             {t("auth.serverSettings")}
           </summary>
@@ -245,25 +243,25 @@ function AuthScreen({
               }}
               onBlur={handleServerUrlBlur}
               placeholder={getDefaultServerUrl()}
-              className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-feiyu-primary"
+              className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2 text-sm focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
             />
             {urlError && (
-              <p className="text-red-500 text-xs">{t(`auth.urlError.${urlError}`)}</p>
+              <p className="text-feiyu-danger text-xs">{t(`auth.urlError.${urlError}`)}</p>
             )}
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleTestConnection}
                 disabled={testState === "testing"}
-                className="text-xs border border-feiyu-border rounded px-2 py-1 hover:bg-feiyu-bg disabled:opacity-50"
+                className="text-xs border border-feiyu-border rounded-feiyu-sm px-2 py-1 hover:bg-feiyu-surface-container-high disabled:opacity-50"
               >
                 {testState === "testing" ? t("auth.testing") : t("auth.testConnection")}
               </button>
               {testState === "ok" && (
-                <span className="text-green-500 text-xs">✓ {t("auth.connectionOk")}</span>
+                <span className="text-feiyu-success text-xs">✓ {t("auth.connectionOk")}</span>
               )}
               {testState === "fail" && (
-                <span className="text-red-500 text-xs">
+                <span className="text-feiyu-danger text-xs">
                   ✗ {t("auth.connectionFailed")}
                   {testMsg ? `: ${testMsg}` : ""}
                 </span>

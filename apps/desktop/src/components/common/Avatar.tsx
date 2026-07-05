@@ -1,11 +1,19 @@
 interface AvatarProps {
   name: string;
   url?: string | null;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   online?: boolean;
 }
 
-const colors = ["#4f9cf7", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444", "#ec4899"];
+// 400 级饱和色：深色侧边栏上足够亮，浅色会话列表上足够饱和，白色文字清晰可读
+const colors = [
+  "#3b82f6", // blue-500
+  "#10b981", // emerald-500
+  "#f59e0b", // amber-500
+  "#06b6d4", // cyan-500
+  "#f43f5e", // rose-500
+  "#8b5cf6", // violet-500
+];
 
 function hashCode(str: string): number {
   let hash = 0;
@@ -16,7 +24,18 @@ function hashCode(str: string): number {
 }
 
 export function Avatar({ name, url, size = "md", online }: AvatarProps) {
-  const sizeClass = size === "sm" ? "w-8 h-8 text-xs" : size === "lg" ? "w-12 h-12 text-lg" : "w-10 h-10 text-sm";
+  const sizeMap = {
+    sm: "w-6 h-6 text-eyebrow",
+    md: "w-9 h-9 text-sm",
+    lg: "w-12 h-12 text-lg",
+    xl: "w-16 h-16 text-2xl",
+  };
+  const dotSizeMap = {
+    sm: "w-2 h-2 border-[1.5px]",
+    md: "w-2.5 h-2.5 border-2",
+    lg: "w-3 h-3 border-2",
+    xl: "w-3.5 h-3.5 border-2",
+  };
   const color = colors[hashCode(name) % colors.length];
   const initial = name.charAt(0).toUpperCase();
 
@@ -26,11 +45,11 @@ export function Avatar({ name, url, size = "md", online }: AvatarProps) {
         <img
           src={url}
           alt={name}
-          className={`${sizeClass} rounded-lg object-cover`}
+          className={`${sizeMap[size]} rounded-full object-cover`}
         />
       ) : (
         <div
-          className={`${sizeClass} rounded-lg flex items-center justify-center text-white font-bold`}
+          className={`${sizeMap[size]} rounded-full flex items-center justify-center text-white font-semibold`}
           style={{ backgroundColor: color }}
         >
           {initial}
@@ -38,8 +57,8 @@ export function Avatar({ name, url, size = "md", online }: AvatarProps) {
       )}
       {online !== undefined && (
         <div
-          className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
-            online ? "bg-green-500" : "bg-gray-400"
+          className={`absolute bottom-0 right-0 ${dotSizeMap[size]} rounded-full border-feiyu-surface ${
+            online ? "bg-feiyu-success" : "bg-feiyu-text-muted"
           }`}
         />
       )}
