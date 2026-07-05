@@ -1,0 +1,34 @@
+{
+  "slug": "card",
+  "schemaVersion": 2,
+  "name": "Card",
+  "category": "layout",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "Card", "evidence": "File cards, link previews, mini-app cards in chat" }
+  ],
+  "variantDimensions": [
+    { "name": "type", "values": ["content", "file", "link-preview"] }
+  ],
+  "representativeVariants": [
+    {
+      "name": "Content Card",
+      "whySelected": "Generic content container in settings or workspace",
+      "traits": { "background": "var(--surface)", "borderRadius": "var(--radius-lg)", "padding": "var(--space-5)", "border": "1px solid var(--color-border)" },
+      "childrenDigest": ["title", "description", "action"]
+    },
+    {
+      "name": "File Card",
+      "whySelected": "Shared file display in chat — icon + name + size",
+      "traits": { "background": "var(--surface)", "borderRadius": "var(--radius-lg)", "padding": "var(--space-4)", "border": "1px solid var(--color-border)" },
+      "childrenDigest": ["file-icon", "file-name", "file-meta", "download-action"]
+    }
+  ],
+  "anatomy": ["header[optional]", "body", "footer[optional]"],
+  "structurePatterns": ["block-card"],
+  "usageHints": { "priorityHint": 5 },
+  "doNotInvent": ["media-card", "stat-card", "dashboard-widget"],
+  "unknowns": [],
+  "keyInsightSeed": "Light border or no border, subtle shadow, surface background"
+}

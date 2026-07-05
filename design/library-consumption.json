@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "tokenSource": "css.json",
+  "componentIndex": "components/index.json",
+  "uikitPlan": "uikit-plan.json",
+  "recommendedReadOrder": ["SKILL.md", "css.json", "components/index.json", "uikit-plan.json", "preview/component-button.html", "preview/component-input.html", "preview/component-chat-bubble.html", "preview/component-avatar.html", "preview/component-card.html", "preview/component-sidebar-nav.html", "ui_kits/dashboard/index.html"],
+  "coreComponents": ["button", "input", "chat-bubble", "avatar"],
+  "supportComponents": ["card", "sidebar-nav"]
+}

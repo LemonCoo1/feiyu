@@ -1,0 +1,34 @@
+{
+  "slug": "sidebar-nav",
+  "schemaVersion": 2,
+  "name": "SidebarNav",
+  "category": "navigation",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "SidebarNav", "evidence": "Three-column IM layout — icon rail + conversation list + content" }
+  ],
+  "variantDimensions": [
+    { "name": "section", "values": ["icon-rail", "conversation-list"] }
+  ],
+  "representativeVariants": [
+    {
+      "name": "Icon Rail",
+      "whySelected": "Leftmost narrow sidebar — app navigation icons",
+      "traits": { "width": "54px", "background": "var(--color-surface-dim)", "iconSize": "var(--size-icon-lg)", "padding": "var(--space-3)" },
+      "childrenDigest": ["nav-icons", "avatar", "create-button"]
+    },
+    {
+      "name": "Conversation List",
+      "whySelected": "Middle panel — searchable message list",
+      "traits": { "width": "280px", "background": "var(--color-surface-container)", "searchBar": true },
+      "childrenDigest": ["search-input", "conversation-items"]
+    }
+  ],
+  "anatomy": ["rail-icons", "conversation-list", "search-bar"],
+  "structurePatterns": ["three-column-layout"],
+  "usageHints": { "priorityHint": 6 },
+  "doNotInvent": ["collapsible-sidebar", "tree-nav"],
+  "unknowns": ["exact hover background color"],
+  "keyInsightSeed": "Three-column IM layout, icon rail, conversation list"
+}

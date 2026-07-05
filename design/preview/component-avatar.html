@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avatar</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* Page scaffold — NOT extracted */
+  body { margin: 0; padding: var(--space-3); background: var(--color-background); font-family: var(--font-family-base); color: var(--color-on-surface); }
+  .specimen { max-width: 720px; }
+  .stage { display: flex; flex-direction: column; gap: var(--space-2); }
+  .story { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+  .rail { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }
+  .story-label { font: var(--type-eyebrow); color: var(--color-on-surface-variant); min-width: 92px; flex-shrink: 0; }
+  .divider { border: none; border-top: 1px solid var(--color-border); margin: var(--space-2) 0; }
+  /* @component-css-start */
+  .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; color: var(--feiyu-primary-700); position: relative; flex-shrink: 0; white-space: nowrap; background: var(--feiyu-primary-200); }
+  .avatar-sm { width: 24px; height: 24px; font-size: 10px; }
+  .avatar-md { width: 36px; height: 36px; font-size: 14px; }
+  .avatar-lg { width: 48px; height: 48px; font-size: 18px; }
+  .avatar-xl { width: 64px; height: 64px; font-size: 24px; }
+  .status-dot { position: absolute; bottom: 0; right: 0; border-radius: 50%; border: 2px solid var(--color-surface); }
+  .avatar-md .status-dot { width: 10px; height: 10px; }
+  .avatar-sm .status-dot { width: 8px; height: 8px; border-width: 1.5px; }
+  .avatar-lg .status-dot { width: 12px; height: 12px; }
+  .avatar-xl .status-dot { width: 14px; height: 14px; }
+  .status-online { background: var(--color-success); }
+  .status-offline { background: var(--muted); }
+  /* @component-css-end */
+</style>
+</head>
+<body>
+<div class="specimen">
+<div class="stage">
+  <div class="story"><span class="story-label">尺寸</span><div class="rail">
+    <div class="avatar avatar-sm">张</div>
+    <div class="avatar avatar-md">张</div>
+    <div class="avatar avatar-lg">张</div>
+    <div class="avatar avatar-xl">张</div>
+  </div></div>
+  <div class="story"><span class="story-label">在线状态</span><div class="rail">
+    <div class="avatar avatar-md">张</div>
+    <div class="avatar avatar-md">李<span class="status-dot status-online"></span></div>
+    <div class="avatar avatar-md">王<span class="status-dot status-offline"></span></div>
+  </div></div>
+  <hr class="divider">
+  <div class="story"><span class="story-label">用户列表</span><div class="rail">
+    <div class="avatar avatar-sm">赵</div>
+    <div class="avatar avatar-md">张<span class="status-dot status-online"></span></div>
+    <div class="avatar avatar-md">李</div>
+    <div class="avatar avatar-lg">王<span class="status-dot status-online"></span></div>
+    <div class="avatar avatar-sm">赵<span class="status-dot status-offline"></span></div>
+  </div></div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "slug": "input",
+  "schemaVersion": 2,
+  "name": "Input",
+  "category": "form",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "Input", "evidence": "Message compose box, search bar, form fields" }
+  ],
+  "variantDimensions": [
+    { "name": "state", "values": ["default", "focus", "disabled"] },
+    { "name": "withIcon", "values": ["none", "left", "right"] }
+  ],
+  "representativeVariants": [
+    {
+      "name": "Default",
+      "whySelected": "Standard text input — search bar, message compose",
+      "traits": { "background": "var(--color-background)", "border": "1px solid var(--color-border)", "borderRadius": "var(--radius-md)", "height": "36px", "color": "var(--color-foreground)" },
+      "childrenDigest": ["placeholder", "text"]
+    },
+    {
+      "name": "Focus",
+      "whySelected": "Active input state — blue ring highlight",
+      "traits": { "border": "1px solid var(--color-primary)", "boxShadow": "0 0 0 2px rgba(20,86,240,.15)" },
+      "childrenDigest": ["text"]
+    },
+    {
+      "name": "Disabled",
+      "whySelected": "Disabled state",
+      "traits": { "background": "var(--feiyu-surface-300)", "color": "var(--muted)", "cursor": "not-allowed" },
+      "childrenDigest": ["placeholder"]
+    }
+  ],
+  "anatomy": ["label[optional]", "icon-left[optional]", "text-input", "icon-right[optional]", "helper[optional]"],
+  "structurePatterns": ["block-input", "input-group"],
+  "usageHints": { "priorityHint": 2 },
+  "doNotInvent": ["textarea", "select-dropdown", "date-picker"],
+  "unknowns": [],
+  "keyInsightSeed": "Light border, blue focus ring, moderate radius"
+}

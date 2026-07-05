@@ -1,0 +1,41 @@
+{
+  "slug": "chat-bubble",
+  "schemaVersion": 2,
+  "name": "ChatBubble",
+  "category": "communication",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "ChatBubble", "evidence": "Core IM component — message display in conversation view" }
+  ],
+  "variantDimensions": [
+    { "name": "sender", "values": ["self", "other"] },
+    { "name": "type", "values": ["text", "image"] }
+  ],
+  "representativeVariants": [
+    {
+      "name": "Self Text",
+      "whySelected": "Sent message — blue background, right-aligned",
+      "traits": { "background": "var(--color-primary)", "color": "#ffffff", "borderRadius": "var(--radius-lg)", "alignSelf": "flex-end", "padding": "8px 12px" },
+      "childrenDigest": ["message-text"]
+    },
+    {
+      "name": "Other Text",
+      "whySelected": "Received message — gray background, left-aligned",
+      "traits": { "background": "var(--surface)", "color": "var(--color-on-surface)", "borderRadius": "var(--radius-lg)", "alignSelf": "flex-start", "padding": "8px 12px" },
+      "childrenDigest": ["avatar", "sender-name", "message-text"]
+    },
+    {
+      "name": "Other Image",
+      "whySelected": "Image message card",
+      "traits": { "background": "transparent", "borderRadius": "var(--radius-lg)", "alignSelf": "flex-start" },
+      "childrenDigest": ["avatar", "sender-name", "image"]
+    }
+  ],
+  "anatomy": ["avatar[other-only]", "sender-name[other-only]", "bubble", "message-content", "timestamp[optional]"],
+  "structurePatterns": ["flex-column-reverse", "message-row"],
+  "usageHints": { "priorityHint": 3 },
+  "doNotInvent": ["reply-thread", "reaction-bar", "file-attachment"],
+  "unknowns": ["tail/corner notch presence"],
+  "keyInsightSeed": "Self blue vs other gray, rounded corners, sender avatar"
+}

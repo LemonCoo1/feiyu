@@ -1,0 +1,64 @@
+{
+  "components": [
+    {
+      "slug": "button",
+      "name": "Button",
+      "category": "form",
+      "sourceKind": "from-scratch",
+      "confidence": "medium",
+      "variantCount": 6,
+      "priorityHint": 1,
+      "keyInsightSeed": "Compact height, blue primary, minimal radius"
+    },
+    {
+      "slug": "input",
+      "name": "Input",
+      "category": "form",
+      "sourceKind": "from-scratch",
+      "confidence": "medium",
+      "variantCount": 4,
+      "priorityHint": 2,
+      "keyInsightSeed": "Light border, blue focus ring, moderate radius"
+    },
+    {
+      "slug": "chat-bubble",
+      "name": "ChatBubble",
+      "category": "communication",
+      "sourceKind": "from-scratch",
+      "confidence": "medium",
+      "variantCount": 3,
+      "priorityHint": 3,
+      "keyInsightSeed": "Self blue vs other gray, rounded corners, sender avatar"
+    },
+    {
+      "slug": "avatar",
+      "name": "Avatar",
+      "category": "data-display",
+      "sourceKind": "from-scratch",
+      "confidence": "medium",
+      "variantCount": 4,
+      "priorityHint": 4,
+      "keyInsightSeed": "Circular crop, online indicator, multiple sizes"
+    },
+    {
+      "slug": "card",
+      "name": "Card",
+      "category": "layout",
+      "sourceKind": "from-scratch",
+      "confidence": "medium",
+      "variantCount": 3,
+      "priorityHint": 5,
+      "keyInsightSeed": "Light border or no border, subtle shadow, surface background"
+    },
+    {
+      "slug": "sidebar-nav",
+      "name": "SidebarNav",
+      "category": "navigation",
+      "sourceKind": "from-scratch",
+      "confidence": "medium",
+      "variantCount": 2,
+      "priorityHint": 6,
+      "keyInsightSeed": "Three-column IM layout, icon rail, conversation list"
+    }
+  ]
+}

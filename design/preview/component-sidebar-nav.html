@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SidebarNav</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+<style>
+body { margin: 0; padding: var(--space-3); background: var(--color-surface); font-family: var(--font-body); color: var(--color-on-surface); }
+.row { display: flex; gap: var(--space-2); align-items: flex-start; margin-bottom: var(--space-2); flex-wrap: wrap; }
+.label { font-size: var(--font-size-caption); font-weight: var(--font-weight-eyebrow); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; width: 92px; flex-shrink: 0; padding-top: var(--space-1); }
+.divider { border: none; border-top: 1px solid var(--color-border); margin: var(--space-2) 0; }
+/* @component-css-start */
+.sidebar-rail { width: 54px; background: var(--color-surface-dim); display: flex; flex-direction: column; align-items: center; padding: var(--space-3) 0; height: 340px; flex-shrink: 0; }
+.nav-icons { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+.nav-icon { width: 40px; height: 40px; min-width: 40px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; }
+.nav-icon:hover { background: var(--color-surface-container-high); }
+.nav-icon.active { color: var(--accent); background: var(--color-primary-container); }
+.rail-spacer { flex: 1; }
+.rail-bottom { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+.create-btn { width: 32px; height: 32px; min-width: 32px; background: var(--accent); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; flex-shrink: 0; }
+.create-btn:hover { background: var(--accent-hover); }
+.avatar { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-caption); font-weight: 600; color: #fff; background: var(--feiyu-primary-300); }
+.conv-list { width: 280px; background: var(--color-surface-container); display: flex; flex-direction: column; height: 340px; flex-shrink: 0; }
+.search-bar { padding: var(--space-3); }
+.search-input { width: 100%; height: var(--size-input-height); background: var(--color-surface-dim); border: 1px solid var(--color-border); padding: 0 var(--space-3); font-size: var(--font-size-body); font-family: var(--font-body); color: var(--color-on-surface); outline: none; transition: border-color .15s; box-sizing: border-box; }
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--accent); }
+.conv-items { flex: 1; overflow-y: auto; }
+.conv-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); cursor: pointer; transition: filter .15s; }
+.conv-item:hover { filter: brightness(0.97); }
+.conv-item.active { background: var(--color-surface-container-highest); }
+.conv-avatar { width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-body); font-weight: 600; color: #fff; }
+.conv-info { flex: 1; min-width: 0; }
+.conv-name { font-size: var(--font-size-body); font-weight: 500; color: var(--color-on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conv-preview { font-size: var(--font-size-caption); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: var(--space-1); }
+/* @component-css-end */
+</style>
+</head>
+<body>
+<div class="row">
+<span class="label">默认布局</span>
+<div class="sidebar-rail" data-evidence-sample="Icon Rail">
+<div class="nav-icons">
+<div class="nav-icon active"><i data-lucide="message-square" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="calendar" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="file-text" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="video" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="layout-dashboard" style="width:24px;height:24px"></i></div>
+</div>
+<div class="rail-spacer"></div>
+<div class="rail-bottom">
+<button class="create-btn"><i data-lucide="plus" style="width:18px;height:18px"></i></button>
+<div class="avatar">李</div>
+</div>
+</div>
+<div class="conv-list" data-evidence-sample="Conversation List">
+<div class="search-bar"><input class="search-input" type="text" placeholder="搜索会话"></div>
+<div class="conv-items">
+<div class="conv-item active">
+<div class="conv-avatar" style="background:var(--feiyu-primary-400)">产</div>
+<div class="conv-info"><div class="conv-name">产品设计组</div><div class="conv-preview">新版首页设计稿已更新</div></div>
+</div>
+<div class="conv-item">
+<div class="conv-avatar" style="background:var(--feiyu-success-500)">张</div>
+<div class="conv-info"><div class="conv-name">张明</div><div class="conv-preview">好的，我稍后确认</div></div>
+</div>
+<div class="conv-item">
+<div class="conv-avatar" style="background:var(--feiyu-warning-500)">项</div>
+<div class="conv-info"><div class="conv-name">项目进度</div><div class="conv-preview">本周迭代已完成 80%</div></div>
+</div>
+<div class="conv-item">
+<div class="conv-avatar" style="background:var(--feiyu-danger-400)">全</div>
+<div class="conv-info"><div class="conv-name">全员通知</div><div class="conv-preview">下周团建活动安排</div></div>
+</div>
+<div class="conv-item">
+<div class="conv-avatar" style="background:var(--feiyu-info-500)">技</div>
+<div class="conv-info"><div class="conv-name">技术评审会</div><div class="conv-preview">明天下午三点开始</div></div>
+</div>
+</div>
+</div>
+</div>
+<hr class="divider">
+<div class="row">
+<span class="label">图标导航</span>
+<div class="sidebar-rail" data-evidence-sample="Icon Rail">
+<div class="nav-icons">
+<div class="nav-icon"><i data-lucide="message-square" style="width:24px;height:24px"></i></div>
+<div class="nav-icon active"><i data-lucide="calendar" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="file-text" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="video" style="width:24px;height:24px"></i></div>
+<div class="nav-icon"><i data-lucide="layout-dashboard" style="width:24px;height:24px"></i></div>
+</div>
+<div class="rail-spacer"></div>
+<div class="rail-bottom">
+<button class="create-btn"><i data-lucide="plus" style="width:18px;height:18px"></i></button>
+<div class="avatar">李</div>
+</div>
+</div>
+</div>
+</body>
+<script>lucide.createIcons();</script>
+</html>
