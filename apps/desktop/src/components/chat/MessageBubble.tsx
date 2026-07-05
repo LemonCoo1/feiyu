@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { File } from "lucide-react";
 import { Avatar } from "../common/Avatar";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { getCachedMediaUrl } from "../../services/cacheService";
@@ -67,7 +68,6 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
   const cachedStickerUrl = useCachedUrl(rawContent?.url);
   const cachedImageUrl = useCachedUrl(rawContent?.url);
 
-  // 获取回应数据
   useEffect(() => {
     if (!messageId) return;
     const url = `${getServerUrl()}/api/messages/${messageId}/reactions`;
@@ -79,7 +79,6 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
       .catch(() => {});
   }, [messageId]);
 
-  // 监听 WS reaction.update 事件
   useEffect(() => {
     if (!messageId) return;
     const handler = (payload: { message_id: string; user_id: string; emoji: string; action: string }) => {
@@ -105,7 +104,6 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     return () => wsClient.off("reaction.update", handler);
   }, [messageId]);
 
-  // 点击其他地方关闭右键菜单和 emoji 选择器
   const handleDocClick = useCallback(() => {
     setShowMenu(false);
     setShowEmojiPicker(false);
@@ -130,7 +128,6 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     setShowForward(true);
   }, []);
 
-  // 撤回消息
   const handleRecall = useCallback(() => {
     setShowMenu(false);
     if (!messageId) return;
@@ -140,7 +137,6 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     });
   }, [messageId]);
 
-  // 切换表情回应
   const handleToggleReaction = useCallback((emoji: string) => {
     setShowEmojiPicker(false);
     setShowMenu(false);
@@ -166,12 +162,12 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         <Avatar name={senderName} url={avatarUrl} size="sm" />
         <div>
           {showSender && (
-            <div className="text-[11px] text-feiyu-text-secondary mb-0.5">{senderName}</div>
+            <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
-          <div className="bg-feiyu-card border border-feiyu-border rounded-xl px-4 py-2.5 text-feiyu-text-muted text-sm italic">
+          <div className="bg-feiyu-surface-container border border-feiyu-border rounded-feiyu-lg px-4 py-2.5 text-feiyu-text-muted text-sm italic">
             {t("chat.recalled")}
           </div>
-          <div className={`text-[11px] text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
+          <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
           </div>
         </div>
@@ -205,20 +201,20 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         <Avatar name={senderName} url={avatarUrl} size="sm" />
         <div>
           {showSender && (
-            <div className="text-[11px] text-feiyu-text-secondary mb-0.5">{senderName}</div>
+            <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
           <div
             onContextMenu={handleContextMenu}
-            className={`px-3 py-2 rounded-lg text-sm leading-relaxed select-text ${
+            className={`px-3 py-2 rounded-feiyu-lg text-sm leading-relaxed select-text ${
               isOwn
                 ? "bg-feiyu-bubble-own text-white"
-                : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-sm"
+                : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
             }`}
           >
-            <div className="text-[10px] opacity-70 mb-0.5">{t("chat.forwarded")}</div>
+            <div className="text-eyebrow opacity-70 mb-0.5">{t("chat.forwarded")}</div>
             {forwardedText}
           </div>
-          <div className={`text-[11px] text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
+          <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
             {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
           </div>
@@ -242,47 +238,47 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         <Avatar name={senderName} url={avatarUrl} size="sm" />
         <div>
           {showSender && (
-            <div className="text-[11px] text-feiyu-text-secondary mb-0.5">{senderName}</div>
+            <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
           <div className="relative group" onContextMenu={handleContextMenu}>
             <img
               src={cachedStickerUrl}
               alt={rawContent?.name || (isSticker ? t("chat.sticker") : t("chat.gif"))}
-              className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-lg hover:opacity-90 transition-opacity`}
+              className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-feiyu-lg hover:opacity-90 transition-opacity`}
               onClick={() => rawContent?.url && window.open(rawContent.url, "_blank")}
             />
             <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-[10px] bg-black/50 text-white px-1.5 py-0.5 rounded-md">
+              <span className="text-eyebrow bg-feiyu-overlay-heavy text-white px-1.5 py-0.5 rounded-feiyu-md">
                 {isSticker ? t("chat.sticker") : t("chat.gif")}
               </span>
             </div>
           </div>
-          <div className={`text-[11px] text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
+          <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
             {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
           </div>
         </div>
         {showMenu && (
           <div
-            className="fixed bg-feiyu-card rounded-lg shadow-lg border border-feiyu-border py-1 z-40"
+            className="fixed bg-feiyu-card rounded-feiyu-lg shadow-feiyu-4 border border-feiyu-border py-1 z-40"
             style={{ left: menuPos.x, top: menuPos.y }}
           >
             <button
               onClick={() => { setShowMenu(false); setShowEmojiPicker(true); }}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-feiyu-surface-container-high text-feiyu-text"
             >
               {t("chat.react")}
             </button>
             <button
               onClick={handleForwardClick}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-feiyu-surface-container-high text-feiyu-text"
             >
               {t("chat.forward")}
             </button>
             {isOwn && (
               <button
                 onClick={handleRecall}
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+                className="w-full text-left px-4 py-2 text-sm hover:bg-feiyu-surface-container-high text-feiyu-text"
               >
                 {t("chat.recall")}
               </button>
@@ -291,7 +287,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         )}
         {showEmojiPicker && (
           <div
-            className="fixed bg-feiyu-card rounded-lg shadow-lg border border-feiyu-border p-2 z-40"
+            className="fixed bg-feiyu-card rounded-feiyu-lg shadow-feiyu-4 border border-feiyu-border p-2 z-40"
             style={{ left: menuPos.x, top: menuPos.y }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -300,7 +296,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
                 <button
                   key={emoji}
                   onClick={() => handleToggleReaction(emoji)}
-                  className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-lg"
+                  className="w-8 h-8 flex items-center justify-center rounded-feiyu-sm hover:bg-feiyu-surface-container-high text-lg"
                 >
                   {emoji}
                 </button>
@@ -325,14 +321,14 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
       <Avatar name={senderName} url={avatarUrl} size="sm" />
       <div>
         {showSender && (
-          <div className="text-[11px] text-feiyu-text-secondary mb-0.5">{senderName}</div>
+          <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
         )}
         <div
           onContextMenu={handleContextMenu}
-          className={`px-3 py-2 rounded-lg ${textSizeClass} leading-relaxed ${
+          className={`px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed ${
             isOwn
               ? "bg-feiyu-bubble-own text-white"
-              : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-sm"
+              : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
           } ${isImage || isFile ? "select-none" : "select-text"}`}
         >
           {isImage && rawContent?.url ? (
@@ -340,7 +336,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
               <img
                 src={cachedImageUrl}
                 alt={rawContent.filename || t("chat.image")}
-                className="max-w-[240px] max-h-[240px] rounded-md object-contain cursor-pointer"
+                className="max-w-[240px] max-h-[240px] rounded-feiyu-md object-contain cursor-pointer"
                 onClick={() => window.open(rawContent.url, "_blank")}
               />
               {rawContent.filename && (
@@ -356,7 +352,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
               rel="noopener noreferrer"
               className={`flex items-center gap-2 underline ${isOwn ? "text-white" : "text-feiyu-primary"}`}
             >
-              <span>📄</span>
+              <File size={14} className="flex-shrink-0" />
               <span>{rawContent.filename || t("chat.file")}</span>
             </a>
           ) : (
@@ -371,10 +367,10 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
                 <button
                   key={r.emoji}
                   onClick={() => handleToggleReaction(r.emoji)}
-                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs border transition-colors ${
+                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-feiyu-pill text-xs border transition-colors ${
                     hasMyReaction
-                      ? "border-feiyu-primary bg-feiyu-primary/10 text-feiyu-primary"
-                      : "border-feiyu-border bg-feiyu-card text-feiyu-text-muted hover:bg-gray-50"
+                      ? "border-feiyu-primary bg-feiyu-primary-light text-feiyu-primary"
+                      : "border-feiyu-border bg-feiyu-card text-feiyu-text-muted hover:bg-feiyu-surface-container-high"
                   }`}
                 >
                   <span>{r.emoji}</span>
@@ -384,32 +380,32 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
             })}
           </div>
         )}
-        <div className={`text-[11px] text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
+        <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
           {time}
           {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
         </div>
       </div>
       {showMenu && (
         <div
-          className="fixed bg-feiyu-card rounded-lg shadow-lg border border-feiyu-border py-1 z-40"
+          className="fixed bg-feiyu-card rounded-feiyu-lg shadow-feiyu-4 border border-feiyu-border py-1 z-40"
           style={{ left: menuPos.x, top: menuPos.y }}
         >
           <button
             onClick={() => { setShowMenu(false); setShowEmojiPicker(true); }}
-            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+            className="w-full text-left px-4 py-2 text-sm hover:bg-feiyu-surface-container-high text-feiyu-text"
           >
             {t("chat.react")}
           </button>
           <button
             onClick={handleForwardClick}
-            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+            className="w-full text-left px-4 py-2 text-sm hover:bg-feiyu-surface-container-high text-feiyu-text"
           >
             {t("chat.forward")}
           </button>
           {isOwn && (
             <button
               onClick={handleRecall}
-              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-feiyu-text"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-feiyu-surface-container-high text-feiyu-text"
             >
               {t("chat.recall")}
             </button>
@@ -418,7 +414,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
       )}
       {showEmojiPicker && (
         <div
-          className="fixed bg-feiyu-card rounded-lg shadow-lg border border-feiyu-border p-2 z-40"
+          className="fixed bg-feiyu-card rounded-feiyu-lg shadow-feiyu-4 border border-feiyu-border p-2 z-40"
           style={{ left: menuPos.x, top: menuPos.y }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -427,7 +423,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
               <button
                 key={emoji}
                 onClick={() => handleToggleReaction(emoji)}
-                className="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-lg"
+                className="w-8 h-8 flex items-center justify-center rounded-feiyu-sm hover:bg-feiyu-surface-container-high text-lg"
               >
                 {emoji}
               </button>

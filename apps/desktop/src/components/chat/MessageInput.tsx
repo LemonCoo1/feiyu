@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, ClipboardEvent, KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { Smile, Paperclip, Image, File, Film } from "lucide-react";
 import { useChatStore } from "../../stores/chatStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useConnectionStatus } from "../../hooks/useWebSocket";
@@ -62,9 +63,7 @@ export function MessageInput() {
         e.preventDefault();
         handleSend();
       }
-      // Enter 换行（默认行为）
     } else {
-      // enter 模式
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         handleSend();
@@ -104,9 +103,6 @@ export function MessageInput() {
 
   const isGif = pendingFile && (pendingFile.type === "image/gif" || /\.gif$/i.test(pendingFile.name));
   const isImage = !isGif && pendingFile && /\.(jpg|jpeg|png|webp|svg|bmp)$/i.test(pendingFile.name);
-  const fileIcon = pendingFile
-    ? isGif ? "🎞️" : isImage ? "🖼️" : "📄"
-    : null;
   const fileSize = pendingFile
     ? pendingFile.size < 1024
       ? `${pendingFile.size} B`
@@ -116,25 +112,27 @@ export function MessageInput() {
     : "";
 
   return (
-    <div className="border-t border-feiyu-border px-5 py-3 bg-feiyu-card">
+    <div className="border-t border-feiyu-border px-5 py-3 bg-feiyu-surface">
       <div className="flex items-center gap-2 mb-2 text-feiyu-text-muted relative">
-        <button className="hover:text-feiyu-text transition-colors text-lg" title={t("chat.emojiAndSticker")} onClick={() => setShowEmoji(!showEmoji)}>😊</button>
+        <button className="hover:text-feiyu-text transition-colors" title={t("chat.emojiAndSticker")} onClick={() => setShowEmoji(!showEmoji)}>
+          <Smile size={20} />
+        </button>
         {showEmoji && (
           <EmojiPicker onSelect={handleEmojiSelect} onStickerSelect={handleStickerSelect} onClose={() => setShowEmoji(false)} />
         )}
         <button
-          className="hover:text-feiyu-text transition-colors text-lg"
+          className="hover:text-feiyu-text transition-colors"
           title={t("chat.attachment")}
           onClick={() => fileInputRef.current?.click()}
         >
-          📎
+          <Paperclip size={20} />
         </button>
         <button
-          className="hover:text-feiyu-text transition-colors text-lg"
+          className="hover:text-feiyu-text transition-colors"
           title={t("chat.image")}
           onClick={() => imageInputRef.current?.click()}
         >
-          📷
+          <Image size={20} />
         </button>
         <input
           ref={fileInputRef}
@@ -154,8 +152,8 @@ export function MessageInput() {
 
       {/* File preview */}
       {pendingFile && (
-        <div className="mb-2 flex items-center gap-2 bg-gray-50 border border-feiyu-border rounded-lg px-3 py-2">
-          <span className="text-lg">{fileIcon}</span>
+        <div className="mb-2 flex items-center gap-2 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-md px-3 py-2">
+          {isGif ? <Film size={18} className="text-feiyu-text-muted" /> : isImage ? <Image size={18} className="text-feiyu-text-muted" /> : <File size={18} className="text-feiyu-text-muted" />}
           <div className="flex-1 min-w-0">
             <div className="text-sm text-feiyu-text truncate">{pendingFile.name}</div>
             <div className="text-xs text-feiyu-text-muted">{fileSize}</div>
@@ -179,18 +177,18 @@ export function MessageInput() {
           placeholder={isDisconnected ? t("connection.waiting") : t("chat.inputPlaceholder")}
           disabled={isDisconnected}
           rows={1}
-          className="flex-1 bg-gray-50 border border-feiyu-border rounded-xl px-3 py-2.5 text-sm text-feiyu-text resize-none focus:outline-none focus:border-feiyu-primary focus:ring-1 focus:ring-feiyu-primary/20 overflow-y-auto placeholder:text-gray-400 scrollbar-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-lg px-3 py-2.5 text-sm text-feiyu-text resize-none focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15 overflow-y-auto placeholder:text-feiyu-text-muted scrollbar-none disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ maxHeight: "200px" }}
         />
         <button
           onClick={handleSend}
           disabled={isDisconnected || (!text.trim() && !pendingFile)}
-          className="bg-feiyu-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+          className="bg-feiyu-primary text-white rounded-feiyu-md px-4 py-2 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
         >
           {t("chat.send")}
         </button>
       </div>
-      <div className="mt-1 text-[11px] text-gray-400 select-none">
+      <div className="mt-1 text-caption text-feiyu-text-muted select-none">
         {chatSendKey === "ctrl+enter"
           ? t("chat.hintCtrlEnter")
           : t("chat.hintEnter")

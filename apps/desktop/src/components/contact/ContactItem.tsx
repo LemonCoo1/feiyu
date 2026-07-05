@@ -13,7 +13,7 @@ export function ContactItem({ name, username, online, onClick, action }: Contact
   return (
     <div
       onClick={onClick}
-      className={`group flex items-center gap-3 px-4 py-2.5 transition-colors ${clickable ? "cursor-pointer hover:bg-feiyu-bg-hover" : ""}`}
+      className={`group flex items-center gap-3 px-4 py-2.5 transition-colors ${clickable ? "cursor-pointer hover:bg-feiyu-surface-container-high" : ""}`}
     >
       <Avatar name={name} online={online} />
       <div className="flex-1 min-w-0">

@@ -23,7 +23,7 @@ export function ChannelList() {
   };
 
   return (
-    <div className="w-[280px] bg-feiyu-card border-r border-feiyu-border flex flex-col">
+    <div className="w-[280px] bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
       <div className="px-4 py-3 border-b border-feiyu-border flex justify-between items-center">
         <h2 className="font-medium text-feiyu-text">{t("channel.title")}</h2>
         <button
@@ -45,11 +45,11 @@ export function ChannelList() {
               onClick={() => setActive(ch.id)}
               className={`w-full px-4 py-2.5 flex items-center gap-3 transition-colors text-left ${
                 activeId === ch.id
-                  ? "bg-feiyu-primary/10 border-l-2 border-feiyu-primary"
-                  : "hover:bg-gray-50 border-l-2 border-transparent"
+                  ? "bg-feiyu-primary-light border-l-2 border-feiyu-primary"
+                  : "hover:bg-feiyu-surface-container-high border-l-2 border-transparent"
               }`}
             >
-              <div className="w-10 h-10 rounded-lg bg-purple-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+              <div className="w-10 h-10 rounded-feiyu-lg bg-feiyu-info text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
                 #
               </div>
               <div className="flex-1 min-w-0">
@@ -62,22 +62,22 @@ export function ChannelList() {
       </div>
 
       {showCreate && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-feiyu-card rounded-xl shadow-xl w-[360px] p-6">
-            <h3 className="font-medium text-feiyu-text mb-4">{t("channel.createChannel")}</h3>
+        <div className="fixed inset-0 bg-feiyu-overlay flex items-center justify-center z-50">
+          <div className="bg-feiyu-surface rounded-feiyu-xl shadow-feiyu-5 w-[360px] p-6">
+            <h3 className="font-semibold text-feiyu-text mb-4">{t("channel.createChannel")}</h3>
             <input
               type="text"
               placeholder={t("channel.channelName")}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-feiyu-primary"
+              className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2 text-sm mb-3 focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
               autoFocus
             />
             <textarea
               placeholder={t("channel.channelDesc")}
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
-              className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm mb-4 resize-none focus:outline-none focus:border-feiyu-primary"
+              className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2 text-sm mb-4 resize-none focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
               rows={2}
             />
             <div className="flex justify-end gap-2">
@@ -90,7 +90,7 @@ export function ChannelList() {
               <button
                 onClick={handleCreate}
                 disabled={!newName.trim()}
-                className="px-4 py-2 text-sm bg-feiyu-primary text-white rounded-lg hover:bg-feiyu-primary-hover disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-feiyu-primary text-white rounded-feiyu-md hover:bg-feiyu-primary-hover disabled:opacity-50"
               >
                 {t("channel.createBtn")}
               </button>

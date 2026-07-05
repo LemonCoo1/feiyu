@@ -75,7 +75,7 @@ export function ConversationList() {
   };
 
   return (
-    <div className="w-[280px] bg-feiyu-card border-r border-feiyu-border flex flex-col">
+    <div className="w-[280px] bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
       <div className="border-b border-feiyu-border flex items-center">
         <div className="flex-1">
           <SearchBar />
@@ -91,11 +91,11 @@ export function ConversationList() {
         {isLoadingConvs ? (
           <div className="space-y-0">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="px-3 py-2 flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-lg bg-gray-200 skeleton-pulse flex-shrink-0" />
+              <div key={i} className="px-3 py-2 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-feiyu-surface-container-highest skeleton-pulse flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <div className="h-3.5 w-24 bg-gray-200 rounded skeleton-pulse mb-1.5" />
-                  <div className="h-3 w-36 bg-gray-200 rounded skeleton-pulse" />
+                  <div className="h-3.5 w-24 bg-feiyu-surface-container-highest rounded-feiyu-sm skeleton-pulse mb-1.5" />
+                  <div className="h-3 w-36 bg-feiyu-surface-container-highest rounded-feiyu-sm skeleton-pulse" />
                 </div>
               </div>
             ))}
@@ -122,15 +122,15 @@ export function ConversationList() {
       </div>
 
       {showCreateGroup && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-feiyu-card rounded-xl shadow-xl w-[360px] p-6">
-            <h3 className="font-medium text-feiyu-text mb-4">{t("conversation.createGroup")}</h3>
+        <div className="fixed inset-0 bg-feiyu-overlay flex items-center justify-center z-50">
+          <div className="bg-feiyu-card rounded-feiyu-xl shadow-feiyu-5 w-[360px] p-6">
+            <h3 className="font-semibold text-feiyu-text mb-4">{t("conversation.createGroup")}</h3>
             <input
               type="text"
               placeholder={t("conversation.groupName")}
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="w-full border border-feiyu-border rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-feiyu-primary"
+              className="w-full border border-feiyu-border rounded-feiyu-md px-3 py-2 text-sm mb-3 focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
               autoFocus
             />
             <div className="mb-3">
@@ -143,10 +143,10 @@ export function ConversationList() {
                     <button
                       key={c.id}
                       onClick={() => toggleMember(c.id)}
-                      className={`w-full px-3 py-1.5 text-sm text-left rounded-lg transition-colors ${
+                      className={`w-full px-3 py-1.5 text-sm text-left rounded-feiyu-md transition-colors ${
                         selectedMembers.includes(c.id)
-                          ? "bg-feiyu-primary/10 text-feiyu-primary"
-                          : "hover:bg-gray-50 text-feiyu-text"
+                          ? "bg-feiyu-primary-light text-feiyu-primary"
+                          : "hover:bg-feiyu-surface-container-high text-feiyu-text"
                       }`}
                     >
                       {c.display_name || c.username}
@@ -165,7 +165,7 @@ export function ConversationList() {
               <button
                 onClick={handleCreateGroup}
                 disabled={!groupName.trim() || selectedMembers.length === 0}
-                className="px-4 py-2 text-sm bg-feiyu-primary text-white rounded-lg hover:bg-feiyu-primary-hover disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-feiyu-primary text-white rounded-feiyu-md hover:bg-feiyu-primary-hover disabled:opacity-50"
               >
                 {t("conversation.createWithCount", { count: selectedMembers.length })}
               </button>

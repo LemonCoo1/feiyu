@@ -1,0 +1,41 @@
+{
+  "slug": "button",
+  "schemaVersion": 2,
+  "name": "Button",
+  "category": "form",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "Button", "evidence": "CTA actions in IM client — send message, create group" }
+  ],
+  "variantDimensions": [
+    { "name": "variant", "values": ["primary", "secondary", "ghost", "text"] },
+    { "name": "size", "values": ["sm", "md", "lg"] }
+  ],
+  "representativeVariants": [
+    {
+      "name": "Primary Medium",
+      "whySelected": "Most common CTA in Feishu — blue filled",
+      "traits": { "background": "var(--color-primary)", "color": "#ffffff", "borderRadius": "var(--radius-md)", "height": "36px", "fontSize": "var(--font-size-body)", "fontWeight": "500" },
+      "childrenDigest": ["label"]
+    },
+    {
+      "name": "Secondary Medium",
+      "whySelected": "Secondary actions — outline style",
+      "traits": { "background": "transparent", "color": "var(--color-primary)", "border": "1px solid var(--color-outline)", "borderRadius": "var(--radius-md)", "height": "36px" },
+      "childrenDigest": ["label"]
+    },
+    {
+      "name": "Ghost Small",
+      "whySelected": "Toolbar / inline actions",
+      "traits": { "background": "transparent", "color": "var(--fg)", "borderRadius": "var(--radius-sm)", "height": "32px" },
+      "childrenDigest": ["label", "icon"]
+    }
+  ],
+  "anatomy": ["label", "icon[optional]"],
+  "structurePatterns": ["inline-block", "flex-center"],
+  "usageHints": { "priorityHint": 1 },
+  "doNotInvent": ["icon-only toggle", "loading state", "button group"],
+  "unknowns": ["exact hover opacity values"],
+  "keyInsightSeed": "Compact height, blue primary, minimal radius"
+}

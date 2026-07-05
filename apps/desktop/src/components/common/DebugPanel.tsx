@@ -22,16 +22,16 @@ export function DebugPanel() {
     <div className="fixed bottom-2 right-2 z-[9999]">
       <button
         onClick={() => setOpen(!open)}
-        className="bg-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-lg opacity-60 hover:opacity-100"
+        className="bg-feiyu-sidebar text-white text-xs px-2 py-1 rounded-feiyu-md shadow-feiyu-3 opacity-60 hover:opacity-100"
       >
         {open ? t("debug.closeLog") : t("debug.logCount", { count: logs.length })}
       </button>
       {open && (
-        <div className="mt-1 w-[420px] max-h-[300px] overflow-y-auto bg-gray-900 text-green-400 text-[11px] font-mono rounded-lg shadow-2xl p-2 space-y-0.5 select-text cursor-text">
-          {logs.length === 0 && <div className="text-gray-500">{t("debug.noLogs")}</div>}
+        <div className="mt-1 w-[420px] max-h-[300px] overflow-y-auto bg-feiyu-sidebar text-feiyu-success text-caption font-mono rounded-feiyu-lg shadow-feiyu-5 p-2 space-y-0.5 select-text cursor-text">
+          {logs.length === 0 && <div className="text-feiyu-text-muted">{t("debug.noLogs")}</div>}
           {logs.map((l, i) => (
-            <div key={i} className={l.level === "error" ? "text-red-400" : l.level === "warn" ? "text-yellow-400" : "text-green-400"}>
-              <span className="text-gray-500">{l.time}</span> {l.msg}
+            <div key={i} className={l.level === "error" ? "text-feiyu-danger" : l.level === "warn" ? "text-feiyu-warning" : "text-feiyu-success"}>
+              <span className="text-feiyu-text-muted">{l.time}</span> {l.msg}
             </div>
           ))}
           <div ref={endRef} />

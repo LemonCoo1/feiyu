@@ -1,0 +1,41 @@
+{
+  "slug": "avatar",
+  "schemaVersion": 2,
+  "name": "Avatar",
+  "category": "data-display",
+  "sourceKind": "from-scratch",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    { "type": "Avatar", "evidence": "User identity in conversation list, message sender, profile" }
+  ],
+  "variantDimensions": [
+    { "name": "size", "values": ["sm", "md", "lg", "xl"] },
+    { "name": "status", "values": ["none", "online", "offline"] }
+  ],
+  "representativeVariants": [
+    {
+      "name": "Medium Default",
+      "whySelected": "Standard conversation list avatar",
+      "traits": { "width": "36px", "height": "36px", "borderRadius": "50%", "background": "var(--feiyu-primary-200)" },
+      "childrenDigest": ["initials"]
+    },
+    {
+      "name": "Medium Online",
+      "whySelected": "Avatar with green online indicator",
+      "traits": { "width": "36px", "height": "36px", "borderRadius": "50%", "indicatorColor": "var(--color-success)", "indicatorSize": "10px" },
+      "childrenDigest": ["initials", "status-dot"]
+    },
+    {
+      "name": "Small",
+      "whySelected": "Compact avatar in message thread",
+      "traits": { "width": "24px", "height": "24px", "borderRadius": "50%" },
+      "childrenDigest": ["initials"]
+    }
+  ],
+  "anatomy": ["image-or-initials", "status-indicator[optional]"],
+  "structurePatterns": ["circle-image"],
+  "usageHints": { "priorityHint": 4 },
+  "doNotInvent": ["group-avatar", "avatar-stack"],
+  "unknowns": ["group avatar shape"],
+  "keyInsightSeed": "Circular crop, online indicator, multiple sizes"
+}

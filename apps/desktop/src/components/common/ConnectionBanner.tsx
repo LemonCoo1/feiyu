@@ -30,10 +30,10 @@ export function ConnectionBanner({ status }: Props) {
   if (!visible) return null;
 
   const bgClass = showReconnected
-    ? "bg-green-500"
+    ? "bg-feiyu-success"
     : status === "connecting"
-      ? "bg-orange-500"
-      : "bg-red-500";
+      ? "bg-feiyu-warning"
+      : "bg-feiyu-danger";
 
   const text = showReconnected
     ? t("connection.connected")
@@ -42,10 +42,7 @@ export function ConnectionBanner({ status }: Props) {
       : t("connection.disconnected");
 
   return (
-    <div
-      className={`${bgClass} text-white text-xs text-center py-1.5 z-50 transition-all`}
-      style={{ height: 32 }}
-    >
+    <div className={`${bgClass} text-white text-xs text-center py-1.5 z-50 transition-all h-8`}>
       {text}
     </div>
   );

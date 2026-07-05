@@ -68,10 +68,10 @@ export function SearchBar() {
         value={query}
         onChange={(e) => handleChange(e.target.value)}
         onFocus={() => { if (searchResults.length > 0) setShowResults(true); }}
-        className="w-full bg-feiyu-card border border-feiyu-border rounded-md px-3 py-2 text-sm text-feiyu-text placeholder:text-feiyu-text-muted focus:outline-none focus:border-feiyu-primary"
+        className="w-full bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-md px-3 py-2 text-sm text-feiyu-text placeholder:text-feiyu-text-muted focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
       />
       {showResults && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-feiyu-card border border-feiyu-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-feiyu-surface border border-feiyu-border rounded-feiyu-lg shadow-feiyu-4 z-50 max-h-80 overflow-y-auto">
           {isSearching ? (
             <div className="px-3 py-4 text-sm text-feiyu-text-muted text-center">{t("search.searching")}</div>
           ) : searchResults.length === 0 ? (
@@ -84,7 +84,7 @@ export function SearchBar() {
                 <button
                   key={msg.id}
                   onClick={() => handleResultClick(msg.conversation_id)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                  className="w-full px-3 py-2 text-left hover:bg-feiyu-surface-container-high border-b border-feiyu-border-light last:border-b-0 transition-colors"
                 >
                   <div className="text-xs text-feiyu-text-muted mb-0.5">
                     {isOwn ? t("search.me") : t("search.other")} · {new Date(msg.created_at).toLocaleString(localStorage.getItem("feiyu_language") || "zh-CN")}

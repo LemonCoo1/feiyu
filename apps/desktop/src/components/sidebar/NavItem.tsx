@@ -1,5 +1,7 @@
+import { type ReactNode } from "react";
+
 interface NavItemProps {
-  icon: string;
+  icon: ReactNode;
   label: string;
   active?: boolean;
   onClick?: () => void;
@@ -9,14 +11,14 @@ export function NavItem({ icon, label, active, onClick }: NavItemProps) {
   return (
     <button
       onClick={onClick}
-      className={`w-11 h-11 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-colors ${
+      className={`w-10 h-10 rounded-feiyu-md flex flex-col items-center justify-center gap-0.5 transition-colors ${
         active
-          ? "bg-gray-600 text-feiyu-primary"
-          : "text-gray-400 hover:bg-gray-700 hover:text-gray-300"
+          ? "bg-feiyu-primary-light text-feiyu-primary"
+          : "text-feiyu-text-muted hover:bg-feiyu-surface-container-high hover:text-feiyu-text-secondary"
       }`}
     >
-      <span className="text-lg leading-none">{icon}</span>
-      <span className="text-[9px] leading-none">{label}</span>
+      <span className="leading-none">{icon}</span>
+      <span className="text-eyebrow leading-none">{label}</span>
     </button>
   );
 }

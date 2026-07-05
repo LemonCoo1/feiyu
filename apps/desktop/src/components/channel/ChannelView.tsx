@@ -23,7 +23,7 @@ export function ChannelView() {
 
   if (!activeId || !channel) {
     return (
-      <div className="flex-1 bg-feiyu-bg flex items-center justify-center">
+      <div className="flex-1 bg-feiyu-surface flex items-center justify-center">
         <span className="text-feiyu-text-muted text-sm">{t("channel.selectChannel")}</span>
       </div>
     );
@@ -43,10 +43,10 @@ export function ChannelView() {
   };
 
   return (
-    <div className="flex-1 bg-feiyu-bg flex flex-col">
-      <div className="px-5 py-3 border-b border-feiyu-border bg-feiyu-card">
+    <div className="flex-1 bg-feiyu-surface flex flex-col">
+      <div className="px-5 py-3 border-b border-feiyu-border bg-feiyu-surface">
         <div className="flex items-center gap-2">
-          <span className="text-purple-500 font-bold">#</span>
+          <span className="text-feiyu-info font-bold">#</span>
           <span className="font-medium text-feiyu-text">{channel.name}</span>
           <span className="text-xs text-feiyu-text-muted">{t("channel.memberCount", { count: channel.member_count })}</span>
         </div>
@@ -75,7 +75,7 @@ export function ChannelView() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t border-feiyu-border px-5 py-3">
+      <div className="border-t border-feiyu-border px-5 py-3 bg-feiyu-surface">
         <div className="flex gap-2">
           <textarea
             value={text}
@@ -83,12 +83,12 @@ export function ChannelView() {
             onKeyDown={handleKeyDown}
             placeholder={t("channel.sendPlaceholder", { name: channel.name })}
             rows={1}
-            className="flex-1 bg-gray-50 border border-feiyu-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-feiyu-primary"
+            className="flex-1 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15"
           />
           <button
             onClick={handleSend}
             disabled={!text.trim()}
-            className="bg-feiyu-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50"
+            className="bg-feiyu-primary text-white rounded-feiyu-md px-4 py-2 text-sm font-medium hover:bg-feiyu-primary-hover disabled:opacity-50"
           >
             {t("channel.send")}
           </button>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feiyu Design System — UIKit Dashboard</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:var(--font-body);color:var(--color-on-surface);background:var(--color-background)}
+.im-shell{width:100%;max-width:1184px;margin:0 auto;overflow:hidden;height:100vh;display:grid;grid-template-columns:54px 280px minmax(0,1fr);gap:0}
+.im-rail{background:var(--color-surface-dim);display:flex;flex-direction:column;align-items:center;padding:var(--space-3) 0;min-width:0;overflow:hidden}
+.im-convlist{background:var(--color-surface-container);display:flex;flex-direction:column;min-width:0;overflow:hidden;border-right:1px solid var(--color-border)}
+.im-chat{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--color-background)}
+.chat-header{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);min-width:0}
+.chat-header-title{font:var(--type-h4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-header-sub{font:var(--type-caption);color:var(--color-on-surface-variant)}
+.chat-body{flex:1;overflow-y:auto;padding:var(--space-5) var(--space-4);display:flex;flex-direction:column;gap:var(--space-4)}
+.msg-group{display:flex;flex-direction:column;gap:var(--space-2);align-items:flex-start}
+.msg-group.self{align-items:flex-end}
+.compose-bar{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-border)}
+.compose-input{flex:1;min-width:0}
+.compose-actions{display:flex;gap:var(--space-2);flex-shrink:0}
+.conv-list-scroll{flex:1;overflow-y:auto}
+.file-card-row{max-width:300px}
+.file-card-row.self{align-self:flex-end}
+@media(max-width:900px){.im-shell{grid-template-columns:54px minmax(0,1fr)}.im-convlist{display:none}}
+@media(max-width:640px){.im-shell{grid-template-columns:minmax(0,1fr)}.im-rail{display:none}.compose-bar{flex-direction:column;align-items:stretch}}
+.uikit-truncate{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uikit-nowrap{white-space:nowrap;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback } = React;
+
+/* ── Mock Data ── */
+const conversations = [
+  { id:1, name:"产品设计组", avatar:"产", color:"var(--feiyu-primary-400)", online:true, lastMsg:"张明: 新版原型已更新，大家看看", time:"10:32", unread:2 },
+  { id:2, name:"张明", avatar:"张", color:"var(--feiyu-success-400)", online:true, lastMsg:"好的，我马上处理", time:"09:45", unread:0 },
+  { id:3, name:"项目进度", avatar:"项", color:"var(--feiyu-warning-400)", online:false, lastMsg:"本周冲刺目标已完成 80%", time:"昨天", unread:0 },
+  { id:4, name:"全员通知", avatar:"全", color:"var(--feiyu-danger-400)", online:false, lastMsg:"下周一团建活动安排", time:"周三", unread:1 },
+];
+
+const chatMessages = {
+  1: [
+    { id:1, sender:"other", name:"李晓", avatar:"李", color:"var(--feiyu-info-400)", text:"大家早上好！今天的设计评审准备得怎么样了？", time:"10:15" },
+    { id:2, sender:"other", name:"王芳", avatar:"王", color:"var(--feiyu-primary-200)", text:"我已经把交互稿更新到最新版本了，等会上传到云文档。", time:"10:20" },
+    { id:3, sender:"self", text:"收到，我先看一下技术可行性评估。", time:"10:25" },
+    { id:4, sender:"other", name:"张明", avatar:"张", color:"var(--feiyu-success-400)", text:"新版原型已更新，大家看看", time:"10:32" },
+  ],
+  2: [
+    { id:1, sender:"other", name:"张明", avatar:"张", color:"var(--feiyu-success-400)", text:"上次会议的纪要你看了吗？", time:"09:30" },
+    { id:2, sender:"self", text:"看了，有几个待办需要确认一下。", time:"09:35" },
+    { id:3, sender:"other", name:"张明", avatar:"张", color:"var(--feiyu-success-400)", text:"好的，我马上处理", time:"09:45" },
+  ],
+  3: [
+    { id:1, sender:"other", name:"系统", avatar:"项", color:"var(--feiyu-warning-400)", text:"本周冲刺目标已完成 80%", time:"昨天" },
+  ],
+  4: [
+    { id:1, sender:"other", name:"行政", avatar:"全", color:"var(--feiyu-danger-400)", text:"下周一团建活动安排已发布，请查阅。", time:"周三" },
+  ],
+};
+
+/* ── Icon Rail Component ── */
+function IconRail({ active, onNav }) {
+  const navItems = [
+    { key:"chat", icon:"message-square", tip:"消息" },
+    { key:"calendar", icon:"calendar", tip:"日程" },
+    { key:"docs", icon:"file-text", tip:"云文档" },
+    { key:"meeting", icon:"video", tip:"会议" },
+    { key:"workspace", icon:"layout-dashboard", tip:"工作台" },
+  ];
+  return (
+    <div data-component="sidebar-nav" className="sidebar-rail" style={{height:"100vh"}}>
+      <div className="nav-icons">
+        {navItems.map(n => (
+          <div key={n.key} className={"nav-icon" + (active===n.key?" active":"")} onClick={()=>onNav(n.key)} title={n.tip}>
+            <i data-lucide={n.icon} style={{width:"24px",height:"24px"}}></i>
+          </div>
+        ))}
+      </div>
+      <div className="rail-spacer"></div>
+      <div className="rail-bottom">
+        <div className="create-btn" title="创建群聊">
+          <i data-lucide="plus" style={{width:"16px",height:"16px"}}></i>
+        </div>
+        <div className="avatar" style={{background:"var(--feiyu-primary-300)"}} title="我的头像">我</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Conversation List Component ── */
+function ConvList({ convs, activeId, onSelect }) {
+  return (
+    <div data-component="sidebar-nav" className="conv-list" style={{height:"100vh"}}>
+      <div className="search-bar">
+        <input className="search-input" placeholder="搜索消息、文档、联系人..." />
+      </div>
+      <div className="conv-list-scroll">
+        {convs.map(c => (
+          <div key={c.id} className={"conv-item" + (activeId===c.id?" active":"")} onClick={()=>onSelect(c.id)}>
+            <div className="conv-avatar" style={{background:c.color}}>{c.avatar}</div>
+            <div className="conv-info">
+              <div className="uikit-truncate" style={{display:"flex",justifyContent:"space-between"}}>
+                <span className="conv-name">{c.name}</span>
+                <span className="feiyu-caption uikit-nowrap" style={{color:"var(--muted)",marginLeft:"var(--space-2)"}}>{c.time}</span>
+              </div>
+              <div className="conv-preview uikit-truncate">{c.lastMsg}</div>
+            </div>
+            {c.unread > 0 && (
+              <span style={{
+                minWidth:"18px",height:"18px",borderRadius:"var(--radius-full)",background:"var(--color-error)",
+                color:"#fff",fontSize:"var(--font-size-eyebrow)",fontWeight:600,
+                display:"flex",alignItems:"center",justifyContent:"center",padding:"0 5px",flexShrink:0
+              }}>{c.unread}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Chat Bubble Component ── */
+function ChatBubbleRow({ msg }) {
+  const isSelf = msg.sender === "self";
+  return (
+    <div data-component="chat-bubble" className={"msg-group" + (isSelf?" self":"")}>
+      <div className="chat-row" style={{maxWidth:"360px"}}>
+        {!isSelf && (
+          <div className="avatar" style={{background: msg.color || "var(--feiyu-primary-200)",width:"32px",height:"32px",minWidth:"32px"}}>
+            {msg.avatar}
+          </div>
+        )}
+        <div className="chat-content">
+          {!isSelf && <div className="sender-name">{msg.name}</div>}
+          <div className={"chat-bubble " + msg.sender}>
+            <div className="msg-text">{msg.text}</div>
+          </div>
+          <div className="msg-caption">{msg.time}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── File Card Component ── */
+function FileCardMsg({ isSelf }) {
+  return (
+    <div data-component="card" className={"file-card-row msg-group" + (isSelf?" self":"")}>
+      <div className="chat-row" style={{maxWidth:"360px"}}>
+        <div className="chat-content">
+          <div className="card card-file">
+            <div className="card-file-inner">
+              <div className="file-icon">
+                <i data-lucide="file-text" style={{width:"20px",height:"20px",display:"inline-block"}}></i>
+              </div>
+              <div className="file-info">
+                <div className="file-name">Q3产品需求文档.pdf</div>
+                <div className="file-meta">2.4 MB &middot; 今天 10:20</div>
+              </div>
+              <button className="download-btn">下载</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Chat Area Component ── */
+function ChatArea({ conv, msgs }) {
+  const [inputVal, setInputVal] = useState("");
+  const onSend = useCallback(() => { if(inputVal.trim()){setInputVal("");} }, [inputVal]);
+
+  return (
+    <div className="im-chat" style={{height:"100vh"}}>
+      <div className="chat-header">
+        <div className="avatar" style={{background:conv.color, width:"32px",height:"32px",minWidth:"32px"}}>{conv.avatar}</div>
+        <div style={{minWidth:0}}>
+          <div className="chat-header-title uikit-truncate">{conv.name}</div>
+          <div className="chat-header-sub">{conv.online?"在线":"离线"}</div>
+        </div>
+        <div style={{flex:1}}></div>
+        <button className="btn btn-sm btn-ghost"><i data-lucide="phone" style={{width:"16px",height:"16px",display:"inline-block"}}></i></button>
+        <button className="btn btn-sm btn-ghost"><i data-lucide="more-vertical" style={{width:"16px",height:"16px",display:"inline-block"}}></i></button>
+      </div>
+
+      <div className="chat-body">
+        {msgs.map(m => <ChatBubbleRow key={m.id} msg={m} />)}
+        {conv.id===1 && <FileCardMsg isSelf={false} />}
+      </div>
+
+      <div className="compose-bar">
+        <div className="compose-actions">
+          <button className="btn btn-sm btn-ghost"><i data-lucide="smile" style={{width:"18px",height:"18px",display:"inline-block"}}></i></button>
+          <button className="btn btn-sm btn-ghost"><i data-lucide="paperclip" style={{width:"18px",height:"18px",display:"inline-block"}}></i></button>
+        </div>
+        <div className="compose-input" style={{flex:1,minWidth:0}}>
+          <div data-component="input" className="input-wrap" style={{width:"100%",minWidth:0}}>
+            <input placeholder="输入消息..." value={inputVal} onChange={e=>setInputVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")onSend();}} />
+          </div>
+        </div>
+        <div className="compose-actions">
+          <button data-component="button" className="btn btn-md btn-primary" onClick={onSend} disabled={!inputVal.trim()}>发送</button>
+          <button data-component="button" className="btn btn-sm btn-secondary">文件</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── App ── */
+function App() {
+  const [activeConv, setActiveConv] = useState(1);
+  const [activeNav, setActiveNav] = useState("chat");
+  const conv = conversations.find(c=>c.id===activeConv) || conversations[0];
+  const msgs = chatMessages[activeConv] || [];
+
+  return (
+    <div className="im-shell" data-layout-guard="uikit-v1">
+      <IconRail active={activeNav} onNav={setActiveNav} />
+      <ConvList convs={conversations} activeId={activeConv} onSelect={setActiveConv} />
+      <ChatArea conv={conv} msgs={msgs} />
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+lucide.createIcons();
+</script>
+</body>
+</html>
