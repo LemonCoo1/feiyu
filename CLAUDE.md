@@ -22,7 +22,7 @@
 - `src/db/pool.rs` → `create_pool()` 使用 sqlx `PgPool`
 
 **桌面端**（`apps/desktop`）— Tauri v2 + React 18 + Tailwind：
-- `src/App.tsx` → 三栏聊天布局（侧边栏 60px | 会话列表 280px | 聊天窗口）
+- `src/App.tsx` → 三栏聊天布局（侧边栏 54px | 会话列表 280px | 聊天窗口）
 - 使用 Zustand 进行状态管理
 
 **共享类型**（`packages/shared/src/types.ts`）— TypeScript 接口：User、Message、Conversation、Channel、WsMessage、WsMessageType。引用名 `@feiyu/shared`。
@@ -72,6 +72,32 @@ cd packages/shared && pnpm typecheck
 - JWT claims 包含 `sub`（用户 UUID）、`iat`、`exp`；使用 `jsonwebtoken` 编码
 - 未使用 SQLx 编译期检查查询——所有查询均为运行时（`query_as`、`query_scalar`）
 - Axum 状态为 `AuthState { pool, jwt_secret }`，路由间共享
+
+## 前端设计规范
+
+所有前端 UI 开发必须遵循 `design/` 目录下的设计系统规范。关键文件：
+
+- `design/SKILL.md` — 设计系统速查：主色、圆角、阴影、字体、尺寸一览
+- `design/README.md` — 品牌上下文、视觉基础、组件模式完整说明
+- `design/css.json` — 结构化 token 源（颜色、字体、阴影、圆角、间距）
+- `design/colors_and_type.css` — 运行时 CSS 变量（可直接引入，不要手动读取来理解 token）
+- `design/components.css` — 组件聚合样式
+- `design/components/index.json` — 组件索引及跨组件模式
+- `design/preview/` — 各组件 HTML 预览卡
+
+**开发时必须遵守：**
+
+1. **颜色**：使用 CSS 变量 `--feiyu-primary-*`、`--feiyu-surface-*`、`--feiyu-text-*` 等，或 Tailwind 类 `feiyu-primary`、`feiyu-surface` 等。禁止硬编码 hex/rgb 颜色值。
+2. **圆角**：使用 `rounded-feiyu-sm(4px)` / `md(6px)` / `lg(8px)` / `xl(12px)` / `pill(9999px)`。禁止 `rounded-lg`、`rounded-xl` 等 Tailwind 默认值。
+3. **阴影**：使用 `shadow-feiyu-1` ~ `shadow-feiyu-5`。禁止 `shadow-lg`、`shadow-xl` 等。
+4. **字体**：标题使用 `font-display`（Inter），正文使用 `font-body`（PingFang SC），代码使用 `font-mono`。专用尺寸使用 `text-eyebrow`(11px) 和 `text-caption`(12px)。
+5. **图标**：使用 `lucide-react` SVG 图标，禁止使用 emoji 作为 UI 图标。
+6. **间距/尺寸**：遵循 4px 基础单位的 8-pt 网格，输入框/按钮默认 36px 高度。
+7. **语义色**：使用 `feiyu-success`、`feiyu-warning`、`feiyu-danger`、`feiyu-info`，禁止 `text-green-*`、`text-red-*` 等。
+8. **暗色模式**：所有 token 在 `:root.dark` 中有对应值，新增组件必须同时适配亮/暗两种主题。
+9. **叠加层**：使用 `--feiyu-overlay`（30%）、`--feiyu-overlay-light`（20%）、`--feiyu-overlay-heavy`（50%）。禁止 `bg-black/30` 等硬编码透明度。
+
+新增组件或修改现有组件前，先查阅 `design/preview/` 中对应组件的 HTML 预览和 `design/components/` 中的 JSON 契约，确保实现与设计一致。
 
 ## 提交规范
 
