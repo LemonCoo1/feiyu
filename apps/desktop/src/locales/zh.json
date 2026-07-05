@@ -65,6 +65,8 @@
     "sticker": "贴纸",
     "gif": "GIF",
     "read": "已读",
+    "allRead": "全部已读",
+    "groupReadBy": "{{count}} 人已读",
     "file": "文件",
     "dropToSend": "拖拽文件到此处发送",
     "forward": "转发",

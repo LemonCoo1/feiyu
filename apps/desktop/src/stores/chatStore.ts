@@ -65,18 +65,20 @@ interface ChatState {
   isLoadingConvs: boolean;
   isLoadingMsgs: boolean;
   pinnedConversations: Set<string>;
-  lastReadMessageIds: Map<string, string>; // conversationId -> last read message id
+  lastReadMessageIds: Map<string, string>; // conversationId -> last read message id (for DMs)
+  groupReadReceipts: Map<string, Map<string, string[]>>; // conversationId -> (messageId -> userId[])
 
   loadConversations: () => Promise<void>;
   loadMessages: (conversationId: string) => Promise<void>;
   loadMembers: (conversationId: string) => Promise<void>;
+  loadReadReceipts: (conversationId: string) => Promise<void>;
   setActiveConversation: (id: string | null) => void;
   sendMessage: (conversationId: string, content: string) => void;
   sendFile: (conversationId: string, file: File) => Promise<void>;
   sendSticker: (conversationId: string, sticker: { url: string; name: string }) => void;
   sendGif: (conversationId: string, gif: { url: string; name: string }) => void;
   addIncomingMessage: (message: Message) => void;
-  updateLastRead: (conversationId: string, messageId: string) => void;
+  updateLastRead: (conversationId: string, messageId: string, userId?: string) => void;
   createGroup: (name: string, memberIds: string[]) => Promise<void>;
   searchMessages: (query: string) => Promise<void>;
   clearSearch: () => void;
@@ -97,6 +99,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isLoadingMsgs: false,
   pinnedConversations: loadPinned(),
   lastReadMessageIds: new Map(),
+  groupReadReceipts: new Map(),
 
   loadConversations: async () => {
     set({ isLoadingConvs: true });
@@ -182,6 +185,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (msgs.length > 0) {
         wsClient.sendRead(conversationId, msgs[msgs.length - 1].id);
       }
+
+      // 6. 加载群聊已读回执
+      const conv = state.conversations.find((c) => c.id === conversationId);
+      if (conv?.type === "group") {
+        get().loadReadReceipts(conversationId);
+      }
     } catch (e) {
       console.error("[loadMessages] 未知错误:", e);
     } finally {
@@ -199,6 +208,41 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
     } catch (e) {
       console.error("Failed to load members:", e);
+    }
+  },
+
+  loadReadReceipts: async (conversationId) => {
+    try {
+      const receipts = await api.getReadReceipts(conversationId);
+      const conv = get().conversations.find((c) => c.id === conversationId);
+      if (conv?.type !== "group") return;
+
+      // 获取消息列表，用于根据 last_read_message_id 推算每个消息的已读成员
+      const msgs = get().messages.get(conversationId) || [];
+      const msgIndexMap = new Map(msgs.map((m, i) => [m.id, i]));
+      const readByMap = new Map<string, string[]>();
+
+      for (const receipt of receipts) {
+        if (!receipt.last_read_message_id) continue;
+        const readIdx = msgIndexMap.get(receipt.last_read_message_id);
+        if (readIdx === undefined) continue;
+        // 该用户已 readIdx 及之前的所有消息（排除自己发送的消息）
+        for (let i = 0; i <= readIdx; i++) {
+          if (msgs[i].sender_id === receipt.user_id) continue;
+          const arr = readByMap.get(msgs[i].id) || [];
+          if (!arr.includes(receipt.user_id)) {
+            readByMap.set(msgs[i].id, [...arr, receipt.user_id]);
+          }
+        }
+      }
+
+      set((state) => {
+        const newGroupReadReceipts = new Map(state.groupReadReceipts);
+        newGroupReadReceipts.set(conversationId, readByMap);
+        return { groupReadReceipts: newGroupReadReceipts };
+      });
+    } catch (e) {
+      console.error("Failed to load read receipts:", e);
     }
   },
 
@@ -351,11 +395,37 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   clearSearch: () => set({ searchResults: [], isSearching: false }),
 
-  updateLastRead: (conversationId, messageId) => {
+  updateLastRead: (conversationId, messageId, userId?: string) => {
     set((state) => {
       const newMap = new Map(state.lastReadMessageIds);
       newMap.set(conversationId, messageId);
-      return { lastReadMessageIds: newMap };
+
+      // 如果提供了 userId，说明是群聊中其他成员的已读回执，更新 groupReadReceipts
+      const newGroupReadReceipts = new Map(state.groupReadReceipts);
+      if (userId) {
+        const conv = state.conversations.find((c) => c.id === conversationId);
+        if (conv?.type === "group") {
+          const msgs = state.messages.get(conversationId) || [];
+          const readIdx = msgs.findIndex((m) => m.id === messageId);
+          if (readIdx >= 0) {
+            let readByMap = newGroupReadReceipts.get(conversationId);
+            if (!readByMap) {
+              readByMap = new Map();
+              newGroupReadReceipts.set(conversationId, readByMap);
+            }
+            // 标记 readIdx 及之前的所有消息为该用户已读
+            for (let i = 0; i <= readIdx; i++) {
+              if (msgs[i].sender_id === userId) continue;
+              const arr = readByMap.get(msgs[i].id) || [];
+              if (!arr.includes(userId)) {
+                readByMap.set(msgs[i].id, [...arr, userId]);
+              }
+            }
+          }
+        }
+      }
+
+      return { lastReadMessageIds: newMap, groupReadReceipts: newGroupReadReceipts };
     });
   },
 

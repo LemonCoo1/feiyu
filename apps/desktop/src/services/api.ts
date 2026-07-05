@@ -200,6 +200,9 @@ export const api = {
   getConversationMembers: (conversationId: string) =>
     request<any[]>(`/api/conversations/${conversationId}/members`),
 
+  getReadReceipts: (conversationId: string) =>
+    request<{ user_id: string; last_read_message_id: string | null }[]>(`/api/conversations/${conversationId}/read-receipts`),
+
   updateConversation: (conversationId: string, data: { name?: string }) =>
     request<any>(`/api/conversations/${conversationId}`, {
       method: "PATCH",

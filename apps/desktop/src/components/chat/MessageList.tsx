@@ -16,6 +16,7 @@ export function MessageList() {
   const messages = useChatStore((s) => s.messages);
   const conversationMembers = useChatStore((s) => s.conversationMembers);
   const lastReadMessageIds = useChatStore((s) => s.lastReadMessageIds);
+  const groupReadReceipts = useChatStore((s) => s.groupReadReceipts);
   const user = useAuthStore((s) => s.user);
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,6 +36,7 @@ export function MessageList() {
   const memberMap = new Map(members.map((m: any) => [m.user_id, m]));
   const lastReadId = activeId ? lastReadMessageIds.get(activeId) : undefined;
   const lastReadIdx = lastReadId ? msgs.findIndex((m) => m.id === lastReadId) : -1;
+  const convReadReceipts = activeId ? groupReadReceipts.get(activeId) : undefined;
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     if (behavior === "instant") {
@@ -139,7 +141,9 @@ export function MessageList() {
                   recalled={msg.recalled}
                   time={formatTime(msg.created_at)}
                   isOwn={isOwn}
-                  isRead={isOwn && lastReadIdx >= 0 && idx <= lastReadIdx}
+                  isRead={isOwn && !isGroup && lastReadIdx >= 0 && idx <= lastReadIdx}
+                  groupReadBy={isOwn && isGroup ? (convReadReceipts?.get(msg.id) || []) : []}
+                  totalMemberCount={isGroup ? members.length : 0}
                   senderName={senderName}
                   showSender={isGroup && !isOwn}
                   senderId={msg.sender_id}

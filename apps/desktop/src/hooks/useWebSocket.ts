@@ -54,7 +54,8 @@ export function useWebSocket() {
     const handleReadNotify = (payload: any) => {
       const s = useSettingsStore.getState().settings;
       if (!s.privacy_read_receipt) return;
-      updateLastRead(payload.conversation_id, payload.message_id);
+      // 传递 user_id 以便群聊中更新已读回执
+      updateLastRead(payload.conversation_id, payload.message_id, payload.user_id);
     };
 
     const handleMessageRecalled = (payload: { message_id: string; conversation_id: string; user_id: string }) => {

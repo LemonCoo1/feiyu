@@ -1,3 +1,4 @@
+use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -315,6 +316,32 @@ pub async fn assign_admin(
     .await?;
 
     Ok(())
+}
+
+#[derive(Debug, Serialize, sqlx::FromRow)]
+pub struct MemberReadReceipt {
+    pub user_id: Uuid,
+    pub last_read_message_id: Option<Uuid>,
+}
+
+pub async fn get_read_receipts(
+    pool: &PgPool,
+    conversation_id: Uuid,
+) -> Result<Vec<MemberReadReceipt>, ConversationError> {
+    let receipts = sqlx::query_as::<_, MemberReadReceipt>(
+        r#"
+        SELECT cm.user_id, rr.last_read_message_id
+        FROM conversation_members cm
+        LEFT JOIN read_receipts rr
+            ON rr.user_id = cm.user_id AND rr.conversation_id = cm.conversation_id
+        WHERE cm.conversation_id = $1
+        "#,
+    )
+    .bind(conversation_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(receipts)
 }
 
 pub async fn update_name(

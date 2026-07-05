@@ -1,0 +1,19 @@
+pipeline:
+  build-server-image:
+    image: plugins/docker
+    settings:
+      repo: cr.d.cnb.cool/lemoncoo1/feiyu/feiyu-server
+      dockerfile: apps/server/Dockerfile
+      context: .
+      tags:
+        - latest
+        - ${CI_COMMIT_SHA:0:8}
+      username:
+        from_secret: cnb_username
+      password:
+        from_secret: cnb_password
+    when:
+      branch:
+        - master
+      event:
+        - push

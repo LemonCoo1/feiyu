@@ -113,3 +113,6 @@
 - [x] Task 2: create_direct/create_group 成功后通过 Hub 推送 conversation.created 给其他成员
 - [x] Task 3: 前端 chatStore 新增 addConversation action（去重 + 插入列表顶部 + 写缓存）
 - [x] Task 4: useWebSocket 监听 conversation.created 事件，调用 addConversation 实时显示新会话
+
+### Phase 15: 缓存统计修复（2026-07-05）
+- [x] 修复存储管理中缓存统计全部显示为0的问题 — getDetailedCacheStats 空 sizeColumns 生成无效 SQL 导致 Promise.all 全部失败，loadCacheStats 无 try-catch 导致状态未更新

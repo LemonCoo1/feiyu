@@ -83,6 +83,16 @@ pub async fn create_group(
     Ok(Json(conv))
 }
 
+pub async fn get_read_receipts(
+    State(state): State<crate::api::AppState>,
+    Path(conversation_id): Path<Uuid>,
+) -> Result<Json<Vec<conversation::MemberReadReceipt>>, (StatusCode, String)> {
+    conversation::get_read_receipts(&state.pool, conversation_id)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
 pub async fn get_members(
     State(state): State<crate::api::AppState>,
     Path(conversation_id): Path<Uuid>,

@@ -65,6 +65,8 @@
     "sticker": "Sticker",
     "gif": "GIF",
     "read": "Read",
+    "allRead": "All read",
+    "groupReadBy": "{{count}} read",
     "file": "File",
     "dropToSend": "Drop files here to send",
     "forward": "Forward",

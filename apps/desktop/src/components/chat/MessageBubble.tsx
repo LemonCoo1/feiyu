@@ -19,6 +19,8 @@ interface MessageBubbleProps {
   time: string;
   isOwn: boolean;
   isRead?: boolean;
+  groupReadBy?: string[];
+  totalMemberCount?: number;
   senderName: string;
   showSender?: boolean;
   senderId?: string;
@@ -55,7 +57,30 @@ function resolveFileUrl(url: string | undefined): string | undefined {
 
 const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "🎉", "👏"];
 
-export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, senderName, showSender, avatarUrl }: MessageBubbleProps) {
+/** 已读状态指示器（群聊显示已读人数，私聊显示已读文字） */
+function ReadIndicator({ isRead, groupReadBy, totalMemberCount }: {
+  isRead?: boolean;
+  groupReadBy?: string[];
+  totalMemberCount?: number;
+}) {
+  const { t } = useTranslation();
+  if (groupReadBy && groupReadBy.length > 0) {
+    // 群聊：计算其他成员总数（排除发送者自己）
+    const otherMemberCount = (totalMemberCount || 1) - 1;
+    const isAllRead = otherMemberCount > 0 && groupReadBy.length >= otherMemberCount;
+    return (
+      <span className="ml-1 text-feiyu-primary" title={t("chat.groupReadBy", { count: groupReadBy.length })}>
+        {isAllRead ? t("chat.allRead") : `${t("chat.read")} ${groupReadBy.length}`}
+      </span>
+    );
+  }
+  if (isRead) {
+    return <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>;
+  }
+  return null;
+}
+
+export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, groupReadBy, totalMemberCount, senderName, showSender, avatarUrl }: MessageBubbleProps) {
   const { t } = useTranslation();
   const fontSize = useSettingsStore((s) => s.settings.chat_font_size);
   const user = useAuthStore((s) => s.user);
@@ -226,7 +251,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           </div>
           <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
-            {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
+            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} />}
           </div>
         </div>
         {showForward && conversationId && (
@@ -265,7 +290,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           </div>
           <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
-            {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
+            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} />}
           </div>
         </div>
         {showMenu && (

@@ -68,6 +68,10 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
                 .post(conversations::add_member),
         )
         .route(
+            "/api/conversations/{conversation_id}/read-receipts",
+            get(conversations::get_read_receipts),
+        )
+        .route(
             "/api/conversations/{conversation_id}/members/{user_id}",
             delete(conversations::remove_member),
         )
