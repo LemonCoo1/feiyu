@@ -1,5 +1,5 @@
 # ---- Builder ----
-FROM rust:1.82-bookworm AS builder
+FROM rust:1.88-bookworm AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,8 @@ COPY apps/desktop/src-tauri/Cargo.toml apps/desktop/src-tauri/Cargo.toml
 # 创建空 src 以满足 cargo 依赖检查（workspace 其他成员）
 RUN mkdir -p apps/server/src apps/desktop/src-tauri/src && \
     echo "fn main() {}" > apps/server/src/main.rs && \
-    echo "fn main() {}" > apps/desktop/src-tauri/src/main.rs
+    echo "fn main() {}" > apps/desktop/src-tauri/src/main.rs && \
+    echo "" > apps/desktop/src-tauri/src/lib.rs
 
 # 预下载依赖
 RUN cargo build --release -p feiyu-server || true

@@ -65,6 +65,7 @@
     "sticker": "贴纸",
     "gif": "GIF",
     "read": "已读",
+    "unread": "未读",
     "allRead": "全部已读",
     "groupReadBy": "{{count}} 人已读",
     "file": "文件",

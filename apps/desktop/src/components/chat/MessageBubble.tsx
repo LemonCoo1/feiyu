@@ -64,20 +64,24 @@ function ReadIndicator({ isRead, groupReadBy, totalMemberCount }: {
   totalMemberCount?: number;
 }) {
   const { t } = useTranslation();
-  if (groupReadBy && groupReadBy.length > 0) {
-    // 群聊：计算其他成员总数（排除发送者自己）
-    const otherMemberCount = (totalMemberCount || 1) - 1;
-    const isAllRead = otherMemberCount > 0 && groupReadBy.length >= otherMemberCount;
+  const readCount = groupReadBy?.length || 0;
+  const otherMemberCount = (totalMemberCount || 1) - 1;
+  const isGroup = totalMemberCount !== undefined && totalMemberCount > 0;
+
+  if (isGroup) {
+    const isAllRead = otherMemberCount > 0 && readCount >= otherMemberCount;
     return (
-      <span className="ml-1 text-feiyu-primary" title={t("chat.groupReadBy", { count: groupReadBy.length })}>
-        {isAllRead ? t("chat.allRead") : `${t("chat.read")} ${groupReadBy.length}`}
+      <span className={`ml-1 ${readCount > 0 ? "text-feiyu-primary" : "text-feiyu-text-muted"}`}>
+        {isAllRead ? t("chat.allRead") : readCount > 0 ? `${t("chat.read")} ${readCount}` : t("chat.unread")}
       </span>
     );
   }
+
+  // 私聊
   if (isRead) {
     return <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>;
   }
-  return null;
+  return <span className="ml-1 text-feiyu-text-muted">{t("chat.unread")}</span>;
 }
 
 export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, groupReadBy, totalMemberCount, senderName, showSender, avatarUrl }: MessageBubbleProps) {
@@ -417,7 +421,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         )}
         <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
           {time}
-          {isOwn && isRead && <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>}
+          {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} />}
         </div>
       </div>
       {showMenu && (

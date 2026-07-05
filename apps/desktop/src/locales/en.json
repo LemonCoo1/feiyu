@@ -65,6 +65,7 @@
     "sticker": "Sticker",
     "gif": "GIF",
     "read": "Read",
+    "unread": "Unread",
     "allRead": "All read",
     "groupReadBy": "{{count}} read",
     "file": "File",
