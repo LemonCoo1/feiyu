@@ -132,8 +132,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
 
   loadCacheStats: async () => {
-    const stats = await cacheService.getDetailedCacheStats();
-    set({ cacheStats: stats });
+    try {
+      const stats = await cacheService.getDetailedCacheStats();
+      set({ cacheStats: stats });
+    } catch (e) {
+      console.error("Failed to load cache stats:", e);
+    }
   },
 
   clearAllCache: async () => {

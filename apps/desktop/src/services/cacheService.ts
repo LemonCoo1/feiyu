@@ -179,8 +179,11 @@ export async function getDetailedCacheStats(): Promise<DetailedCacheStats> {
       `SELECT COUNT(*) as count FROM ${table}`
     );
     const sizeExpr = sizeColumns.map(c => `COALESCE(LENGTH(${c}), 0)`).join(" + ");
+    const sizeQuery = sizeExpr
+      ? `SELECT COALESCE(SUM(${sizeExpr}), 0) as size FROM ${table}`
+      : `SELECT 0 as size FROM ${table}`;
     const sizeRows = await db.select<{ size: number }[]>(
-      `SELECT COALESCE(SUM(${sizeExpr}), 0) as size FROM ${table}`
+      sizeQuery
     );
     return { count: countRows[0]?.count || 0, sizeBytes: sizeRows[0]?.size || 0 };
   };
