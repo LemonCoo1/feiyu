@@ -279,6 +279,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     );
 
     console.log("[chatStore] addIncomingMessage", { id: message.id, content_type: message.content_type, conversation_id: message.conversation_id });
+
+    const convExists = get().conversations.some((c) => c.id === message.conversation_id);
+    if (!convExists) {
+      get().loadConversations();
+    }
+
     set((state) => {
       const newMessages = new Map(state.messages);
       const convMsgs = newMessages.get(message.conversation_id) || [];
