@@ -22,6 +22,10 @@ async fn main() -> anyhow::Result<()> {
     let pool = db::create_pool(&config.database_url).await?;
     tracing::info!("Database connected");
 
+    // 自动执行数据库迁移（迁移在编译期嵌入二进制）
+    sqlx::migrate!("./migrations").run(&pool).await?;
+    tracing::info!("Database migrations applied");
+
     // 确保 MinIO bucket 存在
     let minio = services::minio::MinioService::new(
         &config.minio_endpoint,
