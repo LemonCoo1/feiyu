@@ -1,7 +1,7 @@
-import { getDb } from "./db";
+import { getDb, getMediaDir } from "./db";
 import { api } from "./api";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { appDataDir, join } from "@tauri-apps/api/path";
+import { join } from "@tauri-apps/api/path";
 import { exists, mkdir, remove, writeFile } from "@tauri-apps/plugin-fs";
 
 interface CachedMessage {
@@ -288,9 +288,9 @@ export async function runAutoCleanup(): Promise<void> {
 
 // === 媒体文件缓存 ===
 
-async function getMediaDir(): Promise<string> {
-  const appData = await appDataDir();
-  return await join(appData, "media");
+async function getMediaDirScoped(): Promise<string> {
+  // 媒体目录按账号隔离，路径由 db 模块统一管理
+  return await getMediaDir();
 }
 
 function urlToFilename(url: string): string {
@@ -315,7 +315,7 @@ export async function getCachedMediaUrl(url: string): Promise<string> {
   }
 
   try {
-    const mediaDir = await getMediaDir();
+    const mediaDir = await getMediaDirScoped();
     const filename = urlToFilename(url);
     const localPath = await join(mediaDir, filename);
 

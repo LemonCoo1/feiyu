@@ -85,6 +85,7 @@ interface ChatState {
   togglePin: (conversationId: string) => void;
   updateConversation: (conversationId: string, data: { name?: string }) => void;
   addConversation: (conv: Conversation) => void;
+  reset: () => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -462,6 +463,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
         console.error("Failed to cache conversations:", e)
       );
       return { conversations: newConvs };
+    });
+  },
+
+  reset: () => {
+    set({
+      conversations: [],
+      messages: new Map(),
+      conversationMembers: new Map(),
+      activeConversationId: null,
+      typingUsers: new Map(),
+      searchResults: [],
+      isSearching: false,
+      lastReadMessageIds: new Map(),
+      groupReadReceipts: new Map(),
     });
   },
 }));

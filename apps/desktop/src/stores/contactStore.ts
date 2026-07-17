@@ -25,6 +25,7 @@ interface ContactState {
   removeContact: (contactId: string) => Promise<void>;
   clearSearch: () => void;
   updatePresence: (userId: string, status: string) => void;
+  reset: () => void;
 }
 
 // 搜索请求序号，用于丢弃过期响应，防止快速输入时旧响应覆盖新响应
@@ -123,6 +124,10 @@ export const useContactStore = create<ContactState>((set, get) => {
           c.id === userId ? { ...c, status } : c
         ),
       }));
+    },
+
+    reset: () => {
+      set({ contacts: [], searchResults: [], isSearching: false, addError: null });
     },
   };
 });

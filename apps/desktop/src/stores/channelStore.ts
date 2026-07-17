@@ -33,6 +33,7 @@ interface ChannelState {
   sendMessage: (channelId: string, content: string) => void;
   addIncomingMessage: (message: ChannelMessage) => void;
   createChannel: (name: string, description?: string) => Promise<void>;
+  reset: () => void;
 }
 
 export const useChannelStore = create<ChannelState>((set, get) => ({
@@ -107,5 +108,9 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
     } catch (e) {
       console.error("Failed to create channel:", e);
     }
+  },
+
+  reset: () => {
+    set({ channels: [], messages: new Map(), activeChannelId: null });
   },
 }));

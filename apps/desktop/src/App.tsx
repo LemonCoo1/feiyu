@@ -51,8 +51,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    cacheService.runAutoCleanup();
-  }, []);
+    // 自动清理依赖当前账号数据库已初始化，放到 user 就绪后再跑
+    if (user) {
+      cacheService.runAutoCleanup();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {

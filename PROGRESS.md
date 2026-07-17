@@ -8,6 +8,14 @@
 
 ## 已完成
 
+### Phase 16: 账号级缓存隔离（2026-07-17）
+- [x] Task 1: 本地 SQLite 改为按账号分库 - `services/db.ts` 用 `Map<userId, Database>` 缓存连接，库路径改为 `<appDataDir>/accounts/<userId>/feiyu.db`，新增 `initDbForUser` / `closeDb` / `getCurrentUserId` / `getMediaDir`
+- [x] Task 2: 媒体目录按账号隔离 - `cacheService` 的 `getMediaDir` 改为复用 db 模块的账号级路径
+- [x] Task 3: 登录/注册/恢复会话时初始化该账号库 - `authStore` 在 set user 前 `await initDbForUser(user.id)`，确保后续缓存读写落到正确库
+- [x] Task 4: 登出时关闭连接 + 重置内存状态 - `logout` 改为 async，`closeDb(user.id)` 释放连接池（保留磁盘数据），三个 store `reset()` 清内存；不再 `clearAllCache`
+- [x] Task 5: 修正 `runAutoCleanup` 时序 - 从挂载即跑改为 `user` 就绪后跑，避免库未初始化
+- [x] Task 6: chatStore/contactStore/channelStore 新增 `reset()` 方法，清空会话/消息/联系人/频道等内存状态
+
 ### Phase 1: 基础框架（2026-06-12）
 - [x] Task 1: 初始化 Monorepo 与 Git
 - [x] Task 2: Docker 基础设施（PostgreSQL、Redis、MinIO）

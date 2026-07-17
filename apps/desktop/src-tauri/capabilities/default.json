@@ -8,10 +8,25 @@
     "shell:allow-open",
     "notification:default",
     "sql:default",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-close",
     "fs:default",
-    "fs:allow-exists",
-    "fs:allow-mkdir",
-    "fs:allow-write-file",
-    "fs:allow-read-file"
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{"path": "$APPDATA/**"}]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [{"path": "$APPDATA/**"}]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [{"path": "$APPDATA/**"}]
+    },
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": [{"path": "$APPDATA/**"}]
+    }
   ]
 }

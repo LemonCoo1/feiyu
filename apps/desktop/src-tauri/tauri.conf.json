@@ -28,9 +28,7 @@
     }
   },
   "plugins": {
-    "sql": {
-      "preload": ["sqlite:feiyu.db"]
-    }
+    "sql": {}
   },
   "bundle": {
     "active": true,
