@@ -163,6 +163,14 @@
     "connected": "已重新连接",
     "waiting": "等待连接..."
   },
+  "imageViewer": {
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "reset": "还原",
+    "rotate": "旋转",
+    "download": "下载",
+    "close": "关闭"
+  },
   "unknownUser": "未知用户",
   "storageSection": {
     "messages": "消息缓存",

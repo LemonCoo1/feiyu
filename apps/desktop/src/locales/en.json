@@ -163,6 +163,14 @@
     "connected": "Reconnected",
     "waiting": "Waiting for connection..."
   },
+  "imageViewer": {
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "reset": "Reset",
+    "rotate": "Rotate",
+    "download": "Download",
+    "close": "Close"
+  },
   "unknownUser": "Unknown User",
   "storageSection": {
     "messages": "Message Cache",

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { File } from "lucide-react";
 import { Avatar } from "../common/Avatar";
+import { ImageViewer } from "../common/ImageViewer";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { getCachedMediaUrl } from "../../services/cacheService";
 import { ForwardModal } from "./ForwardModal";
@@ -99,6 +100,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
   const [showForward, setShowForward] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showImageViewer, setShowImageViewer] = useState(false);
   const [reactions, setReactions] = useState<ReactionItem[]>([]);
 
   const textSizeClass = fontSize === "small" ? "text-xs" : fontSize === "large" ? "text-base" : "text-sm";
@@ -284,7 +286,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
               src={cachedStickerUrl}
               alt={rawContent?.name || (isSticker ? t("chat.sticker") : t("chat.gif"))}
               className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-feiyu-lg hover:opacity-90 transition-opacity`}
-              onClick={() => fileUrl && window.open(fileUrl, "_blank")}
+              onClick={() => fileUrl && setShowImageViewer(true)}
             />
             <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-eyebrow bg-feiyu-overlay-heavy text-white px-1.5 py-0.5 rounded-feiyu-md">
@@ -376,7 +378,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
                 src={cachedImageUrl}
                 alt={rawContent.filename || t("chat.image")}
                 className="max-w-[240px] max-h-[240px] rounded-feiyu-md object-contain cursor-pointer"
-                onClick={() => fileUrl && window.open(fileUrl, "_blank")}
+                onClick={() => fileUrl && setShowImageViewer(true)}
               />
               {rawContent.filename && (
                 <div className={`text-xs mt-1 ${isOwn ? "text-white/70" : "text-feiyu-text-muted"}`}>
@@ -476,6 +478,13 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           content={rawContent}
           content_type={contentType || "text"}
           onClose={() => setShowForward(false)}
+        />
+      )}
+      {showImageViewer && fileUrl && (
+        <ImageViewer
+          url={fileUrl}
+          alt={rawContent?.filename || rawContent?.name}
+          onClose={() => setShowImageViewer(false)}
         />
       )}
     </div>

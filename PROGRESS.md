@@ -124,3 +124,10 @@
 
 ### Phase 15: 缓存统计修复（2026-07-05）
 - [x] 修复存储管理中缓存统计全部显示为0的问题 — getDetailedCacheStats 空 sizeColumns 生成无效 SQL 导致 Promise.all 全部失败，loadCacheStats 无 try-catch 导致状态未更新
+
+### Phase 16: 图片查看器功能（2026-07-18）
+- [x] Task 1: 创建 ImageViewer 组件 — 全屏遮罩、图片居中、缩放/拖拽/旋转功能
+- [x] Task 2: 实现交互功能 — 滚轮缩放、双指缩放、双击放大/还原、键盘快捷键（ESC/Ctrl+/-/Ctrl+0/Ctrl+R）
+- [x] Task 3: 实现工具栏 — 缩放控件、还原、旋转、下载、关闭按钮
+- [x] Task 4: 集成到 MessageBubble — 替换原有的 window.open 为 ImageViewer 弹窗
+- [x] Task 5: 国际化支持 — 添加中英文翻译键（zoomIn/zoomOut/reset/rotate/download/close）
