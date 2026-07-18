@@ -1,0 +1,268 @@
+:root {
+  --feiyu-primary: #3b82f6;
+  --feiyu-primary-hover: #2563eb;
+  --feiyu-primary-light: #dbeafe;
+  --feiyu-bg: #f5f5f5;
+  --feiyu-bg-secondary: #ffffff;
+  --feiyu-card: #ffffff;
+  --feiyu-card-hover: #f9fafb;
+  --feiyu-text: #111827;
+  --feiyu-text-secondary: #6b7280;
+  --feiyu-text-muted: #9ca3af;
+  --feiyu-border: #e5e7eb;
+  --feiyu-success: #22c55e;
+  --feiyu-warning: #f59e0b;
+  --feiyu-danger: #ef4444;
+}
+
+:root.dark {
+  --feiyu-primary: #60a5fa;
+  --feiyu-primary-hover: #3b82f6;
+  --feiyu-primary-light: #1e3a5f;
+  --feiyu-bg: #111827;
+  --feiyu-bg-secondary: #1f2937;
+  --feiyu-card: #1f2937;
+  --feiyu-card-hover: #374151;
+  --feiyu-text: #f9fafb;
+  --feiyu-text-secondary: #d1d5db;
+  --feiyu-text-muted: #6b7280;
+  --feiyu-border: #374151;
+  --feiyu-success: #4ade80;
+  --feiyu-warning: #fbbf24;
+  --feiyu-danger: #f87171;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--feiyu-bg);
+  color: var(--feiyu-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+input, textarea {
+  font-size: 16px !important;
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--feiyu-bg);
+}
+
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--feiyu-card);
+  border-bottom: 1px solid var(--feiyu-border);
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px;
+}
+
+.chat-input-area {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--feiyu-card);
+  border-top: 1px solid var(--feiyu-border);
+  padding: 8px 12px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  word-break: break-word;
+}
+
+.message-bubble-mine {
+  background-color: var(--feiyu-primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message-bubble-other {
+  background-color: var(--feiyu-card);
+  color: var(--feiyu-text);
+  border-bottom-left-radius: 4px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--feiyu-success);
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 2px solid var(--feiyu-card);
+}
+
+/* Ant Design Mobile 深色模式适配 */
+:root.dark {
+  --adm-color-background: #111827;
+  --adm-color-background-secondary: #1f2937;
+  --adm-color-text: #f9fafb;
+  --adm-color-text-secondary: #d1d5db;
+  --adm-color-text-tertiary: #6b7280;
+  --adm-color-border: #374151;
+  --adm-color-light: #1f2937;
+  --adm-color-white: #1f2937;
+  --adm-color-box: #1f2937;
+  --adm-color-highlight: var(--feiyu-primary);
+}
+
+:root.dark .adm-list {
+  background-color: var(--feiyu-card);
+  --border-color: var(--feiyu-border);
+}
+
+:root.dark .adm-list-item {
+  background-color: var(--feiyu-card);
+  color: var(--feiyu-text);
+  --border-color: var(--feiyu-border);
+}
+
+:root.dark .adm-list-item-content {
+  border-bottom-color: var(--feiyu-border);
+}
+
+:root.dark .adm-list-item-description {
+  color: var(--feiyu-text-muted);
+}
+
+:root.dark .adm-list-item-extra {
+  color: var(--feiyu-text-muted);
+}
+
+:root.dark .adm-list-header {
+  color: var(--feiyu-text-muted);
+}
+
+/* Switch 深色模式 */
+:root.dark .adm-switch {
+  --background-color: #374151;
+  --background-color-checked: var(--feiyu-primary);
+  --border-color: #4b5563;
+  --handle-background-color: #f9fafb;
+  --handle-border-color: transparent;
+  --handle-border-color-checked: transparent;
+}
+
+:root.dark .adm-switch-checkbox {
+  --background-color: #374151;
+  --background-color-checked: var(--feiyu-primary);
+}
+
+:root.dark .adm-switch-body {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+:root.dark .adm-switch.adm-switch-checked .adm-switch-body {
+  background: var(--feiyu-primary);
+  border-color: var(--feiyu-primary);
+}
+
+:root.dark .adm-switch-handle {
+  background: #f9fafb;
+}
+
+:root.dark .adm-nav-bar {
+  background-color: var(--feiyu-card);
+  color: var(--feiyu-text);
+}
+
+:root.dark .adm-nav-bar-title {
+  color: var(--feiyu-text);
+}
+
+:root.dark .adm-tab-bar {
+  background-color: var(--feiyu-card);
+}
+
+:root.dark .adm-tab-bar-item {
+  color: var(--feiyu-text-muted);
+}
+
+:root.dark .adm-tab-bar-item-active {
+  color: var(--feiyu-primary);
+}
+
+:root.dark .adm-input {
+  color: var(--feiyu-text);
+}
+
+:root.dark .adm-input::placeholder {
+  color: var(--feiyu-text-muted);
+}
+
+:root.dark .adm-search-bar {
+  background-color: var(--feiyu-bg-secondary);
+}
+
+:root.dark .adm-check-list-item {
+  color: var(--feiyu-text);
+}
+
+:root.dark .adm-empty-description {
+  color: var(--feiyu-text-muted);
+}
+
+:root.dark .adm-dialog {
+  background-color: var(--feiyu-card);
+}
+
+:root.dark .adm-dialog-body {
+  color: var(--feiyu-text);
+}
+
+:root.dark .adm-toast {
+  --adm-toast-text-color: var(--feiyu-text);
+}
