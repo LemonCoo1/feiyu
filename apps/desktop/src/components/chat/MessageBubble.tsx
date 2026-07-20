@@ -199,7 +199,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     return (
       <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
         <Avatar name={senderName} url={avatarUrl} size="sm" />
-        <div>
+        <div className="w-fit max-w-full min-w-0">
           {showSender && (
             <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
@@ -238,13 +238,13 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     return (
       <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
         <Avatar name={senderName} url={avatarUrl} size="sm" />
-        <div>
+        <div className="w-fit max-w-full min-w-0">
           {showSender && (
             <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
           <div
             onContextMenu={handleContextMenu}
-            className={`px-3 py-2 rounded-feiyu-lg text-sm leading-relaxed select-text ${
+            className={`px-3 py-2 rounded-feiyu-lg text-sm leading-relaxed break-words select-text ${
               isOwn
                 ? "bg-feiyu-bubble-own text-white"
                 : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
@@ -275,7 +275,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     return (
       <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
         <Avatar name={senderName} url={avatarUrl} size="sm" />
-        <div>
+        <div className="w-fit max-w-full min-w-0">
           {showSender && (
             <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
@@ -358,13 +358,13 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
   return (
     <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
       <Avatar name={senderName} url={avatarUrl} size="sm" />
-      <div>
+      <div className="w-fit max-w-full min-w-0">
         {showSender && (
           <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
         )}
         <div
           onContextMenu={handleContextMenu}
-          className={`px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed ${
+          className={`px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed break-words ${
             isOwn
               ? "bg-feiyu-bubble-own text-white"
               : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
