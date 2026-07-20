@@ -8,6 +8,12 @@
 
 ## 已完成
 
+### Phase 18: 群聊消息已读详情（2026-07-20）
+- [x] Task 1: 新建 `ReadReceiptPopover` 浮层组件 — 分两栏列出已读/未读成员（头像 + 姓名），点击外部/Esc 关闭，边界自适应定位
+- [x] Task 2: 改造 `MessageBubble.ReadIndicator` — 群聊消息旁圆形按钮（已读成员头像堆叠 + 数字角标，无已读时 EyeOff 图标，全部已读时 Check 图标），点击弹出已读详情；私聊保持原文字样式
+- [x] Task 3: 补充中英文文案 — readTitle/unreadTitle/readEmpty/unreadEmpty
+- [x] Task 4: 类型检查通过（`tsc --noEmit` 无新增错误）
+
 ### Phase 16: 账号级缓存隔离（2026-07-17）
 - [x] Task 1: 本地 SQLite 改为按账号分库 - `services/db.ts` 用 `Map<userId, Database>` 缓存连接，库路径改为 `<appDataDir>/accounts/<userId>/feiyu.db`，新增 `initDbForUser` / `closeDb` / `getCurrentUserId` / `getMediaDir`
 - [x] Task 2: 媒体目录按账号隔离 - `cacheService` 的 `getMediaDir` 改为复用 db 模块的账号级路径

@@ -1,11 +1,13 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { File } from "lucide-react";
+import { File, Check, EyeOff } from "lucide-react";
 import { Avatar } from "../common/Avatar";
 import { ImageViewer } from "../common/ImageViewer";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useChatStore } from "../../stores/chatStore";
 import { getCachedMediaUrl } from "../../services/cacheService";
 import { ForwardModal } from "./ForwardModal";
+import { ReadReceiptPopover } from "./ReadReceiptPopover";
 import { wsClient } from "../../services/ws";
 import { getServerUrl } from "../../services/serverConfig";
 import { useAuthStore } from "../../stores/authStore";
@@ -58,34 +60,157 @@ function resolveFileUrl(url: string | undefined): string | undefined {
 
 const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🔥", "🎉", "👏"];
 
-/** 已读状态指示器（群聊显示已读人数，私聊显示已读文字） */
-function ReadIndicator({ isRead, groupReadBy, totalMemberCount }: {
+// 稳定空数组引用，避免 zustand selector 每次返回新引用触发无限重渲染
+const EMPTY_MEMBERS: Array<{
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  status: string;
+  role: string;
+  joined_at: string;
+}> = [];
+
+/** 已读状态指示器（私聊显示文字；群聊显示可点击圆形按钮，点击展开已读/未读成员列表） */
+function ReadIndicator({ isRead, groupReadBy, totalMemberCount, conversationId, senderId }: {
   isRead?: boolean;
   groupReadBy?: string[];
   totalMemberCount?: number;
+  conversationId?: string;
+  senderId?: string;
 }) {
   const { t } = useTranslation();
   const readCount = groupReadBy?.length || 0;
   const otherMemberCount = (totalMemberCount || 1) - 1;
   const isGroup = totalMemberCount !== undefined && totalMemberCount > 0;
 
-  if (isGroup) {
-    const isAllRead = otherMemberCount > 0 && readCount >= otherMemberCount;
-    return (
-      <span className={`ml-1 ${readCount > 0 ? "text-feiyu-primary" : "text-feiyu-text-muted"}`}>
-        {isAllRead ? t("chat.allRead") : readCount > 0 ? `${t("chat.read")} ${readCount}` : t("chat.unread")}
-      </span>
-    );
+  const [showPopover, setShowPopover] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+
+  // 从 store 取群成员信息（用于头像和姓名展示）。
+  // 注意：fallback 必须用稳定引用，否则 zustand v5 的 Object.is 比较会判定为变化，造成无限重渲染。
+  const members = useChatStore((s) =>
+    conversationId ? (s.conversationMembers.get(conversationId) ?? EMPTY_MEMBERS) : EMPTY_MEMBERS
+  );
+
+  const memberMap = new Map(members.map((m) => [m.user_id, m]));
+  const readIds = isGroup ? (groupReadBy || []) : [];
+  // 未读 = 群成员 - 已读 - 发送者自己
+  const unreadIds = isGroup
+    ? members
+        .filter((m) => m.user_id !== senderId && !readIds.includes(m.user_id))
+        .map((m) => m.user_id)
+    : [];
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (btnRef.current) {
+      setAnchorRect(btnRef.current.getBoundingClientRect());
+    }
+    setShowPopover((v) => !v);
+  };
+
+  // 私聊：保持原文字样式
+  if (!isGroup) {
+    if (isRead) {
+      return <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>;
+    }
+    return <span className="ml-1 text-feiyu-text-muted">{t("chat.unread")}</span>;
   }
 
-  // 私聊
-  if (isRead) {
-    return <span className="ml-1 text-feiyu-primary">{t("chat.read")}</span>;
-  }
-  return <span className="ml-1 text-feiyu-text-muted">{t("chat.unread")}</span>;
+  // 群聊：圆形按钮
+  const isAllRead = otherMemberCount > 0 && readCount >= otherMemberCount;
+  const readMembers = readIds
+    .map((id) => memberMap.get(id))
+    .filter((m): m is NonNullable<typeof m> => !!m)
+    .slice(0, 2); // 最多展示 2 个头像堆叠
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        onClick={handleClick}
+        title={
+          isAllRead
+            ? t("chat.allRead")
+            : `${t("chat.readTitle")} ${readCount} · ${t("chat.unreadTitle")} ${otherMemberCount - readCount}`
+        }
+        className={`ml-1 inline-flex items-center gap-1 h-5 pl-0.5 pr-1.5 rounded-feiyu-pill border transition-colors align-middle ${
+          readCount > 0
+            ? "border-feiyu-primary/30 bg-feiyu-primary-light/50 text-feiyu-primary hover:bg-feiyu-primary-light"
+            : "border-feiyu-border bg-feiyu-surface-container text-feiyu-text-muted hover:bg-feiyu-surface-container-high"
+        }`}
+      >
+        {readCount > 0 ? (
+          <span className="flex -space-x-1.5">
+            {readMembers.map((m) => {
+              const name = m.display_name || m.username || t("unknownUser");
+              return (
+                <span
+                  key={m.user_id}
+                  className="w-4 h-4 rounded-full overflow-hidden border border-feiyu-card bg-feiyu-surface-container"
+                >
+                  {m.avatar_url ? (
+                    <img
+                      src={m.avatar_url}
+                      alt={name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="w-full h-full flex items-center justify-center text-[8px] text-white font-semibold"
+                      style={{
+                        backgroundColor: avatarColorFor(name),
+                      }}
+                    >
+                      {name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </span>
+              );
+            })}
+          </span>
+        ) : (
+          <EyeOff size={11} className="flex-shrink-0" />
+        )}
+        <span className="text-eyebrow font-medium leading-none">
+          {isAllRead ? (
+            <Check size={11} className="inline" />
+          ) : (
+            readCount
+          )}
+        </span>
+      </button>
+      {showPopover && anchorRect && (
+        <ReadReceiptPopover
+          anchorRect={anchorRect}
+          readUserIds={readIds}
+          unreadUserIds={unreadIds}
+          members={members}
+          onClose={() => setShowPopover(false)}
+        />
+      )}
+    </>
+  );
 }
 
-export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, groupReadBy, totalMemberCount, senderName, showSender, avatarUrl }: MessageBubbleProps) {
+/** 与 Avatar 组件保持一致的色板，用于无头像成员的占位色块 */
+const AVATAR_COLORS = [
+  "#3b82f6", "#10b981", "#f59e0b", "#06b6d4", "#f43f5e", "#8b5cf6",
+];
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
+}
+function avatarColorFor(name: string): string {
+  return AVATAR_COLORS[hashCode(name) % AVATAR_COLORS.length];
+}
+
+export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, groupReadBy, totalMemberCount, senderName, showSender, senderId, avatarUrl }: MessageBubbleProps) {
   const { t } = useTranslation();
   const fontSize = useSettingsStore((s) => s.settings.chat_font_size);
   const user = useAuthStore((s) => s.user);
@@ -257,7 +382,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           </div>
           <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
-            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} />}
+            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
           </div>
         </div>
         {showForward && conversationId && (
@@ -296,7 +421,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           </div>
           <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
-            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} />}
+            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
           </div>
         </div>
         {showMenu && (
@@ -423,7 +548,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         )}
         <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
           {time}
-          {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} />}
+          {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
         </div>
       </div>
       {showMenu && (
