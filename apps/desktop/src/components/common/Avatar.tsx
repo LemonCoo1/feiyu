@@ -1,8 +1,16 @@
+import { getServerUrl } from "../../services/serverConfig";
+
 interface AvatarProps {
   name: string;
   url?: string | null;
   size?: "sm" | "md" | "lg" | "xl";
   online?: boolean;
+}
+
+/** 将相对路径（如 /api/files/xxx）拼接为完整 URL；已是完整 URL 则原样返回 */
+function resolveFileUrl(url: string): string {
+  if (/^(https?:|blob:|data:)/.test(url)) return url;
+  return `${getServerUrl()}${url}`;
 }
 
 // 400 级饱和色：深色侧边栏上足够亮，浅色会话列表上足够饱和，白色文字清晰可读
@@ -43,7 +51,7 @@ export function Avatar({ name, url, size = "md", online }: AvatarProps) {
     <div className="relative flex-shrink-0">
       {url ? (
         <img
-          src={url}
+          src={resolveFileUrl(url)}
           alt={name}
           className={`${sizeMap[size]} rounded-full object-cover`}
         />

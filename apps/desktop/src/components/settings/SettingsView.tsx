@@ -8,6 +8,13 @@ import { getServerUrl } from "../../services/serverConfig";
 
 type SettingsSection = "profile" | "theme" | "notifications" | "privacy" | "chat" | "language" | "storage" | "shortcuts" | "security" | "about";
 
+// 给头像 URL 加上版本号以破除浏览器缓存（同一 key 覆盖时强制刷新）
+function appendCacheBust(url: string, version: number): string {
+  if (!url) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return version > 0 ? `${url}${sep}v=${version}` : url;
+}
+
 export function SettingsView() {
   const { t } = useTranslation();
   const [active, setActive] = useState<SettingsSection>("profile");
@@ -77,6 +84,8 @@ function ProfileSection() {
   const [displayName, setDisplayName] = useState(user?.display_name || "");
   const [saved, setSaved] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [avatarVersion, setAvatarVersion] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
@@ -86,6 +95,7 @@ function ProfileSection() {
   };
 
   const handleAvatarClick = () => {
+    setUploadError(null);
     fileInputRef.current?.click();
   };
 
@@ -93,6 +103,7 @@ function ProfileSection() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError(null);
     try {
       const formData = new FormData();
       formData.append("avatar", file);
@@ -102,23 +113,32 @@ function ProfileSection() {
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (res.ok) {
-        const data = await res.json();
-        // 更新本地 user 状态
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-          const u = JSON.parse(userStr);
-          u.avatar_url = data.avatar_url;
-          localStorage.setItem("user", JSON.stringify(u));
-        }
-        window.location.reload();
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`${res.status} ${text || res.statusText}`.trim());
       }
-    } catch (err) {
+      const data = await res.json();
+      // 同步更新 localStorage 与 zustand store
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const u = JSON.parse(userStr);
+        u.avatar_url = data.avatar_url;
+        localStorage.setItem("user", JSON.stringify(u));
+        useAuthStore.setState({ user: u });
+      }
+      setAvatarVersion((v) => v + 1);
+    } catch (err: any) {
       console.error("Avatar upload failed:", err);
+      setUploadError(err?.message || t("settings.profileSection.uploadFailed"));
     } finally {
       setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
+
+  const avatarUrl = user?.avatar_url
+    ? appendCacheBust(user.avatar_url, avatarVersion)
+    : undefined;
 
   return (
     <div>
@@ -126,8 +146,8 @@ function ProfileSection() {
 
       <div className="flex items-center gap-4 mb-8">
         <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-          <Avatar name={user?.display_name || user?.username || "?"} size="lg" />
-          <div className="absolute inset-0 bg-feiyu-overlay-heavy rounded-feiyu-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <Avatar name={user?.display_name || user?.username || "?"} url={avatarUrl} size="lg" />
+          <div className="absolute inset-0 bg-feiyu-overlay-heavy rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <span className="text-white text-xs">{uploading ? "..." : t("settings.profileSection.uploadAvatar")}</span>
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
@@ -135,6 +155,8 @@ function ProfileSection() {
         <div>
           <div className="text-sm font-medium text-feiyu-text">{user?.display_name || user?.username}</div>
           <div className="text-xs text-feiyu-text-muted">@{user?.username}</div>
+          {uploading && <div className="text-xs text-feiyu-text-muted mt-1">{t("settings.profileSection.uploading")}</div>}
+          {uploadError && <div className="text-xs text-feiyu-danger mt-1">{uploadError}</div>}
         </div>
       </div>
 

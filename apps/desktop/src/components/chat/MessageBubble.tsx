@@ -153,7 +153,7 @@ function ReadIndicator({ isRead, groupReadBy, totalMemberCount, conversationId, 
                 >
                   {m.avatar_url ? (
                     <img
-                      src={m.avatar_url}
+                      src={resolveFileUrl(m.avatar_url)}
                       alt={name}
                       className="w-full h-full object-cover"
                     />

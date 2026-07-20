@@ -218,7 +218,9 @@
       "email": "邮箱",
       "save": "保存",
       "saved": "已保存",
-      "uploadAvatar": "更换头像"
+      "uploadAvatar": "更换头像",
+      "uploading": "上传中…",
+      "uploadFailed": "头像上传失败"
     },
     "themeSection": {
       "title": "外观主题",
