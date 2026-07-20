@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @feiyu/desktop dev",
+    "dev:mobile": "pnpm --filter @feiyu/mobile dev",
     "build": "pnpm --filter @feiyu/desktop build",
+    "build:mobile": "pnpm --filter @feiyu/mobile build",
     "server": "cargo run -p feiyu-server"
   },
   "engines": {

@@ -24,6 +24,12 @@
       "protocol": "Must start with http:// or https://"
     }
   },
+  "tab": {
+    "messages": "Messages",
+    "contacts": "Contacts",
+    "channels": "Channels",
+    "settings": "Settings"
+  },
   "nav": {
     "profile": "Profile",
     "messages": "Messages",
@@ -197,16 +203,23 @@
   },
   "settings": {
     "title": "Settings",
+    "general": "General",
     "profile": "Profile",
     "theme": "Appearance",
+    "darkMode": "Dark Mode",
     "notifications": "Notifications",
+    "enableNotifications": "Enable Notifications",
     "privacy": "Privacy",
+    "readReceipts": "Read Receipts",
     "chat": "Chat",
     "language": "Language",
     "storage": "Storage",
     "shortcuts": "Shortcuts",
     "security": "Security",
     "about": "About",
+    "version": "Version 0.1.0",
+    "logout": "Sign Out",
+    "logoutConfirm": "Are you sure you want to sign out?",
     "profileSection": {
       "nickname": "Nickname",
       "nicknamePlaceholder": "Set your nickname",

@@ -24,6 +24,12 @@
       "protocol": "必须以 http:// 或 https:// 开头"
     }
   },
+  "tab": {
+    "messages": "消息",
+    "contacts": "通讯录",
+    "channels": "频道",
+    "settings": "设置"
+  },
   "nav": {
     "profile": "个人信息",
     "messages": "消息",
@@ -197,16 +203,23 @@
   },
   "settings": {
     "title": "设置",
+    "general": "通用",
     "profile": "账号资料",
     "theme": "外观主题",
-    "notifications": "通知设置",
-    "privacy": "隐私设置",
+    "darkMode": "深色模式",
+    "notifications": "通知",
+    "enableNotifications": "开启通知",
+    "privacy": "隐私",
+    "readReceipts": "已读回执",
     "chat": "聊天设置",
     "language": "语言",
     "storage": "存储管理",
     "shortcuts": "快捷键",
     "security": "账号安全",
     "about": "关于",
+    "version": "版本 0.1.0",
+    "logout": "退出登录",
+    "logoutConfirm": "确定退出登录？",
     "profileSection": {
       "nickname": "昵称",
       "nicknamePlaceholder": "设置你的昵称",
