@@ -75,7 +75,7 @@ export function ConversationList() {
   };
 
   return (
-    <div className="w-[280px] bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
+    <div className="w-full h-full bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
       <div className="border-b border-feiyu-border flex items-center">
         <div className="flex-1">
           <SearchBar />

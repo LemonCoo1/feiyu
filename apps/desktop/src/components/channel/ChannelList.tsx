@@ -23,7 +23,7 @@ export function ChannelList() {
   };
 
   return (
-    <div className="w-[280px] bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
+    <div className="w-full h-full bg-feiyu-surface-container border-r border-feiyu-border flex flex-col">
       <div className="px-4 py-3 border-b border-feiyu-border flex justify-between items-center">
         <h2 className="font-medium text-feiyu-text">{t("channel.title")}</h2>
         <button

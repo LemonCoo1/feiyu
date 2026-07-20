@@ -4,7 +4,9 @@ import { Search, Pin, Users } from "lucide-react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { GroupInfoPanel } from "./GroupInfoPanel";
+import { ResizeHandle } from "../common/ResizeHandle";
 import { useChatStore } from "../../stores/chatStore";
+import { useResizable } from "../../hooks/useResizable";
 
 export function ChatWindow() {
   const { t } = useTranslation();
@@ -19,6 +21,15 @@ export function ChatWindow() {
   const clearSearch = useChatStore((s) => s.clearSearch);
   const sendFile = useChatStore((s) => s.sendFile);
   const [dragOver, setDragOver] = useState(false);
+
+  const inputResize = useResizable({
+    storageKey: "feiyu_chat_input_height",
+    defaultSize: 128,
+    min: 80,
+    max: 400,
+    direction: "vertical",
+    invert: true,
+  });
 
   const conv = conversations.find((c) => c.id === activeId);
   const isGroup = conv?.type === "group";
@@ -154,7 +165,11 @@ export function ChatWindow() {
       )}
 
       <MessageList />
-      <MessageInput />
+      <ResizeHandle
+        direction="vertical"
+        onMouseDown={inputResize.onMouseDown}
+      />
+      <MessageInput height={inputResize.size} />
 
       {showGroupInfo && conv && (
         <GroupInfoPanel

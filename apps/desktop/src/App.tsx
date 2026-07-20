@@ -8,6 +8,7 @@ import { ContactList } from "./components/contact/ContactList";
 import { ChannelList } from "./components/channel/ChannelList";
 import { ChannelView } from "./components/channel/ChannelView";
 import { SettingsView } from "./components/settings/SettingsView";
+import { ResizeHandle } from "./components/common/ResizeHandle";
 import { useAuthStore } from "./stores/authStore";
 import { useChatStore } from "./stores/chatStore";
 import { useContactStore } from "./stores/contactStore";
@@ -15,6 +16,7 @@ import { useChannelStore } from "./stores/channelStore";
 import { useSettingsStore } from "./stores/settingsStore";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useTheme } from "./hooks/useTheme";
+import { useResizable } from "./hooks/useResizable";
 import { DebugPanel } from "./components/common/DebugPanel";
 import { ConnectionBanner } from "./components/common/ConnectionBanner";
 import { wsClient } from "./services/ws";
@@ -37,6 +39,14 @@ function App() {
   const loadSettings = useSettingsStore((s) => s.loadSettings);
 
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("connected");
+
+  const sidebarResize = useResizable({
+    storageKey: "feiyu_sidebar_width",
+    defaultSize: 280,
+    min: 200,
+    max: 480,
+    direction: "horizontal",
+  });
 
   useWebSocket();
   useTheme();
@@ -77,7 +87,16 @@ function App() {
         <NavSidebar activeView={activeView} onViewChange={setActiveView} />
         {activeView === "messages" && (
           <>
-            <ConversationList />
+            <div
+              style={{ width: sidebarResize.size }}
+              className="flex-shrink-0 h-full"
+            >
+              <ConversationList />
+            </div>
+            <ResizeHandle
+              direction="horizontal"
+              onMouseDown={sidebarResize.onMouseDown}
+            />
             <ChatWindow />
           </>
         )}
@@ -86,7 +105,16 @@ function App() {
         )}
         {activeView === "channels" && (
           <>
-            <ChannelList />
+            <div
+              style={{ width: sidebarResize.size }}
+              className="flex-shrink-0 h-full"
+            >
+              <ChannelList />
+            </div>
+            <ResizeHandle
+              direction="horizontal"
+              onMouseDown={sidebarResize.onMouseDown}
+            />
             <ChannelView />
           </>
         )}

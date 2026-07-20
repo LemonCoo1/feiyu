@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, ClipboardEvent, KeyboardEvent } from "react";
+import { useState, useRef, ClipboardEvent, KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Smile, Paperclip, Image, File, Film } from "lucide-react";
 import { useChatStore } from "../../stores/chatStore";
@@ -6,7 +6,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useConnectionStatus } from "../../hooks/useWebSocket";
 import { EmojiPicker } from "./EmojiPicker";
 
-export function MessageInput() {
+export function MessageInput({ height }: { height: number }) {
   const { t } = useTranslation();
   const connectionStatus = useConnectionStatus();
   const isDisconnected = connectionStatus !== 'connected';
@@ -21,17 +21,6 @@ export function MessageInput() {
   const sendFile = useChatStore((s) => s.sendFile);
   const sendSticker = useChatStore((s) => s.sendSticker);
   const chatSendKey = useSettingsStore((s) => s.settings.chat_send_key);
-
-  const adjustHeight = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 200) + "px";
-  }, []);
-
-  useEffect(() => {
-    adjustHeight();
-  }, [text, adjustHeight]);
 
   const handleEmojiSelect = (emoji: string) => {
     setText((prev) => prev + emoji);
@@ -112,8 +101,11 @@ export function MessageInput() {
     : "";
 
   return (
-    <div className="border-t border-feiyu-border px-5 py-3 bg-feiyu-surface">
-      <div className="flex items-center gap-2 mb-2 text-feiyu-text-muted relative">
+    <div
+      className="border-t border-feiyu-border px-5 py-3 bg-feiyu-surface flex flex-col"
+      style={{ height }}
+    >
+      <div className="flex items-center gap-2 mb-2 text-feiyu-text-muted relative flex-shrink-0">
         <button className="hover:text-feiyu-text transition-colors" title={t("chat.emojiAndSticker")} onClick={() => setShowEmoji(!showEmoji)}>
           <Smile size={20} />
         </button>
@@ -152,7 +144,7 @@ export function MessageInput() {
 
       {/* File preview */}
       {pendingFile && (
-        <div className="mb-2 flex items-center gap-2 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-md px-3 py-2">
+        <div className="mb-2 flex items-center gap-2 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-md px-3 py-2 flex-shrink-0">
           {isGif ? <Film size={18} className="text-feiyu-text-muted" /> : isImage ? <Image size={18} className="text-feiyu-text-muted" /> : <File size={18} className="text-feiyu-text-muted" />}
           <div className="flex-1 min-w-0">
             <div className="text-sm text-feiyu-text truncate">{pendingFile.name}</div>
@@ -167,7 +159,7 @@ export function MessageInput() {
         </div>
       )}
 
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-2 items-stretch flex-1 min-h-0">
         <textarea
           ref={textareaRef}
           value={text}
@@ -178,7 +170,6 @@ export function MessageInput() {
           disabled={isDisconnected}
           rows={1}
           className="flex-1 bg-feiyu-surface-dim border border-feiyu-border rounded-feiyu-lg px-3 py-2.5 text-sm text-feiyu-text resize-none focus:outline-none focus:border-feiyu-primary focus:ring-2 focus:ring-feiyu-primary/15 overflow-y-auto placeholder:text-feiyu-text-muted scrollbar-none disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ maxHeight: "200px" }}
         />
         <button
           onClick={handleSend}
@@ -188,7 +179,7 @@ export function MessageInput() {
           {t("chat.send")}
         </button>
       </div>
-      <div className="mt-1 text-caption text-feiyu-text-muted select-none">
+      <div className="mt-1 text-caption text-feiyu-text-muted select-none flex-shrink-0">
         {chatSendKey === "ctrl+enter"
           ? t("chat.hintCtrlEnter")
           : t("chat.hintEnter")
