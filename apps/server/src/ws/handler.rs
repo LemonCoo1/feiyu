@@ -209,6 +209,15 @@ async fn handle_client_message(text: &str, user_id: Uuid, pool: &PgPool, hub: &H
             conversation_id,
             message_id,
         } => {
+            // 确保会话成员已在 hub 中注册（冷会话也能正常送达已读通知）
+            let members = crate::services::conversation::get_members(pool, conversation_id)
+                .await
+                .unwrap_or_default();
+            if !members.is_empty() {
+                let member_ids: Vec<Uuid> = members.iter().map(|m| m.user_id).collect();
+                hub.register_conversation(conversation_id, member_ids).await;
+            }
+
             let _ = sqlx::query(
                 r#"
                 INSERT INTO read_receipts (user_id, conversation_id, last_read_message_id, updated_at)

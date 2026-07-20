@@ -85,8 +85,17 @@ pub async fn create_group(
 
 pub async fn get_read_receipts(
     State(state): State<crate::api::AppState>,
+    headers: HeaderMap,
     Path(conversation_id): Path<Uuid>,
 ) -> Result<Json<Vec<conversation::MemberReadReceipt>>, (StatusCode, String)> {
+    let user_id = extract_user_id(&headers, &state.config.jwt_secret)?;
+    // 鉴权：调用方必须是该会话的成员
+    let role = conversation::get_member_role(&state.pool, conversation_id, user_id)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    if role.is_none() {
+        return Err((StatusCode::FORBIDDEN, "Not a member of this conversation".to_string()));
+    }
     conversation::get_read_receipts(&state.pool, conversation_id)
         .await
         .map(Json)
