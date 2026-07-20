@@ -106,7 +106,7 @@ pub fn router(pool: PgPool, config: &Config) -> Router {
         .route("/api/channels/{channel_id}/join", post(channels::join))
         .route("/api/channels/{channel_id}/messages", get(channels::get_messages))
         .route("/api/files/upload", post(files::upload))
-        .route("/api/files/{filename}", get(files::download))
+        .route("/api/files/{*filename}", get(files::download))
         .route(
             "/api/messages/{message_id}/reactions",
             get(reactions::get_reactions).post(reactions::add_reaction),

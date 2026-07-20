@@ -159,7 +159,8 @@ pub async fn upload_avatar(
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
-    let url = state.minio_service.get_url(&key);
+    // 通过后端代理下载，不暴露 MinIO 直连 URL
+    let url = format!("/api/files/{}", key);
 
     // 更新用户 avatar_url
     sqlx::query("UPDATE users SET avatar_url = $1, updated_at = NOW() WHERE id = $2")

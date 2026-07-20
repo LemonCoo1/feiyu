@@ -2,7 +2,6 @@ use anyhow::Result;
 use s3::bucket::Bucket;
 use s3::creds::Credentials;
 use s3::Region;
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct MinioService {
@@ -60,13 +59,10 @@ impl MinioService {
         Ok(())
     }
 
-    /// 上传文件到 MinIO，返回 object key
+    /// 上传文件到 MinIO，使用传入的 filename 作为 object key（保留路径前缀）。
+    /// 调用方负责保证 key 的唯一性（例如带 UUID 或 user_id）。
     pub async fn save(&self, filename: &str, data: &[u8]) -> Result<String> {
-        let ext = std::path::Path::new(filename)
-            .extension()
-            .and_then(|e| e.to_str())
-            .unwrap_or("bin");
-        let key = format!("{}.{}", Uuid::new_v4(), ext);
+        let key = filename.to_string();
 
         let content_type = guess_mime(filename);
         self.bucket

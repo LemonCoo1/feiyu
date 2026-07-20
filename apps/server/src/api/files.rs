@@ -4,6 +4,7 @@ use axum::http::StatusCode;
 use axum::response::Response;
 use axum::Json;
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct UploadResponse {
@@ -58,9 +59,16 @@ pub async fn upload(
             .await
             .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
 
+        // 生成唯一 key，保留原扩展名
+        let ext = std::path::Path::new(&file_name)
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("bin");
+        let key = format!("{}.{}", Uuid::new_v4(), ext);
+
         let key = state
             .minio_service
-            .save(&file_name, &data)
+            .save(&key, &data)
             .await
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
