@@ -227,7 +227,9 @@
       "email": "Email",
       "save": "Save",
       "saved": "Saved",
-      "uploadAvatar": "Change Avatar"
+      "uploadAvatar": "Change Avatar",
+      "uploading": "Uploading…",
+      "uploadFailed": "Avatar upload failed"
     },
     "themeSection": {
       "title": "Appearance",

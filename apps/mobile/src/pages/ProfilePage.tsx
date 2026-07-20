@@ -85,7 +85,7 @@ export function ProfilePage() {
       setAvatarVersion((v) => v + 1);
       Toast.show({ content: t("settings.profileSection.saved"), position: "center" });
     } catch (err: any) {
-      Toast.show({ content: err?.message || "Upload failed", position: "center" });
+      Toast.show({ content: err?.message || t("settings.profileSection.uploadFailed"), position: "center" });
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
