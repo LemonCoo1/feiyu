@@ -324,13 +324,13 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
   // 已撤回消息显示
   if (isRecalled) {
     return (
-      <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
+      <div className={`flex gap-2 w-fit max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
         <Avatar name={senderName} url={avatarUrl} size="sm" />
         <div className="w-fit max-w-full min-w-0">
           {showSender && (
             <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
-          <div className="bg-feiyu-surface-container border border-feiyu-border rounded-feiyu-lg px-4 py-2.5 text-feiyu-text-muted text-sm italic">
+          <div className={`w-fit ${isOwn ? "ml-auto" : ""} bg-feiyu-surface-container border border-feiyu-border rounded-feiyu-lg px-4 py-2.5 text-feiyu-text-muted text-sm italic`}>
             {t("chat.recalled")}
           </div>
           <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
@@ -363,28 +363,32 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
     }
 
     return (
-      <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
+      <>
+      <div className={`flex gap-2 w-fit max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
         <Avatar name={senderName} url={avatarUrl} size="sm" />
         <div className="w-fit max-w-full min-w-0">
           {showSender && (
             <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
-          <div
-            onContextMenu={handleContextMenu}
-            className={`px-3 py-2 rounded-feiyu-lg text-sm leading-relaxed break-words select-text ${
-              isOwn
-                ? "bg-feiyu-bubble-own text-white"
-                : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
-            }`}
-          >
-            <div className="text-eyebrow opacity-70 mb-0.5">{t("chat.forwarded")}</div>
-            {forwardedText}
+          <div className={`flex items-end gap-1 w-fit ${isOwn ? "ml-auto" : ""}`}>
+            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
+            <div
+              onContextMenu={handleContextMenu}
+              className={`w-fit px-3 py-2 rounded-feiyu-lg text-sm leading-relaxed break-words select-text ${
+                isOwn
+                  ? "bg-feiyu-bubble-own text-white"
+                  : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
+              }`}
+            >
+              <div className="text-eyebrow opacity-70 mb-0.5">{t("chat.forwarded")}</div>
+              {forwardedText}
+            </div>
           </div>
           <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
             {time}
-            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
           </div>
         </div>
+      </div>
         {showForward && conversationId && (
           <ForwardModal
             conversationId={conversationId}
@@ -393,38 +397,42 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
             onClose={() => setShowForward(false)}
           />
         )}
-      </div>
+      </>
     );
   }
 
   // 贴纸和 GIF 不使用气泡样式
   if (isSticker || isGif) {
     return (
-      <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
+      <>
+      <div className={`flex gap-2 w-fit max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
         <Avatar name={senderName} url={avatarUrl} size="sm" />
         <div className="w-fit max-w-full min-w-0">
           {showSender && (
             <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
           )}
-          <div className="relative group" onContextMenu={handleContextMenu}>
-            <img
-              src={cachedStickerUrl}
-              alt={rawContent?.name || (isSticker ? t("chat.sticker") : t("chat.gif"))}
-              className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-feiyu-lg hover:opacity-90 transition-opacity`}
-              onClick={() => fileUrl && setShowImageViewer(true)}
-            />
-            <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-eyebrow bg-feiyu-overlay-heavy text-white px-1.5 py-0.5 rounded-feiyu-md">
-                {isSticker ? t("chat.sticker") : t("chat.gif")}
-              </span>
+          <div className={`flex items-end gap-1 w-fit ${isOwn ? "ml-auto" : ""}`}>
+            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
+            <div className="relative group" onContextMenu={handleContextMenu}>
+              <img
+                src={cachedStickerUrl}
+                alt={rawContent?.name || (isSticker ? t("chat.sticker") : t("chat.gif"))}
+                className={`${isSticker ? "w-28 h-28" : "max-w-[200px] max-h-[200px]"} object-contain cursor-pointer rounded-feiyu-lg hover:opacity-90 transition-opacity`}
+                onClick={() => fileUrl && setShowImageViewer(true)}
+              />
+              <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-eyebrow bg-feiyu-overlay-heavy text-white px-1.5 py-0.5 rounded-feiyu-md">
+                  {isSticker ? t("chat.sticker") : t("chat.gif")}
+                </span>
+              </div>
             </div>
           </div>
-          <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
-            {time}
-            {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
-          </div>
         </div>
-        {showMenu && (
+        <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
+          {time}
+        </div>
+      </div>
+      {showMenu && (
           <div
             className="fixed bg-feiyu-card rounded-feiyu-lg shadow-feiyu-4 border border-feiyu-border py-1 z-40"
             style={{ left: menuPos.x, top: menuPos.y }}
@@ -478,25 +486,28 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
             onClose={() => setShowForward(false)}
           />
         )}
-      </div>
+      </>
     );
   }
 
   return (
-    <div className={`flex gap-2 max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
+    <>
+    <div className={`flex gap-2 w-fit max-w-[70%] ${isOwn ? "ml-auto flex-row-reverse" : ""}`}>
       <Avatar name={senderName} url={avatarUrl} size="sm" />
       <div className="w-fit max-w-full min-w-0">
         {showSender && (
           <div className="text-caption text-feiyu-text-muted mb-0.5">{senderName}</div>
         )}
-        <div
-          onContextMenu={handleContextMenu}
-          className={`px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed break-words ${
-            isOwn
-              ? "bg-feiyu-bubble-own text-white"
-              : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
-          } ${isImage || isFile ? "select-none" : "select-text"}`}
-        >
+        <div className={`flex items-end gap-1 w-fit ${isOwn ? "ml-auto" : ""}`}>
+          {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
+          <div
+            onContextMenu={handleContextMenu}
+            className={`w-fit px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed break-words ${
+              isOwn
+                ? "bg-feiyu-bubble-own text-white"
+                : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
+            } ${isImage || isFile ? "select-none" : "select-text"}`}
+          >
           {isImage && rawContent?.url ? (
             <div>
               <img
@@ -524,6 +535,7 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           ) : (
             content
           )}
+          </div>
         </div>
         {reactions.length > 0 && (
           <div className={`flex flex-wrap gap-1 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
@@ -548,9 +560,9 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         )}
         <div className={`text-caption text-feiyu-text-muted mt-0.5 ${isOwn ? "text-right" : ""}`}>
           {time}
-          {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
         </div>
       </div>
+    </div>
       {showMenu && (
         <div
           className="fixed bg-feiyu-card rounded-feiyu-lg shadow-feiyu-4 border border-feiyu-border py-1 z-40"
@@ -612,6 +624,6 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
           onClose={() => setShowImageViewer(false)}
         />
       )}
-    </div>
+    </>
   );
 }
