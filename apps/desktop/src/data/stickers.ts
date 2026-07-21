@@ -12,8 +12,6 @@ export interface StickerPack {
   stickers: Sticker[];
 }
 
-const BASE = "/stickers";
-
 export const STICKER_PACKS: StickerPack[] = [];
 
 /** 搜索贴纸 */
