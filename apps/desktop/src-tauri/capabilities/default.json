@@ -12,6 +12,7 @@
     "sql:allow-select",
     "sql:allow-close",
     "fs:default",
+    "dialog:default",
     {
       "identifier": "fs:allow-exists",
       "allow": [{"path": "$APPDATA/**"}]

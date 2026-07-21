@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { invoke } from "@tauri-apps/api/core";
 import { X, ZoomIn, ZoomOut, RotateCw, Download, Maximize } from "lucide-react";
 
 interface ImageViewerProps {
@@ -17,8 +18,23 @@ export function ImageViewer({ url, alt, onClose }: ImageViewerProps) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [initialDistance, setInitialDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(1);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [toast, setToast] = useState<{ kind: "info" | "success" | "error"; text: string } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = useCallback((kind: "info" | "success" | "error", text: string) => {
+    setToast({ kind, text });
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
 
   // 重置变换
   const resetTransform = useCallback(() => {
@@ -45,15 +61,35 @@ export function ImageViewer({ url, alt, onClose }: ImageViewerProps) {
     setRotation(prev => (prev + 90) % 360);
   }, []);
 
-  // 下载图片
-  const handleDownload = useCallback(() => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = alt || "image";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [url, alt]);
+  // 下载图片：通过 Tauri Rust 命令拉取字节 + 弹原生保存框 + 写入本地
+  const handleDownload = useCallback(async () => {
+    if (isDownloading) return;
+
+    // 从 url / alt 推断文件名
+    const ext = (() => {
+      const m = url.match(/\.([a-zA-Z0-9]+)(?:$|[?#])/);
+      return m ? m[1].toLowerCase() : "";
+    })();
+    const base = (alt && alt.trim()) ? alt.trim() : "image";
+    const suggestedName = ext ? `${base}.${ext}` : base;
+
+    setIsDownloading(true);
+    try {
+      const result = await invoke<string | null>("download_image", {
+        url,
+        suggestedName,
+      });
+      if (result) {
+        showToast("success", t("imageViewer.downloadSuccess", { path: result }));
+      } else {
+        showToast("info", t("imageViewer.downloadCanceled"));
+      }
+    } catch (e) {
+      showToast("error", t("imageViewer.downloadFailed", { error: String(e) }));
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [url, alt, isDownloading, t, showToast]);
 
   // 键盘事件处理
   useEffect(() => {
@@ -259,12 +295,28 @@ export function ImageViewer({ url, alt, onClose }: ImageViewerProps) {
         
         <button
           onClick={handleDownload}
-          className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 rounded-feiyu-lg transition-colors"
-          title={t("imageViewer.download")}
+          disabled={isDownloading}
+          className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 rounded-feiyu-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
+          title={isDownloading ? t("imageViewer.downloading") : t("imageViewer.download")}
         >
-          <Download size={20} />
+          <Download size={20} className={isDownloading ? "animate-pulse" : undefined} />
         </button>
       </div>
+
+      {/* 下载状态提示 */}
+      {toast && (
+        <div
+          className={`absolute bottom-24 left-1/2 -translate-x-1/2 px-4 py-2 rounded-feiyu-lg text-sm shadow-feiyu-3 backdrop-blur-md max-w-[80vw] ${
+            toast.kind === "success"
+              ? "bg-feiyu-success/90 text-white"
+              : toast.kind === "error"
+              ? "bg-feiyu-danger/90 text-white"
+              : "bg-feiyu-overlay-heavy text-white"
+          }`}
+        >
+          {toast.text}
+        </div>
+      )}
 
       {/* 关闭按钮 */}
       <button

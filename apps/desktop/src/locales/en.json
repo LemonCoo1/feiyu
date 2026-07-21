@@ -174,7 +174,11 @@
     "reset": "Reset",
     "rotate": "Rotate",
     "download": "Download",
-    "close": "Close"
+    "close": "Close",
+    "downloading": "Downloading…",
+    "downloadSuccess": "Saved to: {{path}}",
+    "downloadCanceled": "Download canceled",
+    "downloadFailed": "Download failed: {{error}}"
   },
   "unknownUser": "Unknown User",
   "storageSection": {
