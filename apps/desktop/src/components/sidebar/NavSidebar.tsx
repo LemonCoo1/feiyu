@@ -27,7 +27,7 @@ export function NavSidebar({ activeView, onViewChange }: NavSidebarProps) {
           className="mb-2 transition-transform hover:scale-105"
           title={t("nav.profile")}
         >
-          <Avatar name={displayName} size="md" />
+          <Avatar name={displayName} url={user?.avatar_url} size="md" />
         </button>
         <NavItem
           icon={<MessageSquare size={20} />}

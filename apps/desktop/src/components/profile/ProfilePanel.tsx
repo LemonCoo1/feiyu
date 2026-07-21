@@ -33,7 +33,7 @@ export function ProfilePanel({ onClose, onOpenSettings }: ProfilePanelProps) {
     >
       {/* User info */}
       <div className="p-4 flex items-center gap-3 border-b border-feiyu-border">
-        <Avatar name={user.display_name || user.username || "?"} size="md" />
+        <Avatar name={user.display_name || user.username || "?"} url={user.avatar_url} size="md" />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium text-feiyu-text truncate">
             {user.display_name || user.username}
