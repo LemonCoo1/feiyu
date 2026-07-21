@@ -21,4 +21,26 @@ export default defineConfig(async () => ({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom"],
+          "vendor-icons": ["lucide-react"],
+          "vendor-i18n": [
+            "i18next",
+            "react-i18next",
+            "i18next-browser-languagedetector",
+          ],
+          "vendor-tauri": [
+            "@tauri-apps/api",
+            "@tauri-apps/plugin-fs",
+            "@tauri-apps/plugin-shell",
+            "@tauri-apps/plugin-sql",
+          ],
+        },
+      },
+    },
+  },
 }));

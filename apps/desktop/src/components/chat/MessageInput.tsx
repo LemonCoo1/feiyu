@@ -1,10 +1,11 @@
-import { useState, useRef, ClipboardEvent, KeyboardEvent } from "react";
+import { useState, useRef, lazy, Suspense, ClipboardEvent, KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Smile, Paperclip, Image } from "lucide-react";
 import { useChatStore } from "../../stores/chatStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useConnectionStatus } from "../../hooks/useWebSocket";
-import { EmojiPicker } from "./EmojiPicker";
+
+const EmojiPicker = lazy(() => import("./EmojiPicker").then(m => ({ default: m.EmojiPicker })));
 
 export function MessageInput({ height }: { height: number }) {
   const { t } = useTranslation();
@@ -90,7 +91,9 @@ export function MessageInput({ height }: { height: number }) {
           <Smile size={20} />
         </button>
         {showEmoji && (
-          <EmojiPicker onSelect={handleEmojiSelect} onStickerSelect={handleStickerSelect} onClose={() => setShowEmoji(false)} />
+          <Suspense fallback={<div className="w-[352px] h-[400px] bg-feiyu-card rounded-feiyu-xl shadow-feiyu-5 animate-pulse" />}>
+            <EmojiPicker onSelect={handleEmojiSelect} onStickerSelect={handleStickerSelect} onClose={() => setShowEmoji(false)} />
+          </Suspense>
         )}
         <button
           className="hover:text-feiyu-text transition-colors"

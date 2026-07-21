@@ -1,4 +1,5 @@
-use tauri::{Manager, RunEvent};
+#[allow(unused_imports)]
+use tauri::Manager;
 
 /// 下载图片到本地：拉取远程字节 -> 弹原生保存对话框 -> 写入文件。
 /// 返回 Ok(Some(path)) 表示已保存；Ok(None) 表示用户取消。
@@ -48,16 +49,13 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![download_image])
-        .setup(|app| {
+        .setup(|_app| {
             // macOS: Cmd+W 隐藏窗口（后台运行），而非关闭退出
             #[cfg(target_os = "macos")]
-            {
-                let window = app.get_webview_window("main").unwrap();
-                let window_clone = window.clone();
+            if let Some(window) = _app.get_webview_window("main") {
                 window.on_window_event(move |event| {
                     if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                         api.prevent_close();
-                        let _ = window_clone.hide();
                     }
                 });
             }
@@ -66,11 +64,11 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
 
-    app.run(|app_handle, event| {
+    app.run(|_app_handle, _event| {
         // macOS: 点击 Dock 图标重新显示窗口
         #[cfg(target_os = "macos")]
-        if let RunEvent::Reopen { .. } = event {
-            if let Some(window) = app_handle.get_webview_window("main") {
+        if let tauri::RunEvent::Reopen { .. } = _event {
+            if let Some(window) = _app_handle.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
             }
