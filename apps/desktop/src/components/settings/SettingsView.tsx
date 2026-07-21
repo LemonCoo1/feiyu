@@ -728,9 +728,11 @@ function AboutSection() {
       <h3 className="text-lg font-bold text-feiyu-text mb-6 font-display">{t("settings.aboutSection.title")}</h3>
       <div className="space-y-4">
         <div className="bg-feiyu-surface-dim rounded-feiyu-xl p-6 text-center">
-          <div className="w-16 h-16 rounded-feiyu-xl bg-feiyu-primary flex items-center justify-center text-white text-3xl font-bold mx-auto mb-3">
-            F
-          </div>
+          <img
+            src="/logo.svg"
+            alt={t("app.name")}
+            className="w-16 h-16 rounded-feiyu-xl mx-auto mb-3 shadow-feiyu-2"
+          />
           <h2 className="text-xl font-bold text-feiyu-text font-display">{t("app.name")}</h2>
           <p className="text-sm text-feiyu-text-muted mt-1">{t("settings.aboutSection.version")}</p>
         </div>

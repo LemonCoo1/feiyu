@@ -1,0 +1,14 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="飞鱼 logo">
+  <defs>
+    <linearGradient id="feiyu-logo-bg" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1456F0"/>
+      <stop offset="100%" stop-color="#4A82F3"/>
+    </linearGradient>
+    <linearGradient id="feiyu-logo-fish" x1="0" y1="50" x2="0" y2="215" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#C5D9FC"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#feiyu-logo-bg)"/>
+  <path fill="url(#feiyu-logo-fish)" d="M 128 50 C 146 56 150 80 148 100 C 175 115 205 145 226 175 C 195 158 168 148 148 142 C 150 165 144 185 138 200 L 148 215 L 128 200 L 108 215 L 118 200 C 112 185 106 165 108 142 C 88 148 61 158 30 175 C 51 145 81 115 108 100 C 106 80 110 56 128 50 Z"/>
+</svg>

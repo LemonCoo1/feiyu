@@ -211,9 +211,11 @@ function AuthScreen({
     <div className="h-screen w-screen flex items-center justify-center bg-feiyu-bg">
       <div className="bg-feiyu-surface rounded-feiyu-xl shadow-feiyu-4 p-8 w-[360px]">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-feiyu-xl bg-feiyu-primary flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
-            F
-          </div>
+          <img
+            src="/logo.svg"
+            alt={t("app.name")}
+            className="w-14 h-14 rounded-feiyu-xl mx-auto mb-3 shadow-feiyu-2"
+          />
           <h1 className="text-xl font-bold text-feiyu-text font-display">{t("app.name")}</h1>
           <p className="text-sm text-feiyu-text-muted mt-1">
             {mode === "login" ? t("auth.loginSubtitle") : t("auth.registerSubtitle")}
