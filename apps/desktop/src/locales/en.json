@@ -73,6 +73,7 @@
     "readEmpty": "No reads yet",
     "unreadEmpty": "All read",
     "file": "File",
+    "download": "Download",
     "dropToSend": "Drop files here to send",
     "forward": "Forward",
     "forwarded": "[Forwarded]",

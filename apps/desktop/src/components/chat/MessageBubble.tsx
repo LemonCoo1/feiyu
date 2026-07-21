@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { File, Check, EyeOff } from "lucide-react";
+import { File, Check, EyeOff, Download } from "lucide-react";
 import { Avatar } from "../common/Avatar";
 import { ImageViewer } from "../common/ImageViewer";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -208,6 +208,24 @@ function hashCode(str: string): number {
 }
 function avatarColorFor(name: string): string {
   return AVATAR_COLORS[hashCode(name) % AVATAR_COLORS.length];
+}
+
+/** 从文件名提取扩展名并映射为可读的文件类型标签 */
+function fileTypeLabel(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
+  const typeMap: Record<string, string> = {
+    pdf: "PDF",
+    doc: "DOC", docx: "DOCX",
+    xls: "XLS", xlsx: "XLSX",
+    ppt: "PPT", pptx: "PPTX",
+    zip: "ZIP", rar: "RAR", "7z": "7Z", tar: "TAR", gz: "GZ",
+    txt: "TXT", md: "Markdown",
+    fig: "Figma", psd: "PSD", ai: "AI", sketch: "Sketch",
+    mp3: "MP3", wav: "WAV", flac: "FLAC",
+    mp4: "MP4", mov: "MOV", avi: "AVI", mkv: "MKV",
+    json: "JSON", csv: "CSV", xml: "XML",
+  };
+  return typeMap[ext] || (ext ? ext.toUpperCase() : "FILE");
 }
 
 export function MessageBubble({ messageId, conversationId, content, contentType, rawContent, recalled, time, isOwn, isRead, groupReadBy, totalMemberCount, senderName, showSender, senderId, avatarUrl }: MessageBubbleProps) {
@@ -500,42 +518,56 @@ export function MessageBubble({ messageId, conversationId, content, contentType,
         )}
         <div className={`flex items-end gap-1 w-fit ${isOwn ? "ml-auto" : ""}`}>
           {isOwn && <ReadIndicator isRead={isRead} groupReadBy={groupReadBy} totalMemberCount={totalMemberCount} conversationId={conversationId} senderId={senderId} />}
-          <div
-            onContextMenu={handleContextMenu}
-            className={`w-fit px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed break-words ${
-              isOwn
-                ? "bg-feiyu-bubble-own text-white"
-                : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
-            } ${isImage || isFile ? "select-none" : "select-text"}`}
-          >
-          {isImage && rawContent?.url ? (
-            <div>
-              <img
-                src={cachedImageUrl}
-                alt={rawContent.filename || t("chat.image")}
-                className="max-w-[240px] max-h-[240px] rounded-feiyu-md object-contain cursor-pointer"
-                onClick={() => fileUrl && setShowImageViewer(true)}
-              />
-              {rawContent.filename && (
-                <div className={`text-xs mt-1 ${isOwn ? "text-white/70" : "text-feiyu-text-muted"}`}>
-                  {rawContent.filename}
-                </div>
-              )}
-            </div>
-          ) : isFile && rawContent?.url ? (
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-2 underline ${isOwn ? "text-white" : "text-feiyu-primary"}`}
+          {isFile && rawContent?.url ? (
+            <div
+              onContextMenu={handleContextMenu}
+              className="flex items-center gap-3 bg-feiyu-surface border border-feiyu-border rounded-feiyu-lg p-3 min-w-[260px] max-w-[340px] select-none"
             >
-              <File size={14} className="flex-shrink-0" />
-              <span>{rawContent.filename || t("chat.file")}</span>
-            </a>
+              <div className="flex-shrink-0 w-10 h-10 rounded-feiyu-md bg-feiyu-surface-container-high flex items-center justify-center text-feiyu-primary">
+                <File size={20} />
+              </div>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="text-sm text-feiyu-text break-all line-clamp-2">{rawContent.filename || t("chat.file")}</div>
+                <div className="text-caption text-feiyu-text-muted mt-0.5">{fileTypeLabel(rawContent.filename || "")}</div>
+              </div>
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-caption text-feiyu-primary border border-feiyu-border rounded-feiyu-sm px-2 py-1 flex-shrink-0 hover:bg-feiyu-surface-container-high transition-colors"
+              >
+                <Download size={14} />
+                {t("chat.download")}
+              </a>
+            </div>
           ) : (
-            content
+            <div
+              onContextMenu={handleContextMenu}
+              className={`w-fit px-3 py-2 rounded-feiyu-lg ${textSizeClass} leading-relaxed break-words ${
+                isOwn
+                  ? "bg-feiyu-bubble-own text-white"
+                  : "bg-feiyu-bubble-other text-feiyu-text shadow-feiyu-1"
+              } ${isImage ? "select-none" : "select-text"}`}
+            >
+            {isImage && rawContent?.url ? (
+              <div>
+                <img
+                  src={cachedImageUrl}
+                  alt={rawContent.filename || t("chat.image")}
+                  className="max-w-[240px] max-h-[240px] rounded-feiyu-md object-contain cursor-pointer"
+                  onClick={() => fileUrl && setShowImageViewer(true)}
+                />
+                {rawContent.filename && (
+                  <div className={`text-xs mt-1 ${isOwn ? "text-white/70" : "text-feiyu-text-muted"}`}>
+                    {rawContent.filename}
+                  </div>
+                )}
+              </div>
+            ) : (
+              content
+            )}
+            </div>
           )}
-          </div>
         </div>
         {reactions.length > 0 && (
           <div className={`flex flex-wrap gap-1 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
