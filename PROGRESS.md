@@ -137,3 +137,6 @@
 - [x] Task 3: 实现工具栏 — 缩放控件、还原、旋转、下载、关闭按钮
 - [x] Task 4: 集成到 MessageBubble — 替换原有的 window.open 为 ImageViewer 弹窗
 - [x] Task 5: 国际化支持 — 添加中英文翻译键（zoomIn/zoomOut/reset/rotate/download/close）
+
+### Phase 17: 应用图标更新（2026-07-21）
+- [x] 更新应用图标，添加多平台支持 — 更新桌面端图标，添加 Android/iOS 平台图标资源
